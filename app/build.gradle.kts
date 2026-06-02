@@ -44,6 +44,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("prod.base.url") ?: ""}\"")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
