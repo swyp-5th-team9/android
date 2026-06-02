@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -38,6 +39,13 @@ android {
         compose = true
     }
 }
+ktlint {
+    android = true
+    coloredOutput = true
+    verbose = true
+    outputToConsole = true
+}
+
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
