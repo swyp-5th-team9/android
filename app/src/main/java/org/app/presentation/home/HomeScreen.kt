@@ -57,7 +57,7 @@ private fun HomeScreen(
             is UiState.Success -> {
                 DummyUserListColumn(
                     dummyUsers = uiState.dummyUsersLoadState.data,
-                    modifier = modifier,
+                    modifier = Modifier,
                 )
             }
         }
