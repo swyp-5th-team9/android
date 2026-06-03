@@ -25,6 +25,7 @@ class HomeViewModel
 
         fun fetchDummyUsers() =
             viewModelScope.launch {
+                updateDummyUiState(UiState.Loading)
                 dummyRepository
                     .fetchDummyUserList(page = 2)
                     .onSuccess { userList ->
