@@ -1,4 +1,5 @@
 package org.app.core.network.di
+
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -13,7 +14,6 @@ import org.app.BuildConfig
 import org.app.BuildConfig.BASE_URL
 import org.app.core.network.isJsonArray
 import org.app.core.network.isJsonObject
-import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -45,11 +45,15 @@ object NetworkModule {
         HttpLoggingInterceptor { message ->
             when {
                 message.isJsonObject() -> {
-                    Timber.tag(LOGGING_TAG).d(JSONObject(message).toString(4))
+                    runCatching { JSONObject(message).toString(4) }
+                        .onSuccess { Timber.tag(LOGGING_TAG).d(it) }
+                        .onFailure { Timber.tag(LOGGING_TAG).d(message) }
                 }
 
                 message.isJsonArray() -> {
-                    Timber.tag(LOGGING_TAG).d(JSONArray(message).toString(4))
+                    runCatching { JSONObject(message).toString(4) }
+                        .onSuccess { Timber.tag(LOGGING_TAG).d(it) }
+                        .onFailure { Timber.tag(LOGGING_TAG).d(message) }
                 }
 
                 else -> {
