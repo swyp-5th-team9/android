@@ -3,11 +3,14 @@ package org.app.data.local.datasource.impl
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.app.core.local.datastore.di.TokenDataStore
 import org.app.data.local.datasource.api.LocalTokenDataSource
+import java.io.IOException
 import javax.inject.Inject
 
 class LocalTokenDataSourceImpl
@@ -17,13 +20,17 @@ class LocalTokenDataSourceImpl
     ) : LocalTokenDataSource {
         override suspend fun getAccessToken(): String? =
             dataStore.data
-                .map { prefs ->
+                .catch { exception ->
+                    if (exception is IOException) emit(emptyPreferences()) else throw exception
+                }.map { prefs ->
                     prefs[ACCESS_TOKEN]
                 }.firstOrNull()
 
         override suspend fun getRefreshToken(): String? =
             dataStore.data
-                .map { prefs ->
+                .catch { exception ->
+                    if (exception is IOException) emit(emptyPreferences()) else throw exception
+                }.map { prefs ->
                     prefs[REFRESH_TOKEN]
                 }.firstOrNull()
 
