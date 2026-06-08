@@ -83,12 +83,9 @@ fun MapScreen(modifier: Modifier = Modifier) {
     val mapView = remember { MapView(context) }
 
     DisposableEffect(lifecycleOwner) {
+        mapView.onCreate(null)
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    mapView.onCreate(null)
-                }
-
                 Lifecycle.Event.ON_START -> {
                     mapView.onStart()
                 }
