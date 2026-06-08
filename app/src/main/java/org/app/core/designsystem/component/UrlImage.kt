@@ -11,7 +11,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.app.R
+import com.moball.app.R
 
 /**
  * URL을 통해 이미지를 비동기로 로드하여 표시하는 Composable입니다.
