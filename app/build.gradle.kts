@@ -19,7 +19,8 @@ val properties = Properties().apply {
 }
 val naverClientId = properties.getProperty("naver_client_id")
     ?: providers.gradleProperty("NAVER_CLIENT_ID").orNull
-    ?: throw org.gradle.api.GradleException("NAVER_CLIENT_ID가 설정되지 않았습니다.")
+    ?: System.getenv("NAVER_CLIENT_ID")
+    ?: ""
 
 android {
     namespace = "com.moball.app"
