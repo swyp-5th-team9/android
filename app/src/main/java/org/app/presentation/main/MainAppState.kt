@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import org.app.core.extension.stateInWhileSubscribed
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.navigateToHome
+import org.app.presentation.map.navigation.navigateToMap
 
 @Stable
 class MainAppState(
@@ -78,6 +79,10 @@ class MainAppState(
         when (tab) {
             MainTab.HOME -> {
                 navController.navigateToHome(navOptions = navOptions)
+            }
+
+            MainTab.MAP -> {
+                navController.navigateToMap(navOptions = navOptions)
             }
 
             MainTab.Dummy -> {}
