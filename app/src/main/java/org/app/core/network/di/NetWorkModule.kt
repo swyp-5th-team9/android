@@ -1,6 +1,8 @@
 package org.app.core.network.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.moball.app.BuildConfig
+import com.moball.app.BuildConfig.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,8 +12,6 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.app.BuildConfig
-import org.app.BuildConfig.BASE_URL
 import org.app.core.network.isJsonArray
 import org.app.core.network.isJsonObject
 import org.json.JSONObject

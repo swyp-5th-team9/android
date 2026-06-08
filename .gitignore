@@ -29,3 +29,4 @@ local.properties
 .idea/vcs.xml
 .idea/planningMode.xml
 .idea/git_toolbox_prj.xml
+.idea/ktlint-plugin.xml

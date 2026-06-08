@@ -2,24 +2,32 @@ package org.app.presentation.main
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import org.app.R.drawable.ic_launcher_background
-import org.app.R.string.home
+import com.moball.app.R.drawable.ic_launcher_background
+import com.moball.app.R.string.home
+import com.moball.app.R.string.map
 import org.app.core.common.navigation.MainTabRoute
 import org.app.core.common.navigation.Route
 import org.app.presentation.home.navigation.Home
+import org.app.presentation.map.navigation.Map
 
 enum class MainTab(
     @DrawableRes val iconRes: Int,
     @StringRes val titleRes: Int,
     val route: MainTabRoute,
 ) {
+    // TODO: 추후 변경 예정
+
     HOME(
         iconRes = ic_launcher_background,
         titleRes = home,
         route = Home,
     ),
 
-    // TODO: 추후 변경 예정
+    MAP(
+        iconRes = ic_launcher_background,
+        titleRes = map,
+        route = Map,
+    ),
     Dummy(
         iconRes = ic_launcher_background,
         titleRes = home,

@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.main.component.MainBottomBar
+import org.app.presentation.map.navigation.mapGraph
 
 @Composable
 fun MainScreen(appState: MainAppState) {
@@ -54,6 +55,9 @@ private fun MainNavHost(
         startDestination = appState.startDestination,
     ) {
         homeGraph(
+            innerPadding = innerPadding,
+        )
+        mapGraph(
             innerPadding = innerPadding,
         )
     }

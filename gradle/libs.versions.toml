@@ -15,6 +15,7 @@ git-hooks = "0.0.2"
 # AndroidX
 coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
+lifecycleRuntimeCompose = "2.10.0"
 datastorePreferences = "1.2.1"
 androidxAppCompat = "1.7.1"
 
@@ -56,14 +57,19 @@ hiltCompose = "1.3.0"
 # Logging
 timber = "5.0.1"
 
+# Naver Map
+naverMap = "3.23.2"
+
 # Google Services
 googleServices = "4.4.4"
+playServicesLocation = "21.3.0"
 firebase = "34.14.0"
 
 [libraries]
 # AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
 
@@ -113,9 +119,12 @@ hilt-lifecycle-viewmodel-compose = { group = "androidx.hilt", name = "hilt-lifec
 # Logging
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
+# Naver Map
+naver-map-sdk = { group = "com.naver.maps", name = "map-sdk", version.ref = "naverMap" }
+
 
 # Google Services
-# TODO 추후 추가 예정
+google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 

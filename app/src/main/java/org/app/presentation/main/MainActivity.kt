@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
-import org.app.core.designsystem.theme.Swyp_5th_team9Theme
+import org.app.core.designsystem.theme.MoballTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Swyp_5th_team9Theme {
+            MoballTheme {
                 val appState = rememberMainAppState()
 
                 MainScreen(
