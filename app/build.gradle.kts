@@ -12,9 +12,14 @@ plugins {
 }
 
 val properties = Properties().apply {
-    load(project.rootProject.file("local.properties").inputStream())
+    val localProps = rootProject.file("local.properties")
+    if (localProps.exists()) {
+        localProps.inputStream().use { load(it) }
+    }
 }
-val naverClientId = properties.getProperty("naver_client_id") ?: ""
+val naverClientId = properties.getProperty("naver_client_id")
+    ?: providers.gradleProperty("NAVER_CLIENT_ID").orNull
+    ?: throw org.gradle.api.GradleException("NAVER_CLIENT_ID가 설정되지 않았습니다.")
 
 android {
     namespace = "com.moball.app"
