@@ -14,9 +14,10 @@ plugins {
 val properties = Properties().apply {
     load(project.rootProject.file("local.properties").inputStream())
 }
+val naverClientId = properties.getProperty("naver_client_id") ?: ""
 
 android {
-    namespace = "org.app"
+    namespace = "com.moball.app"
     compileSdk = libs.versions.compileSdk
         .get()
         .toInt()
@@ -28,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.app"
+        applicationId = "com.moball.app"
         minSdk = libs.versions.minSdk
             .get()
             .toInt()
@@ -41,6 +42,7 @@ android {
         versionName = libs.versions.versionName.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["NAVER_CLIENT_ID"] = naverClientId
     }
 
     buildTypes {
@@ -83,6 +85,7 @@ ktlint {
 dependencies {
 // Androidx
     implementation(libs.bundles.androidx.core)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.datastore.preferences)
 
 // Compose
@@ -114,4 +117,8 @@ dependencies {
 
     implementation(libs.timber)
     implementation(libs.lottie.compose)
+
+// 네이버 지도 SDK
+    implementation(libs.naver.map.sdk)
+    implementation(libs.google.play.services.location)
 }
