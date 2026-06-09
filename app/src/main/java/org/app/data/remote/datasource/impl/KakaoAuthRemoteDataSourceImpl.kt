@@ -37,7 +37,6 @@ class KakaoAuthDataSourceImpl
                 if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
                     UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                         if (error != null) {
-                            continuation.resumeWithException(error)
                             Timber.e("카카오톡으로 로그인 실패 $error")
 
                             if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
@@ -46,6 +45,7 @@ class KakaoAuthDataSourceImpl
                             }
 
                             UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+                            return@loginWithKakaoTalk
                         } else if (token != null) {
                             continuation.resume(token.accessToken)
                             Timber.i("카카오톡으로 로그인 성공 ${token.accessToken}")
