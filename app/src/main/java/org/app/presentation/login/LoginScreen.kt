@@ -1,5 +1,6 @@
 package org.app.presentation.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.moball.app.R.drawable.img_kakao_login
+import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -30,6 +32,9 @@ fun LoginRoute(
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
                 LoginContract.SideEffect.NavigateToHome -> navigateToHome()
+                is LoginContract.SideEffect.ShowToast -> {
+                    Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -68,7 +73,9 @@ private fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
-    LoginScreen(
-        onKakaoLoginClick = {},
-    )
+    MoballTheme {
+        LoginScreen(
+            onKakaoLoginClick = {},
+        )
+    }
 }
