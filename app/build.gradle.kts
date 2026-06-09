@@ -49,6 +49,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["NAVER_CLIENT_ID"] = naverClientId
+
+        val kakaoAppKey = properties.getProperty("kakao.app.key") ?: ""
+        buildConfigField("String", "KAKAO_APP_KEY", "\"$kakaoAppKey\"")
+
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
     }
 
     buildTypes {
@@ -124,7 +129,10 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.lottie.compose)
 
-// 네이버 지도 SDK
+// Naver Map
     implementation(libs.naver.map.sdk)
     implementation(libs.google.play.services.location)
+
+// Kakao
+    implementation(libs.kakao.sdk.user)
 }
