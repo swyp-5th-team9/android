@@ -1,7 +1,7 @@
 package org.app.data.remote.datasource.api
 
-import android.content.Context
-
 interface KakaoAuthDataSource {
-    suspend fun loginKakao(context: Context): Result<String>
+    suspend fun logoutKakao(): Result<Unit>
+
+    suspend fun withdrawKakao(): Result<Unit>
 }

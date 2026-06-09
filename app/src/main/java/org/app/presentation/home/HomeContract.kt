@@ -10,4 +10,8 @@ interface HomeContract {
     data class State(
         val dummyUsersLoadState: UiState<ImmutableList<DummyUser>> = UiState.Idle,
     )
+
+    sealed interface SideEffect {
+        data object NavigateToLogin : SideEffect
+    }
 }

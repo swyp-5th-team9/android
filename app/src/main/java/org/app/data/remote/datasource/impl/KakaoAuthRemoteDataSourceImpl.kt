@@ -1,14 +1,9 @@
 package org.app.data.remote.datasource.impl
 
-import android.content.Context
-import com.kakao.sdk.auth.model.OAuthToken
-import com.kakao.sdk.common.model.ClientError
-import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
 import org.app.data.remote.datasource.api.KakaoAuthDataSource
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -16,43 +11,29 @@ import kotlin.coroutines.resumeWithException
 class KakaoAuthDataSourceImpl
     @Inject
     constructor() : KakaoAuthDataSource {
-        override suspend fun loginKakao(context: Context): Result<String> =
+        override suspend fun logoutKakao(): Result<Unit> =
             suspendRunCatching {
-                val accessToken = getKakaoAccessToken(context)
-                accessToken
-            }
-
-        private suspend fun getKakaoAccessToken(context: Context): String =
-            suspendCancellableCoroutine { continuation ->
-                val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
-                    if (error != null) {
-                        continuation.resumeWithException(error)
-                        Timber.e("카카오계정으로 로그인 실패 $error")
-                    } else if (token != null) {
-                        continuation.resume(token.accessToken)
-                        Timber.i("카카오톡으로 로그인 성공 ${token.accessToken}")
-                    }
-                }
-
-                if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
-                    UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+                suspendCancellableCoroutine { continuation ->
+                    UserApiClient.instance.logout { error ->
                         if (error != null) {
-                            Timber.e("카카오톡으로 로그인 실패 $error")
-
-                            if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
-                                continuation.resumeWithException(error)
-                                return@loginWithKakaoTalk
-                            }
-
-                            UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
-                            return@loginWithKakaoTalk
-                        } else if (token != null) {
-                            continuation.resume(token.accessToken)
-                            Timber.i("카카오톡으로 로그인 성공 ${token.accessToken}")
+                            continuation.resumeWithException(error)
+                        } else {
+                            continuation.resume(Unit)
                         }
                     }
-                } else {
-                    UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+                }
+            }
+
+        override suspend fun withdrawKakao(): Result<Unit> =
+            suspendRunCatching {
+                suspendCancellableCoroutine { continuation ->
+                    UserApiClient.instance.unlink { error ->
+                        if (error != null) {
+                            continuation.resumeWithException(error)
+                        } else {
+                            continuation.resume(Unit)
+                        }
+                    }
                 }
             }
     }
