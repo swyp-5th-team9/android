@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,12 +26,17 @@ fun LoginRoute(
 ) {
     val context = LocalContext.current
 
+    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                LoginContract.SideEffect.NavigateToHome -> navigateToHome()
+            }
+        }
+    }
+
     LoginScreen(
         onKakaoLoginClick = {
-            viewModel.fetchKakaoLogin(
-                context = context,
-                onKakaoLoginSuccess = navigateToHome,
-            )
+            viewModel.fetchKakaoLogin(context = context)
         },
         modifier = modifier,
     )
