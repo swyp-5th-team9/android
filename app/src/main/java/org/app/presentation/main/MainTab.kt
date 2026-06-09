@@ -5,10 +5,12 @@ import androidx.annotation.StringRes
 import com.moball.app.R.drawable.ic_launcher_background
 import com.moball.app.R.string.home
 import com.moball.app.R.string.map
+import com.moball.app.R.string.mypage
 import org.app.core.common.navigation.MainTabRoute
 import org.app.core.common.navigation.Route
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.map.navigation.Map
+import org.app.presentation.mypage.MyPage
 
 enum class MainTab(
     @DrawableRes val iconRes: Int,
@@ -27,6 +29,12 @@ enum class MainTab(
         iconRes = ic_launcher_background,
         titleRes = map,
         route = Map,
+    ),
+
+    MYPAGE(
+        iconRes = ic_launcher_background,
+        titleRes = mypage,
+        route = MyPage,
     ),
     Dummy(
         iconRes = ic_launcher_background,

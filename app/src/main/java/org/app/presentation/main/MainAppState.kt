@@ -18,6 +18,7 @@ import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.navigateToHome
 import org.app.presentation.login.Login
 import org.app.presentation.map.navigation.navigateToMap
+import org.app.presentation.mypage.navigateToMyPage
 
 @Stable
 class MainAppState(
@@ -81,6 +82,10 @@ class MainAppState(
 
             MainTab.MAP -> {
                 navController.navigateToMap(navOptions = navOptions)
+            }
+
+            MainTab.MYPAGE -> {
+                navController.navigateToMyPage(navOptions = navOptions)
             }
 
             MainTab.Dummy -> {}

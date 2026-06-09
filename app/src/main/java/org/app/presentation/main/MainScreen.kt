@@ -14,9 +14,11 @@ import androidx.navigation.compose.NavHost
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.homeGraph
+import org.app.presentation.login.Login
 import org.app.presentation.login.loginGraph
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.map.navigation.mapGraph
+import org.app.presentation.mypage.myPageGraph
 
 @Composable
 fun MainScreen(appState: MainAppState) {
@@ -71,6 +73,15 @@ private fun MainNavHost(
             innerPadding = innerPadding,
         )
         mapGraph(
+            innerPadding = innerPadding,
+        )
+        myPageGraph(
+            navigateToLogin = {
+                appState.navController.navigate(Login) {
+                    popUpTo(appState.navController.graph.id) { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
             innerPadding = innerPadding,
         )
     }
