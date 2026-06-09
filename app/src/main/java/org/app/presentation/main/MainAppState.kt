@@ -16,14 +16,16 @@ import kotlinx.coroutines.flow.map
 import org.app.core.extension.stateInWhileSubscribed
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.navigateToHome
+import org.app.presentation.login.Login
 import org.app.presentation.map.navigation.navigateToMap
+import org.app.presentation.mypage.navigateToMyPage
 
 @Stable
 class MainAppState(
     val navController: NavHostController,
     coroutineScope: CoroutineScope,
 ) {
-    val startDestination = Home
+    val startDestination = Login
 
     private val currentDestination = navController.currentBackStackEntryFlow
         .map { it.destination }
@@ -66,14 +68,11 @@ class MainAppState(
 
     fun navigate(tab: MainTab) {
         val navOptions = navOptions {
-            navController.currentDestination?.route?.let { route ->
-                popUpTo(route) {
-                    saveState = true
-                    inclusive = true
-                }
-                launchSingleTop = true
-                restoreState = true
+            popUpTo<Home> {
+                saveState = true
             }
+            launchSingleTop = true
+            restoreState = true
         }
         // TODO: navigate 함수 추가 예정
         when (tab) {
@@ -83,6 +82,10 @@ class MainAppState(
 
             MainTab.MAP -> {
                 navController.navigateToMap(navOptions = navOptions)
+            }
+
+            MainTab.MYPAGE -> {
+                navController.navigateToMyPage(navOptions = navOptions)
             }
 
             MainTab.Dummy -> {}

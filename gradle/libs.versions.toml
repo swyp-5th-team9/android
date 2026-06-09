@@ -49,6 +49,8 @@ okhttp = "5.3.2"
 retrofit = "3.0.0"
 retrofitKotlinSerializationConverter = "1.0.0"
 
+#kakao
+kakao = "2.20.6"
 
 # DI
 hilt = "2.59.2"
@@ -128,7 +130,8 @@ google-play-services-location = { group = "com.google.android.gms", name = "play
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 
-
+# Kakao
+kakao-sdk-user = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakao"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -182,4 +185,3 @@ test = [
     "androidx-ui-test-junit4",
     "androidx-espresso-core",
 ]
-
