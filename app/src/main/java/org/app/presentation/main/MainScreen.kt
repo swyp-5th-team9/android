@@ -12,7 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import kotlinx.collections.immutable.toImmutableList
+import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.homeGraph
+import org.app.presentation.login.loginGraph
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.map.navigation.mapGraph
 
@@ -54,6 +56,17 @@ private fun MainNavHost(
         navController = appState.navController,
         startDestination = appState.startDestination,
     ) {
+        loginGraph(
+            navigateToHome = {
+                appState.navController.navigate(Home) {
+                    popUpTo(appState.navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            },
+            innerPadding = innerPadding,
+        )
         homeGraph(
             innerPadding = innerPadding,
         )
