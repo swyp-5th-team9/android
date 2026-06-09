@@ -8,4 +8,9 @@ sealed interface LoginContract {
             val message: String,
         ) : SideEffect
     }
+
+    enum class SocialType {
+        KAKAO,
+        NAVER,
+    }
 }

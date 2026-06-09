@@ -2,11 +2,15 @@ package org.app.presentation.login
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -41,7 +45,10 @@ fun LoginRoute(
 
     LoginScreen(
         onKakaoLoginClick = {
-            viewModel.fetchKakaoLogin(context = context)
+            viewModel.login(type = LoginContract.SocialType.KAKAO, context = context)
+        },
+        onNaverLoginClick = {
+            viewModel.login(type = LoginContract.SocialType.NAVER, context = context)
         },
         modifier = modifier,
     )
@@ -50,6 +57,7 @@ fun LoginRoute(
 @Composable
 private fun LoginScreen(
     onKakaoLoginClick: () -> Unit,
+    onNaverLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // TODO: 추후 수정 예정
@@ -66,6 +74,21 @@ private fun LoginScreen(
             ),
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 네이버 버튼 임시 (디자인 나오면 수정)
+        Box(
+            modifier = Modifier
+                .noRippleClickable(onClick = onNaverLoginClick)
+                .background(
+                    androidx.compose.ui.graphics
+                        .Color(0xFF03C75A),
+                ) // 네이버 공식 그린 색상
+                .padding(16.dp),
+        ) {
+            Text(text = "네이버 로그인", color = androidx.compose.ui.graphics.Color.White)
+        }
+
         Spacer(modifier = Modifier.height(30.dp))
     }
 }
@@ -76,6 +99,7 @@ private fun LoginScreenPreview() {
     MoballTheme {
         LoginScreen(
             onKakaoLoginClick = {},
+            onNaverLoginClick = {},
         )
     }
 }
