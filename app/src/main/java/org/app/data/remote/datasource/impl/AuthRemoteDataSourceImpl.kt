@@ -3,23 +3,38 @@ package org.app.data.remote.datasource.impl
 import org.app.data.remote.datasource.api.AuthRemoteDataSource
 import org.app.data.remote.dto.BaseResponse
 import org.app.data.remote.dto.PostKakaoLoginResponse
+import org.app.data.remote.dto.PostNaverLoginResponse
 import org.app.data.remote.service.AuthService
 import javax.inject.Inject
 
 class AuthRemoteDataSourceImpl
     @Inject
     constructor(
-        private val kakaoLoginService: AuthService,
+        private val authService: AuthService,
     ) : AuthRemoteDataSource {
         override suspend fun postKakaoLogin(authorization: String): BaseResponse<PostKakaoLoginResponse> {
             // Todo: 서버 배포 후 수정 필요
-            // return kakaoLoginService.postKakaoLogin(authorization = authorization)
+            // return authService.postKakaoLogin(authorization = authorization)
             return BaseResponse(
                 status = "success_mock",
                 statusCode = 200,
                 data = PostKakaoLoginResponse(
                     accessToken = "fake_access_token",
                     refreshToken = "fake_refresh_token",
+                ),
+                timestamp = "",
+            )
+        }
+
+        override suspend fun postNaverLogin(authorization: String): BaseResponse<PostNaverLoginResponse> {
+            // Todo: 서버 배포 후 수정 필요
+            // return authService.postNaverLogin(authorization = authorization)
+            return BaseResponse(
+                status = "success_mock",
+                statusCode = 200,
+                data = PostNaverLoginResponse(
+                    accessToken = "fake_naver_access_token",
+                    refreshToken = "fake_naver_refresh_token",
                 ),
                 timestamp = "",
             )
