@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,8 +16,7 @@ class LoginViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
-        private val kakaoLoginManager: KakaoLoginManager,
-        private val naverLoginManager: NaverLoginManager,
+        private val loginManagers: Map<LoginContract.SocialType, @JvmSuppressWildcards SocialLoginManager>,
     ) : ViewModel() {
         private val _sideEffect = MutableSharedFlow<LoginContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
@@ -25,23 +25,18 @@ class LoginViewModel
             type: LoginContract.SocialType,
             context: Context,
         ) = viewModelScope.launch {
-            val loginManager =
-                when (type) {
-                    LoginContract.SocialType.KAKAO -> kakaoLoginManager
-                    LoginContract.SocialType.NAVER -> naverLoginManager
-                }
+            val loginManager = loginManagers[type]
+                ?: throw IllegalArgumentException("Unsupported social type: $type")
+
+            Timber.d("Login type: $type, Manager: ${loginManager.javaClass.simpleName}")
 
             loginManager
                 .login(context = context)
                 .onSuccess { token ->
-                    // Todo: 네이버 연동 시 Repository에 네이버 로그인 API 추가 필요
                     val loginResult =
                         when (type) {
                             LoginContract.SocialType.KAKAO -> authRepository.postKakaoLogin(authorization = token)
-                            LoginContract.SocialType.NAVER -> {
-                                // 임시로 카카오 API 사용 또는 에러 처리
-                                authRepository.postKakaoLogin(authorization = token)
-                            }
+                            LoginContract.SocialType.NAVER -> authRepository.postNaverLogin(authorization = token)
                         }
 
                     loginResult
