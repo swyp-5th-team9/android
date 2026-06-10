@@ -3,14 +3,14 @@ package org.app.data.remote.datasource.impl
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
-import org.app.data.remote.datasource.api.KakaoAuthDataSource
+import org.app.data.remote.datasource.api.KakaoAuthRemoteDataSource
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class KakaoAuthDataSourceImpl
+class KakaoAuthRemoteDataSourceImpl
     @Inject
-    constructor() : KakaoAuthDataSource {
+    constructor() : KakaoAuthRemoteDataSource {
         override suspend fun logoutKakao(): Result<Unit> =
             suspendRunCatching {
                 suspendCancellableCoroutine { continuation ->
