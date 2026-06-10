@@ -55,6 +55,9 @@ class LocalTokenDataSourceImpl
         }
 
         override suspend fun setLoginType(loginType: String) {
+            require(loginType in ALLOWED_LOGIN_TYPES) {
+                "Unsupported login type: $loginType"
+            }
             dataStore.edit { prefs ->
                 prefs[LOGIN_TYPE] = loginType
             }
@@ -69,6 +72,7 @@ class LocalTokenDataSourceImpl
         }
 
         companion object {
+            private val ALLOWED_LOGIN_TYPES = setOf("KAKAO", "NAVER")
             private val ACCESS_TOKEN = stringPreferencesKey("ACCESS_TOKEN")
             private val REFRESH_TOKEN = stringPreferencesKey("REFRESH_TOKEN")
             private val LOGIN_TYPE = stringPreferencesKey("LOGIN_TYPE")
