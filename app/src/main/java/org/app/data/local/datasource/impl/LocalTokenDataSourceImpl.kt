@@ -34,6 +34,14 @@ class LocalTokenDataSourceImpl
                     prefs[REFRESH_TOKEN]
                 }.firstOrNull()
 
+        override suspend fun getLoginType(): String? =
+            dataStore.data
+                .catch { exception ->
+                    if (exception is IOException) emit(emptyPreferences()) else throw exception
+                }.map { prefs ->
+                    prefs[LOGIN_TYPE]
+                }.firstOrNull()
+
         override suspend fun setAccessToken(accessToken: String) {
             dataStore.edit { prefs ->
                 prefs[ACCESS_TOKEN] = accessToken
@@ -46,15 +54,27 @@ class LocalTokenDataSourceImpl
             }
         }
 
+        override suspend fun setLoginType(loginType: String) {
+            require(loginType in ALLOWED_LOGIN_TYPES) {
+                "Unsupported login type: $loginType"
+            }
+            dataStore.edit { prefs ->
+                prefs[LOGIN_TYPE] = loginType
+            }
+        }
+
         override suspend fun clearTokens() {
             dataStore.edit { prefs ->
                 prefs.remove(ACCESS_TOKEN)
                 prefs.remove(REFRESH_TOKEN)
+                prefs.remove(LOGIN_TYPE)
             }
         }
 
         companion object {
+            private val ALLOWED_LOGIN_TYPES = setOf("KAKAO", "NAVER")
             private val ACCESS_TOKEN = stringPreferencesKey("ACCESS_TOKEN")
             private val REFRESH_TOKEN = stringPreferencesKey("REFRESH_TOKEN")
+            private val LOGIN_TYPE = stringPreferencesKey("LOGIN_TYPE")
         }
     }

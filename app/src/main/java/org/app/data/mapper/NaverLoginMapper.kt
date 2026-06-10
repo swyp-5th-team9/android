@@ -1,9 +1,9 @@
 package org.app.data.mapper
 
 import org.app.data.model.SocialLoginToken
-import org.app.data.remote.dto.PostKakaoLoginResponse
+import org.app.data.remote.dto.PostNaverLoginResponse
 
-fun PostKakaoLoginResponse.toKakaoLoginToken(): SocialLoginToken {
+fun PostNaverLoginResponse.toNaverLoginToken(): SocialLoginToken {
     val access = accessToken?.takeIf { it.isNotBlank() }
         ?: throw IllegalArgumentException("access_token is missing")
     val refresh = refreshToken?.takeIf { it.isNotBlank() }

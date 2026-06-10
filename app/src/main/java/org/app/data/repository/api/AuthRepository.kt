@@ -1,11 +1,13 @@
 package org.app.data.repository.api
 
-import org.app.data.model.KakaoLoginToken
+import org.app.data.model.SocialLoginToken
 
 interface AuthRepository {
-    suspend fun postKakaoLogin(authorization: String): Result<KakaoLoginToken>
+    suspend fun postKakaoLogin(authorization: String): Result<SocialLoginToken>
 
-    suspend fun logoutKakao(): Result<Unit>
+    suspend fun postNaverLogin(authorization: String): Result<SocialLoginToken>
 
-    suspend fun withdrawKakao(): Result<Unit>
+    suspend fun logout(): Result<Unit>
+
+    suspend fun withdraw(): Result<Unit>
 }

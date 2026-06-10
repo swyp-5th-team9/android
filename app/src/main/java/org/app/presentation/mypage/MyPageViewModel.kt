@@ -22,7 +22,7 @@ class MyPageViewModel
         fun logout() {
             viewModelScope.launch {
                 authRepository
-                    .logoutKakao()
+                    .logout()
                     .onSuccess {
                         _sideEffect.emit(MyPageContract.SideEffect.ShowToast("로그아웃 성공"))
                         _sideEffect.emit(MyPageContract.SideEffect.NavigateToLogin)
@@ -37,7 +37,7 @@ class MyPageViewModel
         fun withdraw() {
             viewModelScope.launch {
                 authRepository
-                    .withdrawKakao()
+                    .withdraw()
                     .onSuccess {
                         _sideEffect.emit(MyPageContract.SideEffect.ShowToast("회원 탈퇴 성공"))
                         _sideEffect.emit(MyPageContract.SideEffect.NavigateToLogin)
