@@ -22,6 +22,7 @@ val naverMapClientId = properties.getProperty("naver_map_client_id")
     ?: providers.gradleProperty("NAVER_MAP_CLIENT_ID").orNull
     ?: providers.gradleProperty("NAVER_CLIENT_ID").orNull
     ?: System.getenv("NAVER_MAP_CLIENT_ID")
+    ?: System.getenv("NAVER_CLIENT_ID")
     ?: ""
 val naverLoginClientId = properties.getProperty("naver_login_client_id")
     ?: providers.gradleProperty("NAVER_LOGIN_CLIENT_ID").orNull
