@@ -8,8 +8,10 @@ import org.app.data.local.datasource.api.LocalTokenDataSource
 import org.app.data.local.datasource.impl.LocalTokenDataSourceImpl
 import org.app.data.remote.datasource.api.AuthRemoteDataSource
 import org.app.data.remote.datasource.api.KakaoAuthDataSource
+import org.app.data.remote.datasource.api.NaverAuthDataSource
 import org.app.data.remote.datasource.impl.AuthRemoteDataSourceImpl
 import org.app.data.remote.datasource.impl.KakaoAuthDataSourceImpl
+import org.app.data.remote.datasource.impl.NaverAuthDataSourceImpl
 import javax.inject.Singleton
 
 @Module
@@ -18,6 +20,10 @@ abstract class AuthDataSourceModule {
     @Binds
     @Singleton
     abstract fun bindKakaoAuthDataSource(kakaoAuthDataSourceImpl: KakaoAuthDataSourceImpl): KakaoAuthDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindNaverAuthDataSource(naverAuthDataSourceImpl: NaverAuthDataSourceImpl): NaverAuthDataSource
 
     @Binds
     @Singleton
