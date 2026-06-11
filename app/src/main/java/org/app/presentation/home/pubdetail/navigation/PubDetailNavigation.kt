@@ -1,8 +1,5 @@
 package org.app.presentation.home.pubdetail.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,11 +10,9 @@ import org.app.presentation.home.pubdetail.PubDetailRoute
 
 fun NavController.navigateToPubDetail(navOptions: NavOptions? = null) = navigate(PubDetail, navOptions)
 
-fun NavGraphBuilder.pubDetailGraph(innerPadding: PaddingValues) {
+fun NavGraphBuilder.pubDetailGraph() {
     composable<PubDetail> {
-        PubDetailRoute(
-            modifier = Modifier.padding(innerPadding),
-        )
+        PubDetailRoute()
     }
 }
 

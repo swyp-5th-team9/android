@@ -1,8 +1,5 @@
 package org.app.presentation.schedule.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,11 +10,9 @@ import org.app.presentation.schedule.ScheduleRoute
 
 fun NavController.navigateToSchedule(navOptions: NavOptions? = null) = navigate(Schedule, navOptions)
 
-fun NavGraphBuilder.scheduleGraph(innerPadding: PaddingValues) {
+fun NavGraphBuilder.scheduleGraph() {
     composable<Schedule> {
-        ScheduleRoute(
-            modifier = Modifier.padding(innerPadding),
-        )
+        ScheduleRoute()
     }
 }
 

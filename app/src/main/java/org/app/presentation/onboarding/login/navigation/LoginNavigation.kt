@@ -1,8 +1,5 @@
 package org.app.presentation.onboarding.login.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -15,14 +12,10 @@ fun NavController.navigateToLogin(navOptions: NavOptions? = null) {
     navigate(route = Login, navOptions = navOptions)
 }
 
-fun NavGraphBuilder.loginGraph(
-    navigateToHome: () -> Unit,
-    innerPadding: PaddingValues,
-) {
+fun NavGraphBuilder.loginGraph(navigateToHome: () -> Unit) {
     composable<Login> {
         LoginRoute(
             navigateToHome = navigateToHome,
-            modifier = Modifier.padding(innerPadding),
         )
     }
 }

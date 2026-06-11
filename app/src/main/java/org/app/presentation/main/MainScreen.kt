@@ -71,20 +71,14 @@ private fun MainNavHost(
                     launchSingleTop = true
                 }
             },
-            innerPadding = innerPadding,
         )
         homeGraph(
             navigateToPubDetail = {
                 appState.navController.navigateToPubDetail()
             },
-            innerPadding = innerPadding,
         )
-        scheduleGraph(
-            innerPadding = innerPadding,
-        )
-        pubDetailGraph(
-            innerPadding = innerPadding,
-        )
+        scheduleGraph()
+        pubDetailGraph()
         myPageGraph(
             navigateToLogin = {
                 appState.navController.navigate(Login) {
@@ -92,7 +86,6 @@ private fun MainNavHost(
                     launchSingleTop = true
                 }
             },
-            innerPadding = innerPadding,
         )
     }
 }
