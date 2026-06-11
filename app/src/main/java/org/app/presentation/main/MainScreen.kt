@@ -21,6 +21,7 @@ import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
+import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
 @Composable
@@ -77,6 +78,7 @@ private fun MainNavHost(
                 appState.navController.navigateToPubDetail()
             },
         )
+        signUpGraph()
         scheduleGraph()
         pubDetailGraph()
         myPageGraph(
