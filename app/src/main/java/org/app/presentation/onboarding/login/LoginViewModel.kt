@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
+import org.app.domain.model.SocialType
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -16,13 +17,13 @@ class LoginViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
-        private val loginManagers: Map<LoginContract.SocialType, @JvmSuppressWildcards SocialLoginManager>,
+        private val loginManagers: Map<SocialType, @JvmSuppressWildcards SocialLoginManager>,
     ) : ViewModel() {
         private val _sideEffect = MutableSharedFlow<LoginContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
         fun login(
-            type: LoginContract.SocialType,
+            type: SocialType,
             context: Context,
         ) = viewModelScope.launch {
             val loginManager = loginManagers[type]
@@ -35,8 +36,8 @@ class LoginViewModel
                 .onSuccess { token ->
                     val loginResult =
                         when (type) {
-                            LoginContract.SocialType.KAKAO -> authRepository.postKakaoLogin(authorization = token)
-                            LoginContract.SocialType.NAVER -> authRepository.postNaverLogin(authorization = token)
+                            SocialType.KAKAO -> authRepository.postKakaoLogin(authorization = token)
+                            SocialType.NAVER -> authRepository.postNaverLogin(authorization = token)
                         }
 
                     loginResult

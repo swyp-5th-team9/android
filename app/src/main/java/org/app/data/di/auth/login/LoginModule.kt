@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import org.app.core.network.di.SocialTypeKey
-import org.app.presentation.onboarding.login.LoginContract
+import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.SocialLoginManager
 import org.app.presentation.onboarding.login.kakao.KakaoLoginManager
 import org.app.presentation.onboarding.login.naver.NaverLoginManager
@@ -18,12 +18,12 @@ abstract class LoginModule {
     @Binds
     @Singleton
     @IntoMap
-    @SocialTypeKey(LoginContract.SocialType.KAKAO)
+    @SocialTypeKey(SocialType.KAKAO)
     abstract fun bindKakaoLoginManager(kakaoLoginManager: KakaoLoginManager): SocialLoginManager
 
     @Binds
     @Singleton
     @IntoMap
-    @SocialTypeKey(LoginContract.SocialType.NAVER)
+    @SocialTypeKey(SocialType.NAVER)
     abstract fun bindNaverLoginManager(naverLoginManager: NaverLoginManager): SocialLoginManager
 }
