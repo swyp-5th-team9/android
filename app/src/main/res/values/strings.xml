@@ -2,6 +2,7 @@
     <string name="app_name">moball</string>
     <string name="home">홈</string>
     <string name="map">지도</string>
-    <string name="mypage">마이페이지</string>
+    <string name="mypage">마이</string>
+    <string name="schedule">경기 캘린더</string>
     <!--Home    -->
 </resources>
