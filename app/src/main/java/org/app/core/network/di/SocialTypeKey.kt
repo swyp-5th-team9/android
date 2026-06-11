@@ -1,11 +1,11 @@
-package org.app.core.common.type
+package org.app.core.network.di
 
 import dagger.MapKey
-import org.app.presentation.onboarding.login.LoginContract
+import org.app.domain.model.SocialType
 
 @MapKey
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
 annotation class SocialTypeKey(
-    val value: LoginContract.SocialType,
+    val value: SocialType,
 )

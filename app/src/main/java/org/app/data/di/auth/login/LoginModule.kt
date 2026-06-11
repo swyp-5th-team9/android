@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import org.app.core.common.type.SocialTypeKey
+import org.app.core.network.di.SocialTypeKey
 import org.app.presentation.onboarding.login.LoginContract
 import org.app.presentation.onboarding.login.SocialLoginManager
 import org.app.presentation.onboarding.login.kakao.KakaoLoginManager
