@@ -1,4 +1,4 @@
-package org.app.presentation.login
+package org.app.presentation.onboarding.login
 
 import android.widget.Toast
 import androidx.compose.foundation.Image

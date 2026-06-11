@@ -1,7 +1,7 @@
-package org.app.core.common
+package org.app.core.common.type
 
 import dagger.MapKey
-import org.app.presentation.login.LoginContract
+import org.app.presentation.onboarding.login.LoginContract
 
 @MapKey
 @Retention(AnnotationRetention.RUNTIME)

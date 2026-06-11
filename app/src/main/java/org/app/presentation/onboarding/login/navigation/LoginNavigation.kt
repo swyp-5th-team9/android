@@ -1,4 +1,4 @@
-package org.app.presentation.login
+package org.app.presentation.onboarding.login.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -9,8 +9,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.Route
+import org.app.presentation.onboarding.login.LoginRoute
 
-fun NavController.navigateToLogin(navOptions: NavOptions? = null) = navigate(Login, navOptions)
+fun NavController.navigateToLogin(navOptions: NavOptions? = null) {
+    navigate(route = Login, navOptions = navOptions)
+}
 
 fun NavGraphBuilder.loginGraph(
     navigateToHome: () -> Unit,

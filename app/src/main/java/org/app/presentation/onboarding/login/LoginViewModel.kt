@@ -1,4 +1,4 @@
-package org.app.presentation.login
+package org.app.presentation.onboarding.login
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

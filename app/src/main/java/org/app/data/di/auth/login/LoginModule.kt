@@ -1,15 +1,15 @@
-package org.app.data.di.login
+package org.app.data.di.auth.login
 
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import org.app.core.common.SocialTypeKey
-import org.app.presentation.login.LoginContract
-import org.app.presentation.login.SocialLoginManager
-import org.app.presentation.login.kakao.KakaoLoginManager
-import org.app.presentation.login.naver.NaverLoginManager
+import org.app.core.common.type.SocialTypeKey
+import org.app.presentation.onboarding.login.LoginContract
+import org.app.presentation.onboarding.login.SocialLoginManager
+import org.app.presentation.onboarding.login.kakao.KakaoLoginManager
+import org.app.presentation.onboarding.login.naver.NaverLoginManager
 import javax.inject.Singleton
 
 @Module

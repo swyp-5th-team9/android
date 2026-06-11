@@ -1,4 +1,4 @@
-package org.app.presentation.login.kakao
+package org.app.presentation.onboarding.login.kakao
 
 import android.content.Context
 import com.kakao.sdk.common.model.ClientError
@@ -6,7 +6,7 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
-import org.app.presentation.login.SocialLoginManager
+import org.app.presentation.onboarding.login.SocialLoginManager
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException

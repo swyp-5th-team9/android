@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.map
 import org.app.core.extension.stateInWhileSubscribed
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.navigateToHome
-import org.app.presentation.login.Login
 import org.app.presentation.map.navigation.navigateToMap
 import org.app.presentation.mypage.navigateToMyPage
+import org.app.presentation.onboarding.login.navigation.Login
 
 @Stable
 class MainAppState(
