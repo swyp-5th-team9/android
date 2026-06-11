@@ -4,52 +4,39 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.moball.app.R.drawable.ic_launcher_background
 import com.moball.app.R.string.home
-import com.moball.app.R.string.map
 import com.moball.app.R.string.mypage
+import com.moball.app.R.string.schedule
 import org.app.core.common.navigation.MainTabRoute
 import org.app.core.common.navigation.Route
 import org.app.presentation.home.navigation.Home
-import org.app.presentation.map.navigation.Map
 import org.app.presentation.mypage.MyPage
+import org.app.presentation.schedule.navigation.Schedule
 
 enum class MainTab(
-    @DrawableRes val iconRes: Int,
-    @StringRes val titleRes: Int,
+    @get:DrawableRes val selectedIconRes: Int,
+    @get:DrawableRes val unselectedIconRes: Int,
+    @get:StringRes val titleRes: Int,
     val route: MainTabRoute,
 ) {
-    // TODO: 추후 변경 예정
-
     HOME(
-        iconRes = ic_launcher_background,
+        selectedIconRes = ic_launcher_background,
+        unselectedIconRes = ic_launcher_background,
         titleRes = home,
         route = Home,
     ),
 
-    MAP(
-        iconRes = ic_launcher_background,
-        titleRes = map,
-        route = Map,
+    SCHEDULE(
+        selectedIconRes = ic_launcher_background,
+        unselectedIconRes = ic_launcher_background,
+        titleRes = schedule,
+        route = Schedule,
     ),
 
     MYPAGE(
-        iconRes = ic_launcher_background,
+        selectedIconRes = ic_launcher_background,
+        unselectedIconRes = ic_launcher_background,
         titleRes = mypage,
         route = MyPage,
-    ),
-    Dummy(
-        iconRes = ic_launcher_background,
-        titleRes = home,
-        route = Home,
-    ),
-    Dummy1(
-        iconRes = ic_launcher_background,
-        titleRes = home,
-        route = Home,
-    ),
-    Dummy2(
-        iconRes = ic_launcher_background,
-        titleRes = home,
-        route = Home,
     ),
     ;
 

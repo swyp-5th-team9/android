@@ -75,20 +75,34 @@ private fun MainBottomBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val (textColor, iconColor, iconRes) = when {
+        isSelected -> Triple(
+            Color.Black,
+            Color.Black,
+            tab.selectedIconRes,
+        )
+
+        else -> Triple(
+            Color.Gray,
+            Color.Gray,
+            tab.unselectedIconRes,
+        )
+    }
+
     Column(
         modifier = modifier.noRippleClickable(onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(tab.iconRes),
+            imageVector = ImageVector.vectorResource(iconRes),
             contentDescription = stringResource(tab.titleRes),
-            tint = Color.Unspecified,
+            tint = iconColor,
         )
 
         Text(
             text = stringResource(tab.titleRes),
-            color = Color.Black,
+            color = textColor,
         )
     }
 }

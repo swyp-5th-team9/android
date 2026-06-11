@@ -4,6 +4,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,10 +16,10 @@ import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.main.component.MainBottomBar
-import org.app.presentation.map.navigation.mapGraph
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
+import org.app.presentation.schedule.navigation.scheduleGraph
 
 @Composable
 fun MainScreen(appState: MainAppState) {
@@ -57,6 +58,7 @@ private fun MainNavHost(
         popExitTransition = { ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
+        modifier = Modifier.padding(innerPadding),
     ) {
         loginGraph(
             navigateToHome = {
@@ -72,7 +74,7 @@ private fun MainNavHost(
         homeGraph(
             innerPadding = innerPadding,
         )
-        mapGraph(
+        scheduleGraph(
             innerPadding = innerPadding,
         )
         myPageGraph(
