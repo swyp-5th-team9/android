@@ -37,6 +37,12 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { sideEffect ->
+            // SideEffect 처리 (현재는 정의된 효과가 없음)
+        }
+    }
+
     HomeScreen(
         onPubClick = onPubClick,
         modifier = modifier,
@@ -44,7 +50,7 @@ fun HomeRoute(
 }
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     onPubClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

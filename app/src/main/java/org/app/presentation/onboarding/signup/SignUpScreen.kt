@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,13 +16,19 @@ fun SignUpRoute(
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(viewModel.sideEffect) {
+        viewModel.sideEffect.collect { sideEffect ->
+            // SideEffect 처리
+        }
+    }
+
     SignUpScreen(
         modifier = modifier,
     )
 }
 
 @Composable
-fun SignUpScreen(modifier: Modifier = Modifier) {
+internal fun SignUpScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
