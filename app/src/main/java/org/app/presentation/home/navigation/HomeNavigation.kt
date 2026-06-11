@@ -9,13 +9,17 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.MainTabRoute
-import org.app.presentation.home.HomeScreen
+import org.app.presentation.home.HomeRoute
 
 fun NavController.navigateToHome(navOptions: NavOptions? = null) = navigate(Home, navOptions)
 
-fun NavGraphBuilder.homeGraph(innerPadding: PaddingValues) {
+fun NavGraphBuilder.homeGraph(
+    navigateToPubDetail: () -> Unit,
+    innerPadding: PaddingValues,
+) {
     composable<Home> {
-        HomeScreen(
+        HomeRoute(
+            onPubClick = navigateToPubDetail,
             modifier = Modifier.padding(innerPadding),
         )
     }
