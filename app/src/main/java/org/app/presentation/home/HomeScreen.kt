@@ -84,7 +84,11 @@ internal fun HomeScreen(
         val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         hasLocationPermission = granted
-        if (granted) {
+    }
+
+    // 권한 상태나 지도 객체가 변경될 때 위치 추적 모드 처리
+    LaunchedEffect(hasLocationPermission, naverMap) {
+        if (hasLocationPermission) {
             naverMap?.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
@@ -140,31 +144,24 @@ internal fun HomeScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
-            factory = { mapView },
-            modifier = Modifier.fillMaxSize(),
-        ) { view ->
-            view.getMapAsync { map ->
-                naverMap = map
-
-                // 내장 위치 추적 기능 설정
-                map.locationSource = locationSource
-                map.uiSettings.isLocationButtonEnabled = true
-
-                // 권한이 있는 경우 위치 추적 모드 활성화
-                if (hasLocationPermission) {
-                    map.locationTrackingMode = LocationTrackingMode.Follow
-                }
-
-                // 위치 오버레이 설정
-                map.locationOverlay.run {
-                    isVisible = true
-                    setOnClickListener {
-                        onPubClick()
-                        true
+            factory = { ctx ->
+                mapView.apply {
+                    getMapAsync { map ->
+                        naverMap = map
+                        map.locationSource = locationSource
+                        map.uiSettings.isLocationButtonEnabled = true
+                        map.locationOverlay.run {
+                            isVisible = true
+                            setOnClickListener {
+                                onPubClick()
+                                true
+                            }
+                        }
                     }
                 }
-            }
-        }
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
