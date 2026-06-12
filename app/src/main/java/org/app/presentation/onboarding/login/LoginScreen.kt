@@ -1,4 +1,4 @@
-package org.app.presentation.login
+package org.app.presentation.onboarding.login
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -23,6 +23,7 @@ import com.moball.app.R.drawable.img_kakao_login
 import com.moball.app.R.drawable.img_naver_login
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
+import org.app.domain.model.SocialType
 
 @Composable
 fun LoginRoute(
@@ -35,7 +36,10 @@ fun LoginRoute(
     LaunchedEffect(viewModel.sideEffect) {
         viewModel.sideEffect.collect { sideEffect ->
             when (sideEffect) {
-                LoginContract.SideEffect.NavigateToHome -> navigateToHome()
+                LoginContract.SideEffect.NavigateToHome -> {
+                    navigateToHome()
+                }
+
                 is LoginContract.SideEffect.ShowToast -> {
                     Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
                 }
@@ -45,10 +49,10 @@ fun LoginRoute(
 
     LoginScreen(
         onKakaoLoginClick = {
-            viewModel.login(type = LoginContract.SocialType.KAKAO, context = context)
+            viewModel.login(type = SocialType.KAKAO, context = context)
         },
         onNaverLoginClick = {
-            viewModel.login(type = LoginContract.SocialType.NAVER, context = context)
+            viewModel.login(type = SocialType.NAVER, context = context)
         },
         modifier = modifier,
     )

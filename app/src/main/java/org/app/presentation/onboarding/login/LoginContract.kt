@@ -1,4 +1,4 @@
-package org.app.presentation.login
+package org.app.presentation.onboarding.login
 
 sealed interface LoginContract {
     sealed interface SideEffect {
@@ -7,10 +7,5 @@ sealed interface LoginContract {
         data class ShowToast(
             val message: String,
         ) : SideEffect
-    }
-
-    enum class SocialType {
-        KAKAO,
-        NAVER,
     }
 }

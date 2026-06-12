@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.map
 import org.app.core.extension.stateInWhileSubscribed
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.navigateToHome
-import org.app.presentation.login.Login
-import org.app.presentation.map.navigation.navigateToMap
 import org.app.presentation.mypage.navigateToMyPage
+import org.app.presentation.onboarding.login.navigation.Login
+import org.app.presentation.schedule.navigation.navigateToSchedule
 
 @Stable
 class MainAppState(
@@ -36,8 +36,8 @@ class MainAppState(
 
     val currentTab: StateFlow<MainTab?> = currentDestination
         .map { destination ->
-            MainTab.find { tab ->
-                destination?.hasRoute(tab::class) == true
+            MainTab.entries.find { tab ->
+                destination?.hasRoute(tab.route::class) == true
             }
         }.stateInWhileSubscribed(
             scope = coroutineScope,
@@ -48,8 +48,8 @@ class MainAppState(
 
     private val isMainTabRoute: StateFlow<Boolean> = currentDestination
         .map { destination ->
-            MainTab.contains { tab ->
-                destination?.hasRoute(tab::class) == true
+            MainTab.entries.any { tab ->
+                destination?.hasRoute(tab.route::class) == true
             }
         }.stateInWhileSubscribed(
             scope = coroutineScope,
@@ -74,25 +74,11 @@ class MainAppState(
             launchSingleTop = true
             restoreState = true
         }
-        // TODO: navigate 함수 추가 예정
+
         when (tab) {
-            MainTab.HOME -> {
-                navController.navigateToHome(navOptions = navOptions)
-            }
-
-            MainTab.MAP -> {
-                navController.navigateToMap(navOptions = navOptions)
-            }
-
-            MainTab.MYPAGE -> {
-                navController.navigateToMyPage(navOptions = navOptions)
-            }
-
-            MainTab.Dummy -> {}
-
-            MainTab.Dummy1 -> {}
-
-            MainTab.Dummy2 -> {}
+            MainTab.HOME -> navController.navigateToHome(navOptions = navOptions)
+            MainTab.SCHEDULE -> navController.navigateToSchedule(navOptions = navOptions)
+            MainTab.MYPAGE -> navController.navigateToMyPage(navOptions = navOptions)
         }
     }
 

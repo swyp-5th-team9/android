@@ -1,11 +1,11 @@
-package org.app.presentation.login.naver
+package org.app.presentation.onboarding.login.naver
 
 import android.content.Context
 import com.navercorp.nid.NidOAuth
 import com.navercorp.nid.oauth.util.NidOAuthCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
-import org.app.presentation.login.SocialLoginManager
+import org.app.presentation.onboarding.login.SocialLoginManager
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
