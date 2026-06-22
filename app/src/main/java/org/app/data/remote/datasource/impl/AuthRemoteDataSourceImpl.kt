@@ -4,6 +4,8 @@ import org.app.data.remote.datasource.api.AuthRemoteDataSource
 import org.app.data.remote.dto.BaseResponse
 import org.app.data.remote.dto.PostKakaoLoginResponse
 import org.app.data.remote.dto.PostNaverLoginResponse
+import org.app.data.remote.dto.PostRefreshTokenRequest
+import org.app.data.remote.dto.PostRefreshTokenResponse
 import org.app.data.remote.service.AuthService
 import javax.inject.Inject
 
@@ -39,4 +41,10 @@ class AuthRemoteDataSourceImpl
                 timestamp = "",
             )
         }
+
+        override suspend fun postRefreshToken(refreshToken: String): BaseResponse<PostRefreshTokenResponse> =
+            authService.postRefreshToken(PostRefreshTokenRequest(refreshToken))
+
+        override suspend fun postLogout(accessToken: String): BaseResponse<Unit> =
+            authService.postLogout("Bearer $accessToken")
     }
