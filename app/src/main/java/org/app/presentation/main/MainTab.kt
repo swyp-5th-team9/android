@@ -2,7 +2,7 @@ package org.app.presentation.main
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.moball.app.R.drawable.ic_launcher_background
+import com.moball.app.R.drawable
 import com.moball.app.R.string.home
 import com.moball.app.R.string.mypage
 import com.moball.app.R.string.schedule
@@ -19,22 +19,22 @@ enum class MainTab(
     val route: MainTabRoute,
 ) {
     HOME(
-        selectedIconRes = ic_launcher_background,
-        unselectedIconRes = ic_launcher_background,
+        selectedIconRes = drawable.ic_home_selected_,
+        unselectedIconRes = drawable.ic_home_unselected,
         titleRes = home,
         route = Home,
     ),
 
     SCHEDULE(
-        selectedIconRes = ic_launcher_background,
-        unselectedIconRes = ic_launcher_background,
+        selectedIconRes = drawable.ic_calender_selected,
+        unselectedIconRes = drawable.ic_calender_unselected,
         titleRes = schedule,
         route = Schedule,
     ),
 
     MYPAGE(
-        selectedIconRes = ic_launcher_background,
-        unselectedIconRes = ic_launcher_background,
+        selectedIconRes = drawable.ic_my_selected,
+        unselectedIconRes = drawable.ic_my_unselected,
         titleRes = mypage,
         route = MyPage,
     ),
