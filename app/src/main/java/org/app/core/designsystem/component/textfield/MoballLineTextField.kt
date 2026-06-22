@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import com.moball.app.R.drawable
 import org.app.core.designsystem.style.MoballTextFieldInputStyle
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.maxLength
+import org.app.core.extension.noRippleClickable
 
 /**
  * 라인 텍스트 필드 (Line TextField)
@@ -117,21 +117,18 @@ fun MoballLineTextField(
             }
 
             if (isFilled) {
-                IconButton(
-                    onClick = {
-                        state.edit { delete(0, length) }
-                    },
+                Icon(
+                    imageVector = ImageVector.vectorResource(drawable.ic_close),
+                    contentDescription = null,
+                    tint = MoballTheme.colors.textPrimary,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .size(44.dp),
-                ) {
-                    Icon(
-                        ImageVector.vectorResource(drawable.ic_close),
-                        contentDescription = null,
-                        tint = MoballTheme.colors.textPrimary,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+                        .size(44.dp)
+                        .padding(10.dp)
+                        .noRippleClickable {
+                            state.edit { delete(0, length) }
+                        },
+                )
             }
         }
 
