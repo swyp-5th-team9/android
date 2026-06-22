@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R.drawable
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 
 // TODO 드롭다운 같은거 문의드린상황 추후 수정 필요
 private val ChipShape = RoundedCornerShape(100.dp)
@@ -58,6 +59,8 @@ fun MoballFilterChip(
             ).background(
                 color = MoballTheme.colors.backgroundBase,
                 shape = ChipShape,
+            ).noRippleClickable(
+                onClick = onClick,
             ).padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
