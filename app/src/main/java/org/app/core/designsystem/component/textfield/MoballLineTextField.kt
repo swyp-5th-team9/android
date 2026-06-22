@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -25,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
@@ -118,12 +118,11 @@ fun MoballLineTextField(
 
             if (isFilled) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(drawable.ic_close),
+                    imageVector = ImageVector.vectorResource(drawable.ic_close_sm),
                     contentDescription = null,
-                    tint = MoballTheme.colors.textPrimary,
+                    tint = Color.Unspecified,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .size(44.dp)
                         .padding(10.dp)
                         .noRippleClickable {
                             state.edit { delete(0, length) }
