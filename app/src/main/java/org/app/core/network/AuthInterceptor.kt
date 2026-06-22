@@ -15,7 +15,7 @@ class AuthInterceptor
             val request = chain.request()
             val path = request.url.encodedPath
 
-            if (path.contains("/auth/login/")) {
+            if (path.contains("/auth/login/") || path.contains("/auth/refresh-token")) {
                 return chain.proceed(request)
             }
 

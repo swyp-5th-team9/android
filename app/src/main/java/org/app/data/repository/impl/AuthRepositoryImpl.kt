@@ -9,7 +9,6 @@ import org.app.data.remote.datasource.api.AuthRemoteDataSource
 import org.app.data.remote.datasource.api.KakaoAuthRemoteDataSource
 import org.app.data.remote.datasource.api.NaverAuthRemoteDataSource
 import org.app.data.repository.api.AuthRepository
-import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImpl
@@ -24,7 +23,6 @@ class AuthRepositoryImpl
             suspendRunCatching {
                 val response = authRemoteDataSource.postKakaoLogin(authorization)
                 response.data?.toKakaoLoginToken()?.also { token ->
-                    Timber.d("[AuthRepo] 카카오 서버 액세스토큰 저장: ${token.accessToken}")
                     localTokenDataSource.setLoginType(LOGIN_TYPE_KAKAO)
                     localTokenDataSource.setAccessToken(token.accessToken!!)
                     localTokenDataSource.setRefreshToken(token.refreshToken!!)
@@ -35,15 +33,28 @@ class AuthRepositoryImpl
             suspendRunCatching {
                 val response = authRemoteDataSource.postNaverLogin(authorization)
                 response.data?.toNaverLoginToken()?.also { token ->
-                    Timber.d("[AuthRepo] 네이버 서버 액세스토큰 저장: ${token.accessToken}")
                     localTokenDataSource.setLoginType(LOGIN_TYPE_NAVER)
                     localTokenDataSource.setAccessToken(token.accessToken!!)
                     localTokenDataSource.setRefreshToken(token.refreshToken!!)
                 } ?: throw IllegalArgumentException("response data is null")
             }
 
+        override suspend fun refreshToken(): Result<String> =
+            suspendRunCatching {
+                val refreshToken = localTokenDataSource.getRefreshToken()
+                    ?: throw IllegalStateException("Refresh token not found")
+                val response = authRemoteDataSource.postRefreshToken(refreshToken)
+                val newAccessToken = response.data?.accessToken?.takeIf { it.isNotBlank() }
+                    ?: throw IllegalArgumentException("accessToken is missing in refresh response")
+                localTokenDataSource.setAccessToken(newAccessToken)
+                newAccessToken
+            }
+
         override suspend fun logout(): Result<Unit> =
             suspendRunCatching {
+                val accessToken = localTokenDataSource.getAccessToken()
+                    ?: throw IllegalStateException("Access token not found")
+                authRemoteDataSource.postLogout(accessToken)
                 when (localTokenDataSource.getLoginType()) {
                     LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
                     LOGIN_TYPE_NAVER -> naverAuthRemoteDataSource.logoutNaver().getOrThrow()
