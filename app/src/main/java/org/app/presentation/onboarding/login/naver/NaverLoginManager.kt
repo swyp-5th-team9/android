@@ -6,6 +6,7 @@ import com.navercorp.nid.oauth.util.NidOAuthCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
 import org.app.presentation.onboarding.login.SocialLoginManager
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -21,8 +22,10 @@ class NaverLoginManager
                             override fun onSuccess() {
                                 val token = NidOAuth.getAccessToken()
                                 if (token != null) {
+                                    Timber.d("[Naver] SDK 액세스토큰: $token")
                                     continuation.resume(token)
                                 } else {
+                                    Timber.e("[Naver] SDK 액세스토큰 null")
                                     continuation.resumeWithException(
                                         IllegalStateException("Naver access token is null"),
                                     )
@@ -33,6 +36,7 @@ class NaverLoginManager
                                 errorCode: String,
                                 errorDesc: String,
                             ) {
+                                Timber.e("[Naver] 로그인 실패: $errorCode - $errorDesc")
                                 continuation.resumeWithException(
                                     RuntimeException("Naver login failed: $errorCode - $errorDesc"),
                                 )
