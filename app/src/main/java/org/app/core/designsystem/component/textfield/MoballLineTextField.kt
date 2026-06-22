@@ -116,7 +116,7 @@ fun MoballLineTextField(
                 )
             }
 
-            if (isFilled) {
+            if (isFilled && enabled) {
                 Icon(
                     imageVector = ImageVector.vectorResource(drawable.ic_close_sm),
                     contentDescription = null,
