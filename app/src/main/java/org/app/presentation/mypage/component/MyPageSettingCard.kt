@@ -65,23 +65,21 @@ private fun MyPageSettingRow(
             .padding(horizontal = 16.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        item.iconRes?.let { res ->
-            Icon(
-                imageVector = ImageVector.vectorResource(res),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .size(24.dp),
-            )
-        }
+        Icon(
+            imageVector = ImageVector.vectorResource(item.iconRes),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .size(24.dp),
+        )
 
         Spacer(modifier = Modifier.width(20.dp))
 
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = if (item.iconRes != null) 8.dp else 0.dp),
+                .padding(start = 8.dp),
         ) {
             Text(
                 text = item.title,
