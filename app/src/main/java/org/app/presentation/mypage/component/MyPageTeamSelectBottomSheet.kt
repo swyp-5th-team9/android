@@ -56,7 +56,7 @@ private val KboTeams = listOf("LG", "KT", "삼성", "한화", "KIA", "두산", "
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TeamSelectBottomSheet(
+fun MyPageTeamSelectBottomSheet(
     selectedTeams: List<String>,
     onTeamClick: (String) -> Unit,
     onApply: () -> Unit,
@@ -223,7 +223,7 @@ private fun TeamSelectBottomSheetPreview() {
             }
 
             if (isBottomSheetShow) {
-                TeamSelectBottomSheet(
+                MyPageTeamSelectBottomSheet(
                     selectedTeams = selectedTeams,
                     onTeamClick = { team ->
                         if (team in selectedTeams) {
