@@ -11,6 +11,8 @@ import org.app.presentation.mypage.editprofile.navigation.editProfileScreen
 import org.app.presentation.mypage.editprofile.navigation.navigateToEditProfile
 import org.app.presentation.mypage.report.navigation.navigateToReport
 import org.app.presentation.mypage.report.navigation.reportScreen
+import org.app.presentation.mypage.wishlist.navigation.navigateToWishlist
+import org.app.presentation.mypage.wishlist.navigation.wishlistScreen
 import org.app.presentation.mypage.withdraw.navigation.navigateToWithdraw
 import org.app.presentation.mypage.withdraw.navigation.withdrawScreen
 
@@ -27,6 +29,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToEditProfile = { navController.navigateToEditProfile() },
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
+                navigateToWishlist = { navController.navigateToWishlist() },
             )
         }
         editProfileScreen(onBack = { navController.popBackStack() })
@@ -35,6 +38,7 @@ fun NavGraphBuilder.myPageGraph(
             onBack = { navController.popBackStack() },
             navigateToLogin = navigateToLogin,
         )
+        wishlistScreen(onBack = { navController.popBackStack() })
     }
 }
 

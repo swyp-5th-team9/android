@@ -31,6 +31,10 @@ class MyPageViewModel
                     emit(MyPageContract.SideEffect.NavigateToEditProfile)
                 }
 
+                MyPageContract.Event.OnWishlistClick -> {
+                    emit(MyPageContract.SideEffect.NavigateToWishlist)
+                }
+
                 MyPageContract.Event.OnReportClick -> {
                     emit(MyPageContract.SideEffect.NavigateToReport)
                 }
@@ -39,8 +43,8 @@ class MyPageViewModel
                     emit(MyPageContract.SideEffect.NavigateToWithdraw)
                 }
 
-                MyPageContract.Event.OnSettingPrivacyClick -> {
-                    // TODO: 개인정보 및 보안 화면 구현 후 연결
+                MyPageContract.Event.OnLogoutClick -> {
+                    logout()
                 }
 
                 MyPageContract.Event.OnAddTeamClick -> {

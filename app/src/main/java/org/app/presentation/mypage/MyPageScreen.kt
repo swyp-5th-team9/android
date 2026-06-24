@@ -3,12 +3,16 @@ package org.app.presentation.mypage
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -18,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +39,7 @@ import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
+import org.app.presentation.mypage.component.WishlistPreviewCard
 
 @Composable
 fun MyPageRoute(
@@ -41,6 +47,7 @@ fun MyPageRoute(
     navigateToEditProfile: () -> Unit,
     navigateToReport: () -> Unit,
     navigateToWithdraw: () -> Unit,
+    navigateToWishlist: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
@@ -64,6 +71,10 @@ fun MyPageRoute(
 
                 MyPageContract.SideEffect.NavigateToWithdraw -> {
                     navigateToWithdraw()
+                }
+
+                MyPageContract.SideEffect.NavigateToWishlist -> {
+                    navigateToWishlist()
                 }
 
                 is MyPageContract.SideEffect.ShowToast -> {
@@ -117,6 +128,40 @@ private fun MyPageScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "찜 목록",
+                    style = MoballTheme.typography.heading3.semibold20,
+                    color = MoballTheme.colors.textPrimary,
+                )
+                Text(
+                    text = "전체보기",
+                    style = MoballTheme.typography.body.regular14,
+                    color = MoballTheme.colors.textTertiary,
+                    modifier = Modifier.clickable { onEvent(MyPageContract.Event.OnWishlistClick) },
+                )
+            }
+
+            if (state.wishlistItems.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(state.wishlistItems) { item ->
+                        WishlistPreviewCard(
+                            pubName = item.pubName,
+                            location = item.location,
+                            imageUrl = item.imageUrl,
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Text(
                 text = "설정",
                 style = MoballTheme.typography.heading3.semibold20,
@@ -128,16 +173,21 @@ private fun MyPageScreen(
             MyPageSettingCard(
                 items = listOf(
                     MyPageSettingItem(
-                        iconRes = R.drawable.ic_lock,
-                        title = "개인정보 및 보안",
-                        subtitle = "비밀번호 변경, 계정 보안",
-                        onClick = { onEvent(MyPageContract.Event.OnSettingPrivacyClick) },
-                    ),
-                    MyPageSettingItem(
                         iconRes = R.drawable.ic_headphones,
                         title = "제보하기",
                         subtitle = "잘못된 정보, 앱 오류 신고",
                         onClick = { onEvent(MyPageContract.Event.OnReportClick) },
+                    ),
+                    MyPageSettingItem(
+                        iconRes = R.drawable.ic_lock,
+                        title = "약관 및 정책",
+                        subtitle = "이용약관 · 개인정보처리방침",
+                        onClick = { onEvent(MyPageContract.Event.OnLogoutClick) },
+                    ),
+                    MyPageSettingItem(
+                        iconRes = R.drawable.ic_logout,
+                        title = "로그아웃",
+                        onClick = { onEvent(MyPageContract.Event.OnLogoutClick) },
                     ),
                 ),
             )
@@ -155,6 +205,25 @@ private fun MyPageScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "문의: mmmmm@gmail.com",
+                style = MoballTheme.typography.caption.regular12,
+                color = MoballTheme.colors.textTertiary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth(),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "버전 정보 v1.0.0",
+                style = MoballTheme.typography.caption.regular12,
+                color = MoballTheme.colors.textTertiary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 56.dp),
+            )
         }
 
         if (showTeamSheet) {
