@@ -82,6 +82,7 @@ private fun MainNavHost(
         scheduleGraph()
         pubDetailGraph()
         myPageGraph(
+            navController = appState.navController,
             navigateToLogin = {
                 appState.navController.navigate(Login) {
                     popUpTo(appState.navController.graph.id) { inclusive = true }

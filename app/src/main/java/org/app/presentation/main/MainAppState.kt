@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
@@ -37,7 +38,7 @@ class MainAppState(
     val currentTab: StateFlow<MainTab?> = currentDestination
         .map { destination ->
             MainTab.entries.find { tab ->
-                destination?.hasRoute(tab.route::class) == true
+                destination?.hierarchy?.any { it.hasRoute(tab.route::class) } == true
             }
         }.stateInWhileSubscribed(
             scope = coroutineScope,
@@ -49,7 +50,7 @@ class MainAppState(
     private val isMainTabRoute: StateFlow<Boolean> = currentDestination
         .map { destination ->
             MainTab.entries.any { tab ->
-                destination?.hasRoute(tab.route::class) == true
+                destination?.hierarchy?.any { it.hasRoute(tab.route::class) } == true
             }
         }.stateInWhileSubscribed(
             scope = coroutineScope,
