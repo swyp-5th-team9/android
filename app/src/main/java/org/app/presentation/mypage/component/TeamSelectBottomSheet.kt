@@ -226,10 +226,10 @@ private fun TeamSelectBottomSheetPreview() {
                 TeamSelectBottomSheet(
                     selectedTeams = selectedTeams,
                     onTeamClick = { team ->
-                        selectedTeams = if (team in selectedTeams) {
-                            selectedTeams - team
-                        } else {
-                            selectedTeams + team
+                        if (team in selectedTeams) {
+                            selectedTeams = selectedTeams - team
+                        } else if (selectedTeams.size < 3) {
+                            selectedTeams = selectedTeams + team
                         }
                     },
                     onApply = { isBottomSheetShow = false },
