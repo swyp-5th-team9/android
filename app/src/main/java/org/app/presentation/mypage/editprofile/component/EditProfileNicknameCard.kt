@@ -32,7 +32,6 @@ fun EditProfileNicknameCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MoballTheme.colors.backgroundSurface)
-            .noRippleClickable(onClick = onEditClick)
             .padding(all = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -47,6 +46,7 @@ fun EditProfileNicknameCard(
             imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
             contentDescription = null,
             tint = Color.Unspecified,
+            modifier = Modifier.noRippleClickable(onClick = onEditClick),
         )
     }
 }
