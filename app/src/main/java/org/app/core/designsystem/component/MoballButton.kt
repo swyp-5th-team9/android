@@ -1,7 +1,9 @@
 package org.app.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.designsystem.theme.MoballTheme.colors
+import org.app.core.designsystem.theme.MoballTheme.typography
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -20,23 +24,25 @@ fun MoballButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
-    val colors = MoballTheme.colors
-    val typography = MoballTheme.typography
+    val backgroundColor = if (enabled) colors.accentPrimary else colors.accentDisabled
+    val textColor = if (enabled) colors.textPrimary else colors.textQuaternary
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(colors.accentPrimary)
-            .noRippleClickable(onClick = onClick)
-            .padding(vertical = 15.dp),
+            .background(backgroundColor)
+            .then(
+                if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier,
+            ).padding(vertical = 15.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
             style = typography.heading5.semibold18,
-            color = colors.textPrimary,
+            color = textColor,
         )
     }
 }
@@ -45,10 +51,19 @@ fun MoballButton(
 @Composable
 private fun MoballButtonPreview() {
     MoballTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             MoballButton(
-                text = "적용하기",
+                text = "활성화 버튼",
                 onClick = {},
+                enabled = true,
+            )
+            MoballButton(
+                text = "비활성화 버튼",
+                onClick = {},
+                enabled = false,
             )
         }
     }
