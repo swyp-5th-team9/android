@@ -133,7 +133,15 @@ private fun TeamSelectBottomSheetContent(
             color = MoballTheme.colors.textPrimary,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "최대 3팀까지 등록 가능합니다.",
+            style = MoballTheme.typography.caption.regular12,
+            color = MoballTheme.colors.textTertiary,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),

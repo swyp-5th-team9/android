@@ -72,23 +72,21 @@ fun MyPageAddSportsCard(
                     modifier = Modifier.noRippleClickable(onAddClick),
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        if (supportedTeams.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, bottom = 19.dp),
-                horizontalArrangement = Arrangement.spacedBy(11.dp),
-            ) {
-                supportedTeams.take(3).forEach { team ->
-                    TeamBadge(teamName = team)
+            if (supportedTeams.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 19.dp),
+                    horizontalArrangement = Arrangement.spacedBy(11.dp, Alignment.CenterHorizontally),
+                ) {
+                    supportedTeams.take(3).forEach { team ->
+                        TeamBadge(teamName = team)
+                    }
                 }
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
             }
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

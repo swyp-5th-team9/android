@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -48,6 +49,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
+import org.app.core.designsystem.component.MoballSuccessDialog
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -55,7 +57,6 @@ import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.report.component.ReportCategoryChip
-import org.app.presentation.mypage.report.component.ReportSuccessDialog
 
 @Composable
 fun ReportRoute(
@@ -66,6 +67,21 @@ fun ReportRoute(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showSuccessDialog by remember { mutableStateOf(false) }
+
+    val detailTextState = rememberTextFieldState(state.detailText)
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(3 - state.screenshots.size),
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            viewModel.addScreenshots(uris.map { it.toString() })
+        }
+    }
+
+    LaunchedEffect(detailTextState) {
+        snapshotFlow { detailTextState.text.toString() }
+            .collect { viewModel.onDetailTextChange(it) }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
@@ -87,52 +103,36 @@ fun ReportRoute(
 
     ReportScreen(
         state = state,
+        detailTextState = detailTextState,
+        showSuccessDialog = showSuccessDialog,
         onBack = onBack,
         onCategorySelected = viewModel::selectCategory,
-        onDetailTextChange = viewModel::onDetailTextChange,
-        onImagesPicked = viewModel::addScreenshots,
+        onImagesPicked = {
+            launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
         onImageRemoved = viewModel::removeScreenshot,
         onSubmit = viewModel::submit,
+        onConfirmDialog = {
+            showSuccessDialog = false
+            onBack()
+        },
         modifier = modifier,
     )
-
-    // 제보 접수 완료 모달 (딤 + 팝업)
-    if (showSuccessDialog) {
-        ReportSuccessDialog(
-            onConfirm = {
-                showSuccessDialog = false
-                onBack()
-            },
-        )
-    }
 }
 
 @Composable
 private fun ReportScreen(
     state: ReportContract.State,
+    detailTextState: TextFieldState,
+    showSuccessDialog: Boolean,
     onBack: () -> Unit,
     onCategorySelected: (ReportCategory) -> Unit,
-    onDetailTextChange: (String) -> Unit,
-    onImagesPicked: (List<String>) -> Unit,
+    onImagesPicked: () -> Unit,
     onImageRemoved: (String) -> Unit,
     onSubmit: () -> Unit,
+    onConfirmDialog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val detailTextState = rememberTextFieldState(state.detailText)
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(3 - state.screenshots.size),
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            onImagesPicked(uris.map { it.toString() })
-        }
-    }
-
-    LaunchedEffect(detailTextState) {
-        snapshotFlow { detailTextState.text.toString() }
-            .collect { onDetailTextChange(it) }
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -228,11 +228,7 @@ private fun ReportScreen(
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
-                                .noRippleClickable {
-                                    launcher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                    )
-                                },
+                                .noRippleClickable(onClick = onImagesPicked),
                             contentAlignment = Alignment.Center,
                         ) {
                             val borderColor = MoballTheme.colors.borderStrong
@@ -298,12 +294,20 @@ private fun ReportScreen(
         MoballButton(
             text = "제보 보내기",
             onClick = onSubmit,
-            // enabled = state.canSubmit && !state.isSubmitting,
+            enabled = state.canSubmit && !state.isSubmitting,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         )
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (showSuccessDialog) {
+        MoballSuccessDialog(
+            title = "제보가 접수됐어요",
+            subtitle = "소중한 의견 감사합니다.",
+            onConfirm = onConfirmDialog,
+        )
     }
 }
 
@@ -313,12 +317,14 @@ private fun ReportScreenPreview() {
     MoballTheme {
         ReportScreen(
             state = ReportContract.State(),
+            detailTextState = rememberTextFieldState(),
+            showSuccessDialog = false,
             onBack = {},
             onCategorySelected = {},
-            onDetailTextChange = {},
             onImagesPicked = {},
             onImageRemoved = {},
             onSubmit = {},
+            onConfirmDialog = {},
         )
     }
 }
