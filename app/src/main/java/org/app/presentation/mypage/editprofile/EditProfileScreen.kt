@@ -129,13 +129,11 @@ private fun EditProfileScreen(
                         .background(MoballTheme.colors.backgroundSurface),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (state.profileImageUrl != null) {
-                        UrlImage(
-                            url = state.profileImageUrl,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
+                    UrlImage(
+                        url = state.profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
                 }
 
                 Box(

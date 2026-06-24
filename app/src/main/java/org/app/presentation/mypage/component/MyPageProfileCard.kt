@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
 
@@ -44,7 +45,7 @@ fun MyPageProfileCard(
                 contentAlignment = Alignment.Center,
             ) {
                 UrlImage(
-                    url = profileImageUrl.orEmpty(),
+                    url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
                     contentDescription = "프로필 이미지",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
