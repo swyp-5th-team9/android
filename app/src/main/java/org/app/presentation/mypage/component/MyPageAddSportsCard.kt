@@ -67,7 +67,7 @@ fun MyPageAddSportsCard(
                 )
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
-                    contentDescription = "구단 추가",
+                    contentDescription = null,
                     tint = MoballTheme.colors.iconPrimary,
                     modifier = Modifier.noRippleClickable(onAddClick),
                 )
