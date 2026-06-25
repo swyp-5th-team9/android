@@ -5,12 +5,14 @@ import org.app.data.remote.dto.PostNaverLoginResponse
 
 fun PostNaverLoginResponse.toNaverLoginToken(): SocialLoginToken {
     val access = accessToken?.takeIf { it.isNotBlank() }
-        ?: throw IllegalArgumentException("access_token is missing")
+        ?: throw IllegalArgumentException("accessToken is missing")
     val refresh = refreshToken?.takeIf { it.isNotBlank() }
-        ?: throw IllegalArgumentException("refresh_token is missing")
+        ?: throw IllegalArgumentException("refreshToken is missing")
 
     return SocialLoginToken(
         accessToken = access,
         refreshToken = refresh,
+        role = role,
+        onboardingCompleted = onboardingCompleted,
     )
 }
