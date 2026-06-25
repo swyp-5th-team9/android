@@ -53,7 +53,7 @@ fun OnboardingTeamItem(
                     },
                 ).then(
                     if (isSelected) {
-                        Modifier.border(2.dp, MoballTheme.colors.borderActive, RoundedCornerShape(8.dp))
+                        Modifier.border(2.dp, MoballTheme.colors.borderActive, RoundedCornerShape(16.dp))
                     } else {
                         Modifier
                     },

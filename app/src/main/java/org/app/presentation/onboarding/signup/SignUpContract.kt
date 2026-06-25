@@ -32,7 +32,9 @@ interface SignUpContract {
     }
 
     sealed interface SideEffect {
-        data object NavigateToTeamSelection : SideEffect
+        data class NavigateToTeamSelection(
+            val nickname: String,
+        ) : SideEffect
 
         data object NavigateToComplete : SideEffect
 

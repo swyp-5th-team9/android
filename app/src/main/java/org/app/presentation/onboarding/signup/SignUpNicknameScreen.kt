@@ -44,8 +44,8 @@ fun SignUpNicknameRoute(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
             when (effect) {
-                SignUpContract.SideEffect.NavigateToTeamSelection -> {
-                    navigateToTeamSelection(state.nickname)
+                is SignUpContract.SideEffect.NavigateToTeamSelection -> {
+                    navigateToTeamSelection(effect.nickname)
                 }
 
                 SignUpContract.SideEffect.NavigateBack -> {

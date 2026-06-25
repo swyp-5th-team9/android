@@ -31,7 +31,7 @@ class SignUpViewModel
                 }
 
                 SignUpContract.Event.OnNicknameNext -> {
-                    val nickname = _state.value.nickname.trim()
+                    val nickname = _state.value.nickname
                     when {
                         nickname.isBlank() -> _state.update {
                             it.copy(nicknameError = "닉네임을 입력해주세요")
@@ -42,8 +42,9 @@ class SignUpViewModel
                         }
 
                         else -> viewModelScope.launch {
-                            _state.update { it.copy(nickname = nickname) }
-                            _sideEffect.emit(SignUpContract.SideEffect.NavigateToTeamSelection)
+                            _sideEffect.emit(
+                                SignUpContract.SideEffect.NavigateToTeamSelection(_state.value.nickname),
+                            )
                         }
                     }
                 }
@@ -77,6 +78,7 @@ class SignUpViewModel
         }
 
         private fun submitOnboarding(skipTeams: Boolean = false) {
+            if (_state.value.isLoading) return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 val nickname = _state.value.nickname.trim()
