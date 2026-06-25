@@ -84,6 +84,7 @@ sealed interface TypographyTokens {
     data class Body(
         val semibold14: TextStyle,
         val medium14: TextStyle,
+        val medium16: TextStyle,
         val regular14: TextStyle,
     ) : TypographyTokens
 
@@ -249,6 +250,11 @@ val defaultMoballTypography = MoballTypography(
         medium14 = moballTextStyle(
             fontFamily = PretendardFont.Medium,
             fontSize = 14.sp,
+            lineHeight = 1.5.em,
+        ),
+        medium16 = moballTextStyle(
+            fontFamily = PretendardFont.Medium,
+            fontSize = 16.sp,
             lineHeight = 1.5.em,
         ),
         regular14 = moballTextStyle(

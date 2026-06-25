@@ -10,9 +10,15 @@ import org.app.presentation.home.pubdetail.PubDetailRoute
 
 fun NavController.navigateToPubDetail(navOptions: NavOptions? = null) = navigate(PubDetail, navOptions)
 
-fun NavGraphBuilder.pubDetailGraph() {
+fun NavGraphBuilder.pubDetailGraph(
+    onBack: () -> Unit,
+    onEditClick: () -> Unit,
+) {
     composable<PubDetail> {
-        PubDetailRoute()
+        PubDetailRoute(
+            onBack = onBack,
+            onEditClick = onEditClick,
+        )
     }
 }
 
