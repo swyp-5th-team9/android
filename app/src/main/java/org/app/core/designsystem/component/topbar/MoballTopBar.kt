@@ -1,8 +1,11 @@
 package org.app.core.designsystem.component.topbar
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -23,126 +26,109 @@ import org.app.core.extension.noRippleClickable
 /**
  * 모여볼 기본 탑바 컴포넌트
  *
- * @param state 탑바 상태 ([TopBarState.Default], [TopBarState.Back], [TopBarState.Close], [TopBarState.BackWithMenu], [TopBarState.BackWithSkip])
+ * @param state 탑바 상태 ([TopBarState.Default], [TopBarState.Back], [TopBarState.Close], [TopBarState.BackWithSkip])
  * @param modifier 적용할 Modifier
  */
 @Composable
 fun MoballTopBar(
     state: TopBarState,
     modifier: Modifier = Modifier,
+    centerContent: @Composable (() -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp),
     ) {
-        when (state) {
-            is TopBarState.Back -> {
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.CenterStart),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val onBackClick = when (state) {
+                is TopBarState.Back -> state.onBackClick
+                is TopBarState.BackWithSkip -> state.onBackClick
+                is TopBarState.BackWithTextMenu -> state.onBackClick
+                is TopBarState.BackWithOnboarding1 -> state.onBackClick
+                else -> null
+            }
+
+            if (onBackClick != null) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
                     contentDescription = null,
                     tint = MoballTheme.colors.iconPrimary,
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .noRippleClickable(onClick = state.onBackClick),
+                        .noRippleClickable(onClick = onBackClick),
                 )
+            } else {
                 Spacer(modifier = Modifier.width(16.dp))
             }
 
-            is TopBarState.BackWithOnboarding1 -> {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .noRippleClickable(onClick = state.onBackClick),
+            if (centerContent == null && state.title.isNotEmpty()) {
+                Text(
+                    text = state.title,
+                    style = MoballTheme.typography.heading2.semibold22,
+                    color = MoballTheme.colors.textPrimary,
+                    modifier = Modifier.padding(start = if (onBackClick != null) 4.dp else 0.dp),
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-
-            is TopBarState.BackWithSkip -> {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .noRippleClickable(onClick = state.onBackClick),
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-
-            is TopBarState.BackWithTextMenu -> {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .noRippleClickable(onClick = state.onBackClick),
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-
-            else -> {
-                Spacer(modifier = Modifier.width(16.dp))
             }
         }
 
-        Text(
-            text = state.title,
-            style = MoballTheme.typography.heading2.semibold22,
-            color = MoballTheme.colors.textPrimary,
+        if (centerContent != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .align(Alignment.Center),
+                contentAlignment = Alignment.Center,
+            ) {
+                centerContent()
+            }
+        }
+
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 13.dp),
-        )
+                .fillMaxHeight()
+                .align(Alignment.CenterEnd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            when (state) {
+                is TopBarState.Close -> {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_close),
+                        contentDescription = null,
+                        tint = MoballTheme.colors.iconPrimary,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .noRippleClickable(onClick = state.onCloseClick),
+                    )
+                }
 
-        when (state) {
-            is TopBarState.Close -> {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_close),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .noRippleClickable(onClick = state.onCloseClick),
-                )
+                is TopBarState.BackWithSkip -> {
+                    Text(
+                        text = "건너뛰기",
+                        style = MoballTheme.typography.body.regular14,
+                        color = MoballTheme.colors.textTertiary,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .noRippleClickable(onClick = state.onSkipClick),
+                    )
+                }
+
+                is TopBarState.BackWithTextMenu -> {
+                    Text(
+                        text = state.menuText,
+                        style = MoballTheme.typography.body.medium14,
+                        color = MoballTheme.colors.textSecondary,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .noRippleClickable(onClick = state.onMenuClick),
+                    )
+                }
+
+                else -> {}
             }
-
-            is TopBarState.BackWithSkip -> {
-                Text(
-                    text = "건너뛰기",
-                    style = MoballTheme.typography.body.regular14,
-                    color = MoballTheme.colors.textTertiary,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .noRippleClickable(onClick = state.onSkipClick),
-                )
-            }
-
-            is TopBarState.BackWithOnboarding1 -> {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_onboarding1),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier
-                        .padding(end = 16.dp),
-                )
-            }
-
-            is TopBarState.BackWithTextMenu -> {
-                Text(
-                    text = state.menuText,
-                    style = MoballTheme.typography.body.medium14,
-                    color = MoballTheme.colors.textSecondary,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .noRippleClickable(onClick = state.onMenuClick),
-                )
-            }
-
-            else -> {}
         }
     }
 }
