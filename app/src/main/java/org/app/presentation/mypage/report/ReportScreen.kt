@@ -71,7 +71,7 @@ fun ReportRoute(
     val detailTextState = rememberTextFieldState(state.detailText)
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(3 - state.screenshots.size),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(3),
     ) { uris ->
         if (uris.isNotEmpty()) {
             viewModel.addScreenshots(uris.map { it.toString() })
