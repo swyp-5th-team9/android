@@ -66,7 +66,7 @@ class AuthRemoteDataSourceImpl
             return authService.postRefreshToken(PostRefreshTokenRequest(refreshToken))
         }
 
-        override suspend fun postLogout(authorization: String): BaseResponse<Unit> {
+        override suspend fun postLogout(): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
                     status = "success_mock",
@@ -75,6 +75,6 @@ class AuthRemoteDataSourceImpl
                     timestamp = "",
                 )
             }
-            return authService.postLogout(authorization)
+            return authService.postLogout()
         }
     }

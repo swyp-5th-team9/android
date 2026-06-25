@@ -24,8 +24,14 @@ class AuthRepositoryImpl
                 val response = authRemoteDataSource.postKakaoLogin(authorization)
                 response.data?.toKakaoLoginToken()?.also { token ->
                     localTokenDataSource.setLoginType(LOGIN_TYPE_KAKAO)
-                    localTokenDataSource.setAccessToken(token.accessToken!!)
-                    localTokenDataSource.setRefreshToken(token.refreshToken!!)
+                    localTokenDataSource.setAccessToken(
+                        token.accessToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("accessToken is missing"),
+                    )
+                    localTokenDataSource.setRefreshToken(
+                        token.refreshToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("refreshToken is missing"),
+                    )
                 } ?: throw IllegalArgumentException("response data is null")
             }
 
@@ -34,8 +40,14 @@ class AuthRepositoryImpl
                 val response = authRemoteDataSource.postNaverLogin(authorization)
                 response.data?.toNaverLoginToken()?.also { token ->
                     localTokenDataSource.setLoginType(LOGIN_TYPE_NAVER)
-                    localTokenDataSource.setAccessToken(token.accessToken!!)
-                    localTokenDataSource.setRefreshToken(token.refreshToken!!)
+                    localTokenDataSource.setAccessToken(
+                        token.accessToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("accessToken is missing"),
+                    )
+                    localTokenDataSource.setRefreshToken(
+                        token.refreshToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("refreshToken is missing"),
+                    )
                 } ?: throw IllegalArgumentException("response data is null")
             }
 
@@ -56,8 +68,7 @@ class AuthRepositoryImpl
 
         override suspend fun logout(): Result<Unit> =
             suspendRunCatching {
-                val accessToken = localTokenDataSource.getAccessToken() ?: ""
-                authRemoteDataSource.postLogout(accessToken)
+                authRemoteDataSource.postLogout()
                 when (localTokenDataSource.getLoginType()) {
                     LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
                     LOGIN_TYPE_NAVER -> naverAuthRemoteDataSource.logoutNaver().getOrThrow()

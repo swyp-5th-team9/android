@@ -12,5 +12,5 @@ interface AuthRemoteDataSource {
 
     suspend fun postRefreshToken(refreshToken: String): BaseResponse<PostRefreshTokenResponse>
 
-    suspend fun postLogout(authorization: String): BaseResponse<Unit>
+    suspend fun postLogout(): BaseResponse<Unit>
 }
