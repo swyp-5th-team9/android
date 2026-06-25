@@ -14,8 +14,7 @@ class AuthInterceptor
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
             val path = request.url.encodedPath
-
-            if (path.contains("/auth/login/") || path.contains("/auth/refresh-token")) {
+            if (path.startsWith("/auth/login/") || path == "/auth/refresh-token") {
                 return chain.proceed(request)
             }
 
