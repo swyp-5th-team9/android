@@ -44,16 +44,19 @@ class AuthRepositoryImpl
                 val refreshToken = localTokenDataSource.getRefreshToken()
                     ?: throw IllegalStateException("Refresh token not found")
                 val response = authRemoteDataSource.postRefreshToken(refreshToken)
-                val newAccessToken = response.data?.accessToken?.takeIf { it.isNotBlank() }
+                val data = response.data ?: throw IllegalArgumentException("response data is null")
+                val newAccessToken = data.accessToken?.takeIf { it.isNotBlank() }
                     ?: throw IllegalArgumentException("accessToken is missing in refresh response")
+                val newRefreshToken = data.refreshToken?.takeIf { it.isNotBlank() }
+                    ?: throw IllegalArgumentException("refreshToken is missing in refresh response")
                 localTokenDataSource.setAccessToken(newAccessToken)
+                localTokenDataSource.setRefreshToken(newRefreshToken)
                 newAccessToken
             }
 
         override suspend fun logout(): Result<Unit> =
             suspendRunCatching {
-                val accessToken = localTokenDataSource.getAccessToken()
-                    ?: throw IllegalStateException("Access token not found")
+                val accessToken = localTokenDataSource.getAccessToken() ?: ""
                 authRemoteDataSource.postLogout(accessToken)
                 when (localTokenDataSource.getLoginType()) {
                     LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
