@@ -43,7 +43,7 @@ import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
-import org.app.presentation.mypage.component.WishlistPreviewCard
+import org.app.presentation.mypage.wishlist.component.WishlistPreviewCard
 
 @Composable
 fun MyPageRoute(

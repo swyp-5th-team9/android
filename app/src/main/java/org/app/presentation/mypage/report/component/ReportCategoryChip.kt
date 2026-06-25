@@ -33,7 +33,7 @@ fun ReportCategoryChip(
             .background(bgColor, CircleShape)
             .border(1.dp, borderColor, CircleShape)
             .noRippleClickable(onClick = onClick)
-            .padding(horizontal = 25.dp, vertical = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
