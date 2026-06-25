@@ -37,7 +37,7 @@ data class KboTeam(
     val shortName: String,
     val fullName: String,
     val city: String,
-    @DrawableRes val logoRes: Int,
+    @get:DrawableRes val logoRes: Int,
 )
 
 // TODO teamId는 API 구현 후 서버 명세에 맞게 수정
@@ -86,7 +86,6 @@ fun SignUpTeamSelectionRoute(
                 }
 
                 else -> {
-                    Unit
                 }
             }
         }

@@ -1,5 +1,6 @@
 package org.app.presentation.mypage.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,7 +108,7 @@ private fun MyPageSettingRow(
 }
 
 data class MyPageSettingItem(
-    val iconRes: Int,
+    @get:DrawableRes val iconRes: Int,
     val title: String,
     val subtitle: String? = null,
     val onClick: () -> Unit,
