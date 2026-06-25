@@ -160,7 +160,6 @@ private fun SignUpTeamSelectionScreen(
                 items(KBO_TEAMS, key = { it.id }) { team ->
                     OnboardingTeamItem(
                         teamName = team.shortName,
-                        fullName = team.fullName,
                         city = team.city,
                         logoRes = team.logoRes,
                         isSelected = team.id in state.selectedTeamIds,
