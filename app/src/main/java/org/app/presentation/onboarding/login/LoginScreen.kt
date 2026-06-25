@@ -93,7 +93,8 @@ private fun LoginScreen(
                         1.0f to Color(0xFF1C1C1C),
                     ),
                 ),
-            ).padding(horizontal = 16.dp),
+            )
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -156,8 +157,8 @@ private fun LoginScreen(
                 }
             },
             modifier = Modifier
-                .noRippleClickable(onClick = onPrivacyPolicyClick)
-                .padding(10.dp),
+                .padding(10.dp)
+                .noRippleClickable(onClick = onPrivacyPolicyClick),
         )
     }
 }
