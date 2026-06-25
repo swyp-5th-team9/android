@@ -121,33 +121,26 @@ private fun EditProfileScreen(
 
             Box(
                 modifier = Modifier.size(121.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
+                UrlImage(
+                    url = state.profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
                     modifier = Modifier
                         .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MoballTheme.colors.backgroundSurface),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    UrlImage(
-                        url = state.profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
 
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.TopEnd)
-                        .noRippleClickable(onClick = onPickImage),
+                        .align(Alignment.TopEnd),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_edit_pencil),
                         contentDescription = null,
                         tint = Color.Unspecified,
+                        modifier = Modifier.noRippleClickable(onClick = onPickImage),
                     )
                 }
             }
@@ -185,7 +178,6 @@ private fun EditProfileScreen(
                     onClick = onSave,
                     enabled = state.hasChanged && !state.isLoading,
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
