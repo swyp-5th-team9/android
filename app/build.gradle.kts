@@ -77,6 +77,7 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"${properties.getProperty("prod.base.url") ?: ""}\"")
+            buildConfigField("Boolean", "USE_MOCK_SERVER", "true")
         }
         release {
             isMinifyEnabled = true
@@ -86,6 +87,7 @@ android {
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", "\"${properties.getProperty("prod.base.url") ?: ""}\"")
+            buildConfigField("Boolean", "USE_MOCK_SERVER", "false")
             signingConfig = signingConfigs.getByName("release")
         }
     }

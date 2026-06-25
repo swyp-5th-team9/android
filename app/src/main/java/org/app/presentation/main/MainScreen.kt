@@ -21,6 +21,7 @@ import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
+import org.app.presentation.onboarding.signup.navigation.SignUp
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
@@ -72,6 +73,11 @@ private fun MainNavHost(
                     launchSingleTop = true
                 }
             },
+            navigateToSignUp = {
+                appState.navController.navigate(SignUp) {
+                    launchSingleTop = true
+                }
+            },
         )
         homeGraph(
             navigateToPubDetail = {
@@ -80,8 +86,12 @@ private fun MainNavHost(
         )
         signUpGraph()
         scheduleGraph()
-        pubDetailGraph()
+        pubDetailGraph(
+            onBack = { appState.navController.popBackStack() },
+            onEditClick = { /* TODO */ },
+        )
         myPageGraph(
+            navController = appState.navController,
             navigateToLogin = {
                 appState.navController.navigate(Login) {
                     popUpTo(appState.navController.graph.id) { inclusive = true }

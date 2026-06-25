@@ -12,13 +12,19 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.app.core.network.AuthInterceptor
 import org.app.core.network.isJsonArray
 import org.app.core.network.isJsonObject
 import org.json.JSONObject
 import retrofit2.Converter
 import retrofit2.Retrofit
 import timber.log.Timber
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class LoggingInterceptor
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,6 +47,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @LoggingInterceptor
     fun provideHttpLoggingInterceptor(): Interceptor =
         HttpLoggingInterceptor { message ->
             when {
@@ -70,9 +77,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(loggingInterceptor: Interceptor): OkHttpClient =
+    fun provideOkHttpClient(
+        @LoggingInterceptor loggingInterceptor: Interceptor,
+        authInterceptor: AuthInterceptor,
+    ): OkHttpClient =
         OkHttpClient
             .Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
 

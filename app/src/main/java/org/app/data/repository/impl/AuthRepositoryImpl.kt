@@ -22,21 +22,53 @@ class AuthRepositoryImpl
         override suspend fun postKakaoLogin(authorization: String): Result<SocialLoginToken> =
             suspendRunCatching {
                 val response = authRemoteDataSource.postKakaoLogin(authorization)
-                response.data?.toKakaoLoginToken()?.also {
+                response.data?.toKakaoLoginToken()?.also { token ->
                     localTokenDataSource.setLoginType(LOGIN_TYPE_KAKAO)
+                    localTokenDataSource.setAccessToken(
+                        token.accessToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("accessToken is missing"),
+                    )
+                    localTokenDataSource.setRefreshToken(
+                        token.refreshToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("refreshToken is missing"),
+                    )
                 } ?: throw IllegalArgumentException("response data is null")
             }
 
         override suspend fun postNaverLogin(authorization: String): Result<SocialLoginToken> =
             suspendRunCatching {
                 val response = authRemoteDataSource.postNaverLogin(authorization)
-                response.data?.toNaverLoginToken()?.also {
+                response.data?.toNaverLoginToken()?.also { token ->
                     localTokenDataSource.setLoginType(LOGIN_TYPE_NAVER)
+                    localTokenDataSource.setAccessToken(
+                        token.accessToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("accessToken is missing"),
+                    )
+                    localTokenDataSource.setRefreshToken(
+                        token.refreshToken?.takeIf { it.isNotBlank() }
+                            ?: throw IllegalArgumentException("refreshToken is missing"),
+                    )
                 } ?: throw IllegalArgumentException("response data is null")
+            }
+
+        override suspend fun refreshToken(): Result<String> =
+            suspendRunCatching {
+                val refreshToken = localTokenDataSource.getRefreshToken()
+                    ?: throw IllegalStateException("Refresh token not found")
+                val response = authRemoteDataSource.postRefreshToken(refreshToken)
+                val data = response.data ?: throw IllegalArgumentException("response data is null")
+                val newAccessToken = data.accessToken?.takeIf { it.isNotBlank() }
+                    ?: throw IllegalArgumentException("accessToken is missing in refresh response")
+                val newRefreshToken = data.refreshToken?.takeIf { it.isNotBlank() }
+                    ?: throw IllegalArgumentException("refreshToken is missing in refresh response")
+                localTokenDataSource.setAccessToken(newAccessToken)
+                localTokenDataSource.setRefreshToken(newRefreshToken)
+                newAccessToken
             }
 
         override suspend fun logout(): Result<Unit> =
             suspendRunCatching {
+                authRemoteDataSource.postLogout()
                 when (localTokenDataSource.getLoginType()) {
                     LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
                     LOGIN_TYPE_NAVER -> naverAuthRemoteDataSource.logoutNaver().getOrThrow()

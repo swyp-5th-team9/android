@@ -7,6 +7,8 @@ interface AuthRepository {
 
     suspend fun postNaverLogin(authorization: String): Result<SocialLoginToken>
 
+    suspend fun refreshToken(): Result<String>
+
     suspend fun logout(): Result<Unit>
 
     suspend fun withdraw(): Result<Unit>

@@ -34,6 +34,7 @@ class LoginViewModel
             loginManager
                 .login(context = context)
                 .onSuccess { token ->
+                    Timber.d("[Login] ${type.name} SDK 토큰 수신 완료, 서버 전송 중...")
                     val loginResult =
                         when (type) {
                             SocialType.KAKAO -> authRepository.postKakaoLogin(authorization = token)
@@ -41,13 +42,24 @@ class LoginViewModel
                         }
 
                     loginResult
-                        .onSuccess {
+                        .onSuccess { socialLoginToken ->
+                            Timber.d("[Login] 서버 액세스토큰: ${socialLoginToken.accessToken}")
+                            Timber.d("[Login] 서버 리프레시토큰: ${socialLoginToken.refreshToken}")
+                            Timber.d(
+                                "[Login] role: ${socialLoginToken.role}, onboardingCompleted: ${socialLoginToken.onboardingCompleted}",
+                            )
                             _sideEffect.emit(LoginContract.SideEffect.ShowToast("${type.name} 로그인 성공"))
-                            _sideEffect.emit(LoginContract.SideEffect.NavigateToHome)
+                            if (socialLoginToken.onboardingCompleted == true) {
+                                _sideEffect.emit(LoginContract.SideEffect.NavigateToHome)
+                            } else {
+                                _sideEffect.emit(LoginContract.SideEffect.NavigateToSignUp)
+                            }
                         }.onFailure { error ->
+                            Timber.e(error, "[Login] 서버 로그인 실패")
                             _sideEffect.emit(LoginContract.SideEffect.ShowToast("서버 로그인 실패: ${error.message}"))
                         }
                 }.onFailure { error ->
+                    Timber.e(error, "[Login] ${type.name} SDK 로그인 실패")
                     _sideEffect.emit(LoginContract.SideEffect.ShowToast("${type.name} 로그인 실패: ${error.message}"))
                 }
         }

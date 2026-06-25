@@ -28,6 +28,7 @@ import org.app.domain.model.SocialType
 @Composable
 fun LoginRoute(
     navigateToHome: () -> Unit,
+    navigateToSignUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
@@ -38,6 +39,10 @@ fun LoginRoute(
             when (sideEffect) {
                 LoginContract.SideEffect.NavigateToHome -> {
                     navigateToHome()
+                }
+
+                LoginContract.SideEffect.NavigateToSignUp -> {
+                    navigateToSignUp()
                 }
 
                 is LoginContract.SideEffect.ShowToast -> {
