@@ -50,7 +50,7 @@ import org.app.core.extension.noRippleClickable
  * @param enabled        활성화 여부
  * @param isError        오류 상태 여부
  * @param errorMessage   오류 메시지 (null이면 미표시)
- * @param maxLength      최대 글자 수 (기본값: 500)
+ * @param maxLength      최대 글자 수 (기본값: 20)
  * @param showCharCount  글자 수 카운터 표시 여부 (기본값: true)
  * @param keyboardOptions 키보드 옵션
  */
@@ -63,7 +63,7 @@ fun MoballLineTextField(
     enabled: Boolean = true,
     isError: Boolean = false,
     errorMessage: String? = null,
-    maxLength: Int = 500,
+    maxLength: Int = 20,
     showCharCount: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
 ) {

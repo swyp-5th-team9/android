@@ -21,7 +21,6 @@ import com.moball.app.R.drawable
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 
-// TODO 드롭다운 같은거 문의드린상황 추후 수정 필요
 private val ChipShape = RoundedCornerShape(100.dp)
 
 /**
