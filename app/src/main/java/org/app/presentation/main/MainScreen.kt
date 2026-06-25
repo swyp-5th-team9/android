@@ -21,6 +21,7 @@ import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
+import org.app.presentation.onboarding.signup.navigation.SignUp
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
@@ -69,6 +70,11 @@ private fun MainNavHost(
                     popUpTo(appState.navController.graph.startDestinationId) {
                         inclusive = true
                     }
+                    launchSingleTop = true
+                }
+            },
+            navigateToSignUp = {
+                appState.navController.navigate(SignUp) {
                     launchSingleTop = true
                 }
             },
