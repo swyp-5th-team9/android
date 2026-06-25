@@ -1,29 +1,42 @@
 package org.app.presentation.onboarding.login
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.moball.app.R.drawable.img_kakao_login
-import com.moball.app.R.drawable.img_naver_login
+import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.domain.model.SocialType
+import org.app.presentation.onboarding.login.component.SocialLoginButton
+
+// TODO 개인정보처리방침 URL — 추후 실제 URL로 교체
+private const val PRIVACY_POLICY_URL = "https://moball.kr/privacy"
 
 @Composable
 fun LoginRoute(
@@ -53,11 +66,10 @@ fun LoginRoute(
     }
 
     LoginScreen(
-        onKakaoLoginClick = {
-            viewModel.login(type = SocialType.KAKAO, context = context)
-        },
-        onNaverLoginClick = {
-            viewModel.login(type = SocialType.NAVER, context = context)
+        onKakaoLoginClick = { viewModel.login(type = SocialType.KAKAO, context = context) },
+        onNaverLoginClick = { viewModel.login(type = SocialType.NAVER, context = context) },
+        onPrivacyPolicyClick = {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
         },
         modifier = modifier,
     )
@@ -67,47 +79,97 @@ fun LoginRoute(
 private fun LoginScreen(
     onKakaoLoginClick: () -> Unit,
     onNaverLoginClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // TODO: 추후 수정 예정
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.Center,
+            .background(
+                Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to Color(0xFF31353B),
+                        0.56f to Color(0xFF31353B),
+                        1.0f to Color(0xFF1C1C1C),
+                    ),
+                ),
+            ).padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+
         Image(
-            painter = painterResource(id = img_kakao_login),
+            painter = painterResource(R.drawable.ic_moball_logo),
             contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .noRippleClickable(onClick = onKakaoLoginClick),
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Image(
+            painter = painterResource(R.drawable.img_moball_text),
+            contentDescription = null,
             contentScale = ContentScale.FillWidth,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Image(
-            painter = painterResource(id = img_naver_login),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .noRippleClickable(onClick = onNaverLoginClick),
-            contentScale = ContentScale.FillWidth,
+        // TODO 수정가능성있음 슬로건
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Medium, fontSize = 18.sp)) {
+                    append("야구는 같이, ")
+                }
+                withStyle(SpanStyle(color = Color(0xFFC8E263), fontWeight = FontWeight.Bold, fontSize = 18.sp)) {
+                    append("모여볼!")
+                }
+            },
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.weight(1f))
+
+        SocialLoginButton(
+            iconRes = R.drawable.ic_naver_logo,
+            label = "네이버로 시작하기",
+            onClick = onNaverLoginClick,
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        SocialLoginButton(
+            iconRes = R.drawable.ic_kakao_logo,
+            label = "카카오로 시작하기",
+            onClick = onKakaoLoginClick,
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        color = MoballTheme.colors.textTertiary,
+                        textDecoration = TextDecoration.Underline,
+                        fontSize = 14.sp,
+                    ),
+                ) {
+                    append("개인정보처리방침")
+                }
+            },
+            modifier = Modifier
+                .noRippleClickable(onClick = onPrivacyPolicyClick)
+                .padding(10.dp),
+        )
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun LoginScreenPreview() {
     MoballTheme {
         LoginScreen(
             onKakaoLoginClick = {},
             onNaverLoginClick = {},
+            onPrivacyPolicyClick = {},
         )
     }
 }
