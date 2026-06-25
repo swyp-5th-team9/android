@@ -42,13 +42,18 @@ class WithdrawViewModel
                 authRepository
                     .withdraw()
                     .onSuccess {
-                        _sideEffect.emit(WithdrawContract.SideEffect.ShowToast("회원 탈퇴가 완료됐어요."))
-                        _sideEffect.emit(WithdrawContract.SideEffect.NavigateToLogin)
+                        _sideEffect.emit(WithdrawContract.SideEffect.ShowSuccessDialog)
                         Timber.d("회원 탈퇴 성공")
                     }.onFailure { error ->
                         _sideEffect.emit(WithdrawContract.SideEffect.ShowToast("탈퇴 실패: ${error.message}"))
                         Timber.e("회원 탈퇴 실패: $error")
                     }
+            }
+        }
+
+        fun onWithdrawConfirm() {
+            viewModelScope.launch {
+                _sideEffect.emit(WithdrawContract.SideEffect.NavigateToLogin)
             }
         }
     }

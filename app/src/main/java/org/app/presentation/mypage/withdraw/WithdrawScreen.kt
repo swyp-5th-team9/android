@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
@@ -20,6 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.component.MoballButton
+import org.app.core.designsystem.component.MoballSuccessDialog
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -43,6 +49,14 @@ fun WithdrawRoute(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    val etcTextState = rememberTextFieldState(state.etcText)
+
+    LaunchedEffect(etcTextState) {
+        snapshotFlow { etcTextState.text.toString() }
+            .collect { viewModel.onEtcTextChange(it) }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
@@ -55,6 +69,10 @@ fun WithdrawRoute(
                     onBack()
                 }
 
+                WithdrawContract.SideEffect.ShowSuccessDialog -> {
+                    showSuccessDialog = true
+                }
+
                 is WithdrawContract.SideEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
@@ -64,11 +82,16 @@ fun WithdrawRoute(
 
     WithdrawScreen(
         state = state,
+        etcTextState = etcTextState,
+        showSuccessDialog = showSuccessDialog,
         onBack = onBack,
         onReasonSelected = viewModel::selectReason,
-        onEtcTextChange = viewModel::onEtcTextChange,
         onAgreementToggle = viewModel::toggleAgreement,
         onWithdrawClick = viewModel::withdraw,
+        onConfirmDialog = {
+            showSuccessDialog = false
+            viewModel.onWithdrawConfirm()
+        },
         modifier = modifier,
     )
 }
@@ -76,15 +99,15 @@ fun WithdrawRoute(
 @Composable
 private fun WithdrawScreen(
     state: WithdrawContract.State,
+    etcTextState: TextFieldState,
+    showSuccessDialog: Boolean,
     onBack: () -> Unit,
     onReasonSelected: (WithdrawReason) -> Unit,
-    onEtcTextChange: (String) -> Unit,
     onAgreementToggle: () -> Unit,
     onWithdrawClick: () -> Unit,
+    onConfirmDialog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val etcTextState = rememberTextFieldState(state.etcText)
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -135,38 +158,47 @@ private fun WithdrawScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onAgreementToggle() },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Checkbox(
-                checked = state.isAgreed,
-                onCheckedChange = { onAgreementToggle() },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = MoballTheme.colors.accentPrimary,
-                    checkmarkColor = MoballTheme.colors.textPrimary,
-                    uncheckedColor = MoballTheme.colors.borderStrong,
-                ),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAgreementToggle() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Checkbox(
+                    checked = state.isAgreed,
+                    onCheckedChange = { onAgreementToggle() },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MoballTheme.colors.accentPrimary,
+                        checkmarkColor = MoballTheme.colors.textPrimary,
+                        uncheckedColor = MoballTheme.colors.borderStrong,
+                    ),
+                )
+                Text(
+                    text = "탈퇴하면 모여볼 계정 이용이 종료돼요.",
+                    style = MoballTheme.typography.body.medium14,
+                    color = MoballTheme.colors.textPrimary,
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            MoballButton(
+                text = "탈퇴하기",
+                onClick = onWithdrawClick,
+                enabled = state.canWithdraw,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
             )
-            Text(
-                text = "위 주의사항을 숙지했고, 탈퇴에 동의합니다.",
-                style = MoballTheme.typography.body.medium14,
-                color = MoballTheme.colors.textPrimary,
-            )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        MoballButton(
-            text = "탈퇴하기",
-            onClick = onWithdrawClick,
-            enabled = state.canWithdraw,
-            modifier = Modifier.fillMaxWidth(),
+    }
+    if (showSuccessDialog) {
+        MoballSuccessDialog(
+            title = "탈퇴가 완료되었어요.",
+            subtitle = "이용해 주셔서 감사합니다.",
+            onConfirm = onConfirmDialog,
         )
     }
 }
@@ -180,11 +212,13 @@ private fun WithdrawScreenPreview() {
                 selectedReason = WithdrawReason.REASON_1,
                 isAgreed = false,
             ),
+            etcTextState = rememberTextFieldState(),
+            showSuccessDialog = false,
             onBack = {},
             onReasonSelected = {},
-            onEtcTextChange = {},
             onAgreementToggle = {},
             onWithdrawClick = {},
+            onConfirmDialog = {},
         )
     }
 }

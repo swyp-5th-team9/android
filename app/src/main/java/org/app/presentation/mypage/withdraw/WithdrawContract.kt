@@ -15,6 +15,8 @@ interface WithdrawContract {
 
         data object NavigateBack : SideEffect
 
+        data object ShowSuccessDialog : SideEffect
+
         data class ShowToast(
             val message: String,
         ) : SideEffect
