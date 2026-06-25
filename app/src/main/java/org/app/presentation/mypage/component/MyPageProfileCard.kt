@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.model.content.CircleShape
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
@@ -41,8 +40,8 @@ fun MyPageProfileCard(
                 url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
                 contentDescription = "프로필 이미지",
                 modifier = Modifier
-                    .size(80.dp)
-                    .background(MoballTheme.colors.backgroundSurface, shape = CircleShape),
+                    .background(MoballTheme.colors.backgroundSurface, shape = CircleShape)
+                    .size(80.dp),
                 contentScale = ContentScale.Crop,
             )
 

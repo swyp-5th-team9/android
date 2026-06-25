@@ -29,6 +29,8 @@ interface MyPageContract {
         ) : Event
 
         data object OnTeamSelectDismiss : Event
+
+        data object OnCopyEmailClick : Event
     }
 
     sealed interface SideEffect {

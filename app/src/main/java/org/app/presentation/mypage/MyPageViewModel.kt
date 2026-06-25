@@ -65,6 +65,10 @@ class MyPageViewModel
                 MyPageContract.Event.OnTeamSelectDismiss -> {
                     Unit
                 }
+
+                MyPageContract.Event.OnCopyEmailClick -> {
+                    emit(MyPageContract.SideEffect.ShowToast("이메일 주소가 복사되었습니다."))
+                }
             }
         }
 
