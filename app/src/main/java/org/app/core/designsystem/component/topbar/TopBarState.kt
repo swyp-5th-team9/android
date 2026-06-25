@@ -17,8 +17,14 @@ sealed interface TopBarState {
         val onCloseClick: () -> Unit,
     ) : TopBarState
 
-    data class BackWithMenu(
+    data class BackWithOnboarding1(
         override val title: String,
+        val onBackClick: () -> Unit,
+    ) : TopBarState
+
+    data class BackWithTextMenu(
+        override val title: String,
+        val menuText: String,
         val onBackClick: () -> Unit,
         val onMenuClick: () -> Unit,
     ) : TopBarState

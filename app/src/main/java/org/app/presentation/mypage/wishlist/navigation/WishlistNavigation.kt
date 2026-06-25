@@ -19,6 +19,7 @@ fun NavGraphBuilder.wishlistScreen(
         WishlistRoute(
             onBack = onBack,
             navigateToPubDetail = navigateToPubDetail,
+            // TODO: pubId 를 포함한 경로로 이동하는 로직 구현 필요
         )
     }
 }

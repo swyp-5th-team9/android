@@ -48,11 +48,11 @@ class ReportViewModel
                 _state.update { it.copy(isSubmitting = true) }
                 try {
                     // TODO: API 연결
-                    Timber.d("제보 전송: category=${_state.value.selectedCategory}, detail=${_state.value.detailText}")
+                    Timber.d("제보 전송 시도: category=${_state.value.selectedCategory}")
                     _sideEffect.emit(ReportContract.SideEffect.ShowSuccessDialog)
                 } catch (e: Exception) {
-                    _sideEffect.emit(ReportContract.SideEffect.ShowToast("제보 전송 실패: ${e.message}"))
-                    Timber.e("제보 전송 실패: $e")
+                    _sideEffect.emit(ReportContract.SideEffect.ShowToast("제보 전송에 실패했습니다. 잠시 후 다시 시도해 주세요."))
+                    Timber.e(e, "제보 전송 실패")
                 } finally {
                     _state.update { it.copy(isSubmitting = false) }
                 }

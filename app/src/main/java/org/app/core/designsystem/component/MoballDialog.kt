@@ -66,75 +66,78 @@ fun MoballDialog(
                         ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    val vector = iconVector ?: ImageVector.vectorResource(id = iconRes!!)
-                    Icon(
-                        imageVector = vector,
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(44.dp),
-                    )
+                    val vector = iconVector
+                        ?: iconRes?.let { ImageVector.vectorResource(id = it) }
+                    if (vector != null) {
+                        Icon(
+                            imageVector = vector,
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(44.dp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(28.dp))
                 }
-                Spacer(modifier = Modifier.height(28.dp))
-            }
 
-            Text(
-                text = title,
-                style = MoballTheme.typography.heading2.bold22,
-                color = MoballTheme.colors.textPrimary,
-                textAlign = TextAlign.Center,
-            )
+                Text(
+                    text = title,
+                    style = MoballTheme.typography.heading2.bold22,
+                    color = MoballTheme.colors.textPrimary,
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = subtitle,
-                style = MoballTheme.typography.heading6.semibold16,
-                color = MoballTheme.colors.textSecondary,
-                textAlign = TextAlign.Center,
-            )
+                Text(
+                    text = subtitle,
+                    style = MoballTheme.typography.heading6.semibold16,
+                    color = MoballTheme.colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                if (onDismiss != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (onDismiss != null) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(
+                                    color = MoballTheme.colors.backgroundSurface,
+                                    shape = RoundedCornerShape(12.dp),
+                                ).noRippleClickable(onClick = onDismiss)
+                                .padding(vertical = 15.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = dismissText,
+                                style = MoballTheme.typography.heading5.semibold18,
+                                color = MoballTheme.colors.textPrimary,
+                            )
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .background(
-                                color = Color(0xFFF1F2F4),
+                                color = MoballTheme.colors.accentPrimary,
                                 shape = RoundedCornerShape(12.dp),
-                            ).noRippleClickable(onClick = onDismiss)
+                            ).noRippleClickable(onClick = onConfirm)
                             .padding(vertical = 15.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = dismissText,
+                            text = confirmText,
                             style = MoballTheme.typography.heading5.semibold18,
                             color = MoballTheme.colors.textPrimary,
                         )
                     }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(
-                            color = MoballTheme.colors.accentPrimary,
-                            shape = RoundedCornerShape(12.dp),
-                        ).noRippleClickable(onClick = onConfirm)
-                        .padding(vertical = 15.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = confirmText,
-                        style = MoballTheme.typography.heading5.semibold18,
-                        color = MoballTheme.colors.textPrimary,
-                    )
                 }
             }
         }

@@ -3,6 +3,7 @@ package org.app.core.designsystem.component
 import androidx.compose.foundation.Image
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -10,7 +11,10 @@ import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 
 @Composable
-fun MoballBaseBallTeamBadge(teamName: String) {
+fun MoballBaseBallTeamBadge(
+    teamName: String,
+    modifier: Modifier = Modifier,
+) {
     val teamIconRes = when (teamName) {
         "LG" -> R.drawable.img_lg
         "KT" -> R.drawable.img_kt
@@ -30,6 +34,7 @@ fun MoballBaseBallTeamBadge(teamName: String) {
             painter = painterResource(id = teamIconRes),
             contentDescription = teamName,
             contentScale = ContentScale.Fit,
+            modifier = modifier,
         )
     } else {
         Text(
@@ -37,6 +42,7 @@ fun MoballBaseBallTeamBadge(teamName: String) {
             style = MoballTheme.typography.heading5.extrabold18,
             color = MoballTheme.colors.textPrimary,
             textAlign = TextAlign.Center,
+            modifier = modifier,
         )
     }
 }

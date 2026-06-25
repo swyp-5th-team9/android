@@ -48,7 +48,7 @@ fun MoballTopBar(
                 Spacer(modifier = Modifier.width(16.dp))
             }
 
-            is TopBarState.BackWithMenu -> {
+            is TopBarState.BackWithOnboarding1 -> {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
                     contentDescription = null,
@@ -61,6 +61,18 @@ fun MoballTopBar(
             }
 
             is TopBarState.BackWithSkip -> {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
+                    contentDescription = null,
+                    tint = MoballTheme.colors.iconPrimary,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .noRippleClickable(onClick = state.onBackClick),
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
+            is TopBarState.BackWithTextMenu -> {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
                     contentDescription = null,
@@ -109,6 +121,27 @@ fun MoballTopBar(
                 )
             }
 
+            is TopBarState.BackWithOnboarding1 -> {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_onboarding1),
+                    contentDescription = null,
+                    tint = MoballTheme.colors.iconPrimary,
+                    modifier = Modifier
+                        .padding(end = 16.dp),
+                )
+            }
+
+            is TopBarState.BackWithTextMenu -> {
+                Text(
+                    text = state.menuText,
+                    style = MoballTheme.typography.body.medium14,
+                    color = MoballTheme.colors.textSecondary,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .noRippleClickable(onClick = state.onMenuClick),
+                )
+            }
+
             else -> {}
         }
     }
@@ -119,7 +152,7 @@ class TopBarStateProvider : PreviewParameterProvider<TopBarState> {
         TopBarState.Default(title = "제목"),
         TopBarState.Back(title = "뒤로가기", onBackClick = {}),
         TopBarState.Close(title = "닫기", onCloseClick = {}),
-        TopBarState.BackWithSkip(onBackClick = {}, onSkipClick = {}), // 기존 코드 형태 유지
+        TopBarState.BackWithSkip(onBackClick = {}, onSkipClick = {}),
     )
 }
 

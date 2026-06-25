@@ -32,7 +32,6 @@ import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.wishlist.component.WishlistEditButton
 import org.app.presentation.mypage.wishlist.component.WishlistItemCard
 
@@ -103,23 +102,14 @@ private fun WishlistScreen(
             .background(MoballTheme.colors.backgroundBase),
     ) {
         Column {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                MoballTopBar(
-                    state = TopBarState.Back(
-                        title = "찜 목록",
-                        onBackClick = onBack,
-                    ),
-                )
-                Text(
-                    text = if (state.isEditMode) "완료" else "편집",
-                    style = MoballTheme.typography.body.medium14,
-                    color = MoballTheme.colors.textSecondary,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp, top = 13.dp, bottom = 13.dp)
-                        .noRippleClickable(onClick = onEditClick),
-                )
-            }
+            MoballTopBar(
+                state = TopBarState.BackWithTextMenu(
+                    title = "찜 목록",
+                    menuText = if (state.isEditMode) "완료" else "편집",
+                    onBackClick = onBack,
+                    onMenuClick = onEditClick,
+                ),
+            )
 
             LazyColumn(
                 modifier = Modifier
