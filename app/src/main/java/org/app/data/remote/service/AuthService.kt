@@ -28,8 +28,5 @@ interface AuthService {
     ): BaseResponse<PostRefreshTokenResponse>
 
     @POST("/api/v1/auth/logout")
-    suspend fun postLogout(
-        @Header("Authorization")
-        authorization: String,
-    ): BaseResponse<Unit>
+    suspend fun postLogout(): BaseResponse<Unit>
 }
