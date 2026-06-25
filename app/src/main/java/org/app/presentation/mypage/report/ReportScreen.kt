@@ -49,7 +49,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
-import org.app.core.designsystem.component.MoballSuccessDialog
+import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -303,7 +303,7 @@ private fun ReportScreen(
     }
 
     if (showSuccessDialog) {
-        MoballSuccessDialog(
+        MoballDialog(
             title = "제보가 접수됐어요",
             subtitle = "소중한 의견 감사합니다.",
             onConfirm = onConfirmDialog,
