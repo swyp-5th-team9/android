@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.component.MoballButton
-import org.app.core.designsystem.component.MoballSuccessDialog
+import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -195,7 +195,7 @@ private fun WithdrawScreen(
         }
     }
     if (showSuccessDialog) {
-        MoballSuccessDialog(
+        MoballDialog(
             title = "탈퇴가 완료되었어요.",
             subtitle = "이용해 주셔서 감사합니다.",
             onConfirm = onConfirmDialog,

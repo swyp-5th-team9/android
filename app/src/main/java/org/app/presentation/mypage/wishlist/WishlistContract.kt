@@ -48,4 +48,5 @@ data class WishlistItem(
     val pubName: String,
     val location: String,
     val imageUrl: String? = null,
+    val isFavorite: Boolean = true,
 )

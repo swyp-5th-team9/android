@@ -15,7 +15,18 @@ import javax.inject.Inject
 class WishlistViewModel
     @Inject
     constructor() : ViewModel() {
-        private val _state = MutableStateFlow(WishlistContract.State())
+        private val _state = MutableStateFlow(
+            WishlistContract.State(
+                items = listOf(
+                    WishlistItem("1", "야구펍 홍대점", "마포구", isFavorite = true),
+                    WishlistItem("2", "롯데 응원 맛집", "잠실동", isFavorite = false),
+                    WishlistItem("3", "시그니처 펍", "용산구", isFavorite = true),
+                    WishlistItem("4", "홈런 안주 맛집", "강남구", isFavorite = true),
+                    WishlistItem("5", "베이스볼 파크", "영등포구", isFavorite = false),
+                    WishlistItem("6", "스트라이크 존", "송파구", isFavorite = true),
+                ),
+            ),
+        )
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<WishlistContract.SideEffect>()
@@ -33,12 +44,16 @@ class WishlistViewModel
 
                 WishlistContract.Event.OnDeleteSelected -> {
                     val toRemove = _state.value.selectedIds
+                    val count = toRemove.size
                     _state.update { current ->
                         current.copy(
                             items = current.items.filter { it.pubId !in toRemove },
                             selectedIds = emptySet(),
                             isEditMode = false,
                         )
+                    }
+                    viewModelScope.launch {
+                        _sideEffect.emit(WishlistContract.SideEffect.ShowToast("${count}개의 펍이 삭제되었습니다."))
                     }
                     // TODO: API 연결 - 서버에서 찜 삭제
                 }
@@ -52,11 +67,14 @@ class WishlistViewModel
                 }
 
                 is WishlistContract.Event.OnToggleFavorite -> {
-                    // 하트 취소 → 목록에서 제거
                     _state.update { current ->
-                        current.copy(items = current.items.filter { it.pubId != event.pubId })
+                        current.copy(
+                            items = current.items.map {
+                                if (it.pubId == event.pubId) it.copy(isFavorite = !it.isFavorite) else it
+                            },
+                        )
                     }
-                    // TODO: API 연결 - 찜 해제
+                    // TODO: API 연결 - 찜 상태 업데이트
                 }
 
                 is WishlistContract.Event.OnPubClick -> {

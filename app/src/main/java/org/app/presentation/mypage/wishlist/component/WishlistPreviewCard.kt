@@ -20,18 +20,21 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 
 @Composable
 fun WishlistPreviewCard(
     pubName: String,
     location: String,
     imageUrl: String?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .width(162.dp)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .noRippleClickable(onClick = onClick),
     ) {
         UrlImage(
             url = imageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_wish_item,
@@ -73,6 +76,7 @@ private fun WishlistPreviewCardPreview() {
             pubName = "버드나무 브루어리",
             location = "강릉",
             imageUrl = null,
+            onClick = {},
             modifier = Modifier.padding(16.dp),
         )
     }

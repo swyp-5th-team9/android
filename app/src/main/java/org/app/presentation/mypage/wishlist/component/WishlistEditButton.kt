@@ -48,16 +48,15 @@ fun WishlistEditButton(
 
         val deleteContainerColor =
             if (hasSelection) MoballTheme.colors.backgroundScrim else MoballTheme.colors.borderNormal
-        val deleteContentColor = MoballTheme.colors.textPrimaryInverse
+        val deleteContentColor =
+            if (hasSelection) MoballTheme.colors.textPrimaryInverse else MoballTheme.colors.textQuaternary
 
         Box(
             modifier = Modifier
                 .weight(1f)
                 .background(deleteContainerColor, RoundedCornerShape(12.dp))
-                .padding(vertical = 16.dp)
-                .then(
-                    if (hasSelection) Modifier.noRippleClickable(onClick = onDelete) else Modifier,
-                ),
+                .noRippleClickable { if (hasSelection) onDelete() }
+                .padding(vertical = 16.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(

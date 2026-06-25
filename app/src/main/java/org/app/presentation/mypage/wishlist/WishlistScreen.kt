@@ -17,12 +17,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.R
+import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
@@ -38,13 +44,19 @@ fun WishlistRoute(
     viewModel: WishlistViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
             when (effect) {
                 WishlistContract.SideEffect.NavigateBack -> onBack()
                 is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
-                is WishlistContract.SideEffect.ShowToast -> Unit
+                is WishlistContract.SideEffect.ShowToast -> {
+                    android.widget.Toast
+                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }
@@ -54,11 +66,24 @@ fun WishlistRoute(
         onBack = onBack,
         onEditClick = { viewModel.onEvent(WishlistContract.Event.OnEditClick) },
         onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
-        onDeleteSelected = { viewModel.onEvent(WishlistContract.Event.OnDeleteSelected) },
+        onDeleteClick = { showDeleteDialog = true },
         onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
         onHeartClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnToggleFavorite(pubId)) },
         modifier = modifier,
     )
+
+    if (showDeleteDialog) {
+        MoballDialog(
+            title = "펍 즐겨찾기 삭제",
+            subtitle = "즐겨찾기 목록에서 삭제할까요?",
+            onConfirm = {
+                viewModel.onEvent(WishlistContract.Event.OnDeleteSelected)
+                showDeleteDialog = false
+            },
+            onDismiss = { showDeleteDialog = false },
+            iconRes = R.drawable.ic_trash_full,
+        )
+    }
 }
 
 @Composable
@@ -67,7 +92,7 @@ private fun WishlistScreen(
     onBack: () -> Unit,
     onEditClick: () -> Unit,
     onCancelEdit: () -> Unit,
-    onDeleteSelected: () -> Unit,
+    onDeleteClick: () -> Unit,
     onCardClick: (pubId: String) -> Unit,
     onHeartClick: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -144,7 +169,7 @@ private fun WishlistScreen(
             WishlistEditButton(
                 hasSelection = state.hasSelection,
                 onCancel = onCancelEdit,
-                onDelete = onDeleteSelected,
+                onDelete = onDeleteClick,
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
@@ -168,7 +193,7 @@ private fun WishlistScreenPreview() {
             onBack = {},
             onEditClick = {},
             onCancelEdit = {},
-            onDeleteSelected = {},
+            onDeleteClick = {},
             onCardClick = {},
             onHeartClick = {},
         )
@@ -192,7 +217,7 @@ private fun WishlistScreenEditPreview() {
             onBack = {},
             onEditClick = {},
             onCancelEdit = {},
-            onDeleteSelected = {},
+            onDeleteClick = {},
             onCardClick = {},
             onHeartClick = {},
         )

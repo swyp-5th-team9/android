@@ -66,18 +66,16 @@ fun WishlistItemCard(
                 )
             }
 
-            if (isEditMode) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(
-                        if (isSelected) R.drawable.ic_wish_heart_fill else R.drawable.ic_wish_heart,
-                    ),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .noRippleClickable(onClick = onHeartClick),
-                )
-            }
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    if (item.isFavorite) R.drawable.ic_wish_heart_fill else R.drawable.ic_wish_heart,
+                ),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .noRippleClickable(onClick = onHeartClick),
+            )
 
             if (isEditMode) {
                 Icon(
