@@ -7,6 +7,7 @@ import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.app.core.util.suspendRunCatching
 import org.app.presentation.onboarding.login.SocialLoginManager
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -37,9 +38,11 @@ class KakaoLoginManager
             suspendCancellableCoroutine { continuation ->
                 UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                     if (error != null) {
+                        Timber.e(error, "[Kakao] KakaoTalk 로그인 실패")
                         continuation.resumeWithException(error)
                         return@loginWithKakaoTalk
                     } else if (token != null) {
+                        Timber.d("[Kakao] KakaoTalk SDK 액세스토큰: ${token.accessToken}")
                         continuation.resume(token.accessToken)
                     }
                 }
@@ -49,9 +52,11 @@ class KakaoLoginManager
             suspendCancellableCoroutine { continuation ->
                 UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
                     if (error != null) {
+                        Timber.e(error, "[Kakao] 카카오계정 로그인 실패")
                         continuation.resumeWithException(error)
                         return@loginWithKakaoAccount
                     } else if (token != null) {
+                        Timber.d("[Kakao] 카카오계정 SDK 액세스토큰: ${token.accessToken}")
                         continuation.resume(token.accessToken)
                     }
                 }
