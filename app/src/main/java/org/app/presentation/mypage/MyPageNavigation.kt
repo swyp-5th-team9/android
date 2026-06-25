@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.MainTabRoute
+import org.app.presentation.home.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.mypage.editprofile.navigation.editProfileScreen
 import org.app.presentation.mypage.editprofile.navigation.navigateToEditProfile
 import org.app.presentation.mypage.report.navigation.navigateToReport
@@ -38,7 +39,10 @@ fun NavGraphBuilder.myPageGraph(
             onBack = { navController.popBackStack() },
             navigateToLogin = navigateToLogin,
         )
-        wishlistScreen(onBack = { navController.popBackStack() })
+        wishlistScreen(
+            onBack = { navController.popBackStack() },
+            navigateToPubDetail = { navController.navigateToPubDetail() },
+        )
     }
 }
 

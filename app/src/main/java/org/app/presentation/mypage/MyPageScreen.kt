@@ -4,7 +4,16 @@ import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -43,8 +52,10 @@ import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
+import org.app.presentation.mypage.wishlist.WishlistItem
 import org.app.presentation.mypage.wishlist.component.WishlistPreviewCard
 
+// TODO 찜 목록 없을 때 디자인 수정 예정
 @Composable
 fun MyPageRoute(
     navigateToLogin: () -> Unit,
@@ -127,8 +138,7 @@ private fun MyPageScreen(
         MoballTopBar(state = TopBarState.Default(title = "마이페이지"))
 
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 56.dp),
         ) {
             item {
@@ -147,31 +157,43 @@ private fun MyPageScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "찜 목록",
-                        style = MoballTheme.typography.heading3.semibold20,
-                        color = MoballTheme.colors.textPrimary,
-                    )
-                    Text(
-                        text = "전체보기",
-                        style = MoballTheme.typography.body.regular14,
-                        color = MoballTheme.colors.textTertiary,
-                        modifier = Modifier.clickable { onEvent(MyPageContract.Event.OnWishlistClick) },
-                    )
-                }
-            }
+                if (state.wishlistItems.isEmpty()) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "펍 즐겨찾기 목록",
+                            style = MoballTheme.typography.heading3.semibold20,
+                            color = MoballTheme.colors.textPrimary,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "아직 즐겨찾기에 추가한 펍이 없어요",
+                            style = MoballTheme.typography.body.regular14,
+                            color = MoballTheme.colors.textTertiary,
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "찜 목록",
+                            style = MoballTheme.typography.heading3.semibold20,
+                            color = MoballTheme.colors.textPrimary,
+                        )
+                        Text(
+                            text = "전체보기",
+                            style = MoballTheme.typography.body.regular14,
+                            color = MoballTheme.colors.textTertiary,
+                            modifier = Modifier.clickable { onEvent(MyPageContract.Event.OnWishlistClick) },
+                        )
+                    }
 
-            if (state.wishlistItems.isNotEmpty()) {
-                item {
                     Spacer(modifier = Modifier.height(12.dp))
 
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(state.wishlistItems) { item ->
+                        items(state.wishlistItems.take(5)) { item ->
                             WishlistPreviewCard(
                                 pubName = item.pubName,
                                 location = item.location,
@@ -205,7 +227,8 @@ private fun MyPageScreen(
                             iconRes = R.drawable.ic_lock,
                             title = "약관 및 정책",
                             subtitle = "이용약관 · 개인정보처리방침",
-                            onClick = { onEvent(MyPageContract.Event.OnLogoutClick) },
+                            onClick = { // TODO 약관 및 정책 딥링크 연결
+                            },
                         ),
                         MyPageSettingItem(
                             iconRes = R.drawable.ic_logout,
@@ -264,8 +287,7 @@ private fun MyPageScreen(
                     style = MoballTheme.typography.caption.regular12,
                     color = MoballTheme.colors.textTertiary,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -292,6 +314,29 @@ private fun MyPageScreenPreview() {
             state = MyPageContract.State(
                 nickname = "닉네임",
                 supportedTeams = listOf("한화", "KT", "삼성"),
+            ),
+            isTeamSheetVisible = false,
+            onEvent = {},
+            onCopyEmail = {},
+            onAddTeamClick = {},
+            onDismissTeamSheet = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MyPageScreenWithWishlistPreview() {
+    MoballTheme {
+        MyPageScreen(
+            state = MyPageContract.State(
+                nickname = "닉네임",
+                supportedTeams = listOf("한화", "KT", "삼성"),
+                wishlistItems = listOf(
+                    WishlistItem("1", "버드나무 브루어리", "강릉", null),
+                    WishlistItem("2", "데블스도어", "반포", null),
+                    WishlistItem("3", "플레이볼", "잠실", null),
+                ),
             ),
             isTeamSheetVisible = false,
             onEvent = {},
