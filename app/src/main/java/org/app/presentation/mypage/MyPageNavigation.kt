@@ -31,6 +31,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
                 navigateToWishlist = { navController.navigateToWishlist() },
+                navigateToPubDetail = { navController.navigateToPubDetail() },
             )
         }
         editProfileScreen(onBack = { navController.popBackStack() })

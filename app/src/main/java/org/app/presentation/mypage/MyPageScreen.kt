@@ -63,6 +63,7 @@ fun MyPageRoute(
     navigateToReport: () -> Unit,
     navigateToWithdraw: () -> Unit,
     navigateToWishlist: () -> Unit,
+    navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
@@ -93,6 +94,10 @@ fun MyPageRoute(
 
                 MyPageContract.SideEffect.NavigateToWishlist -> {
                     navigateToWishlist()
+                }
+
+                is MyPageContract.SideEffect.NavigateToPubDetail -> {
+                    navigateToPubDetail(effect.pubId)
                 }
 
                 is MyPageContract.SideEffect.ShowToast -> {
@@ -198,6 +203,7 @@ private fun MyPageScreen(
                                 pubName = item.pubName,
                                 location = item.location,
                                 imageUrl = item.imageUrl,
+                                onClick = { onEvent(MyPageContract.Event.OnPubClick(item.pubId)) },
                             )
                         }
                     }

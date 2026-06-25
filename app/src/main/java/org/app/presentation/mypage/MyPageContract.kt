@@ -31,6 +31,10 @@ interface MyPageContract {
         data object OnTeamSelectDismiss : Event
 
         data object OnCopyEmailClick : Event
+
+        data class OnPubClick(
+            val pubId: String,
+        ) : Event
     }
 
     sealed interface SideEffect {
@@ -43,6 +47,10 @@ interface MyPageContract {
         data object NavigateToWithdraw : SideEffect
 
         data object NavigateToWishlist : SideEffect
+
+        data class NavigateToPubDetail(
+            val pubId: String,
+        ) : SideEffect
 
         data class ShowToast(
             val message: String,

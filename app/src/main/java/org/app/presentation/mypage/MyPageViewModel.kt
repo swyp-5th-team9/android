@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
+import org.app.presentation.mypage.wishlist.WishlistItem
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -19,7 +20,17 @@ class MyPageViewModel
     constructor(
         private val authRepository: AuthRepository,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(MyPageContract.State())
+        private val _state = MutableStateFlow(
+            MyPageContract.State(
+                nickname = "모볼매니아",
+                supportedTeams = listOf("한화", "KT"),
+                wishlistItems = listOf(
+                    WishlistItem("1", "야구펍 홍대점", "마포구"),
+                    WishlistItem("2", "롯데 응원 맛집", "잠실동"),
+                    WishlistItem("3", "시그니처 펍", "용산구"),
+                ),
+            ),
+        )
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<MyPageContract.SideEffect>()
@@ -68,6 +79,10 @@ class MyPageViewModel
 
                 MyPageContract.Event.OnCopyEmailClick -> {
                     emit(MyPageContract.SideEffect.ShowToast("이메일 주소가 복사되었습니다."))
+                }
+
+                is MyPageContract.Event.OnPubClick -> {
+                    emit(MyPageContract.SideEffect.NavigateToPubDetail(event.pubId))
                 }
             }
         }
