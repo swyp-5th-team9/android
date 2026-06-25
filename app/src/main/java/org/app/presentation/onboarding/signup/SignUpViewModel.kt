@@ -10,6 +10,6 @@ import javax.inject.Inject
 class SignUpViewModel
     @Inject
     constructor() : ViewModel() {
-        private val _sideEffect = MutableSharedFlow<SignUpContract.SideEffect>()
+        private val _sideEffect = MutableSharedFlow<OnboardingContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
     }
