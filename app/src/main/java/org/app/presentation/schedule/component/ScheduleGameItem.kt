@@ -92,7 +92,7 @@ fun ScheduleGameItem(
 
                     game.isFinished && game.homeScore != null && game.awayScore != null -> {
                         Text(
-                            text = "${game.awayScore} : ${game.homeScore}",
+                            text = "${game.homeScore} : ${game.awayScore}",
                             style = MoballTheme.typography.heading5.bold18,
                             color = MoballTheme.colors.textPrimary,
                         )

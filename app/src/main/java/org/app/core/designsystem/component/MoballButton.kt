@@ -26,14 +26,19 @@ fun MoballButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    backgroundColor: Color = if (enabled) colors.accentPrimary else colors.accentDisabled,
-    textColor: Color = if (enabled) colors.textPrimary else colors.textQuaternary,
+    backgroundColor: Color = colors.accentPrimary,
+    textColor: Color = colors.textPrimary,
+    disabledBackgroundColor: Color = colors.accentDisabled,
+    disabledTextColor: Color = colors.textQuaternary,
 ) {
+    val resolvedBackgroundColor = if (enabled) backgroundColor else disabledBackgroundColor
+    val resolvedTextColor = if (enabled) textColor else disabledTextColor
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(backgroundColor)
+            .background(resolvedBackgroundColor)
             .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
             .padding(vertical = 15.dp),
         contentAlignment = Alignment.Center,
@@ -41,7 +46,7 @@ fun MoballButton(
         Text(
             text = text,
             style = typography.heading5.semibold18,
-            color = textColor,
+            color = resolvedTextColor,
         )
     }
 }

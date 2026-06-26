@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -110,16 +111,27 @@ internal fun ScheduleScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            if (state.selectedDateGames.isEmpty()) {
-                item {
+            when {
+                state.isLoading -> item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                state.selectedDateGames.isEmpty() -> item {
                     EmptyGameState(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(160.dp),
                     )
                 }
-            } else {
-                items(
+
+                else -> items(
                     items = state.selectedDateGames,
                     key = { it.gameId },
                 ) { game ->

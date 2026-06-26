@@ -29,7 +29,7 @@ class ScheduleViewModel
         val sideEffect = _sideEffect.asSharedFlow()
 
         init {
-            loadGames(YearMonth.now())
+            loadGames(_state.value.currentMonth)
         }
 
         fun onEvent(event: ScheduleContract.Event) {

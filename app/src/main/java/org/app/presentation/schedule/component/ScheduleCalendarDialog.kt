@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -50,9 +50,8 @@ fun ScheduleCalendarDialog(
     onConfirm: (LocalDate) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var displayMonth by remember { mutableStateOf(YearMonth.from(initialDate)) }
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-
+    var displayMonth by remember(initialDate) { mutableStateOf(YearMonth.from(initialDate)) }
+    var selectedDate by remember(initialDate) { mutableStateOf<LocalDate?>(initialDate) }
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -84,9 +83,10 @@ private fun ScheduleCalendarDialogContent(
 
     Column(
         modifier = Modifier
-            .background(MoballTheme.colors.backgroundBase, RoundedCornerShape(16.dp))
-            .width(360.dp)
-            .padding(vertical = 20.dp),
+            .fillMaxWidth()
+            .padding(vertical = 20.dp, horizontal = 16.dp)
+            .widthIn(max = 360.dp)
+            .background(MoballTheme.colors.backgroundBase, RoundedCornerShape(16.dp)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CalendarHeader(
