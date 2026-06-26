@@ -26,6 +26,10 @@ val coolNeutral650 = Color(0xFF5E687E)
 val coolNeutral800 = Color(0xFF3D4652)
 
 val lime500 = Color(0xFFC8E263)
+val lime600 = Color(0xFFA6C249)
+val lime700 = Color(0xFF86A231)
+val lime800 = Color(0xFF698320)
+val lime900 = Color(0xFF526C13)
 
 // Accent Palette
 val lime300 = Color(0xFFE8F5A3)
@@ -80,6 +84,7 @@ data class MoballColors(
     val staticBlack: Color,
     // Accent
     val accentPrimary: Color,
+    val accentPrimaryDark: Color,
     val accentSecondaryLight: Color,
     val accentTertiaryLight: Color,
     val accentDisabled: Color,
@@ -96,6 +101,9 @@ data class MoballColors(
     // Calendar
     val calendarSunday: Color,
     val calendarSaturday: Color,
+    val calendarTodayLabel: Color,
+    val calendarTodayDate: Color,
+    val calendarTodayDot: Color,
 )
 
 val defaultMoballColors = MoballColors(
@@ -128,6 +136,7 @@ val defaultMoballColors = MoballColors(
     staticBlack = black,
     // Accent
     accentPrimary = lime500,
+    accentPrimaryDark = lime900,
     accentSecondaryLight = lime300,
     accentTertiaryLight = lime100,
     accentDisabled = coolNeutral130,
@@ -144,6 +153,9 @@ val defaultMoballColors = MoballColors(
     // Calendar
     calendarSunday = calendarRed,
     calendarSaturday = calendarBlue,
+    calendarTodayLabel = lime800,
+    calendarTodayDate = lime700,
+    calendarTodayDot = lime600,
 )
 
 val LocalMoballColors = staticCompositionLocalOf { defaultMoballColors }
