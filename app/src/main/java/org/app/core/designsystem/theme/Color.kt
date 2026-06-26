@@ -53,6 +53,26 @@ val coolNeutral50 = Color(0xFFFAFAFB)
 // Dark Background
 val darkNeutral800 = Color(0xFF31353B)
 
+// Warm Neutral (pub detail)
+val warmNeutral900 = Color(0xFF1D1B20)
+
+// Team Badge Colors
+val teamColorAll = Color(0xFF7D852B) // 전구단
+val teamColorSamsung = Color(0xFF4876FF) // 삼성 라이온즈
+val teamColorLotte = Color(0xFF002955) // 롯데 자이언츠
+val teamColorLg = Color(0xFFC20653) // LG 트윈스
+val teamColorSsg = Color(0xFFD41630) // SSG 랜더스
+val teamColorNc = Color(0xFF325388) // NC 다이노스
+val teamColorKt = Color(0xFF171214) // KT 위즈
+val teamColorKia = Color(0xFFE90128) // KIA 타이거즈
+val teamColorDoosan = Color(0xFF121130) // 두산 베어스
+val teamColorKiwoom = Color(0xFF820023) // 키움 히어로즈
+val teamColorHanwha = Color(0xFFFF6501) // 한화 이글스
+
+// Team List Badge
+val teamBadgeBg = Color(0xFFEEF7CB)
+val teamBadgeText = Color(0xFF526C13) // same as lime900
+
 @Immutable
 data class MoballColors(
     // Background
@@ -104,6 +124,21 @@ data class MoballColors(
     val calendarTodayLabel: Color,
     val calendarTodayDate: Color,
     val calendarTodayDot: Color,
+    // Pub Detail
+    val textTitle: Color,
+    val teamListBadgeBg: Color,
+    val teamListBadgeText: Color,
+    val teamColorAll: Color,
+    val teamColorSamsung: Color,
+    val teamColorLotte: Color,
+    val teamColorLg: Color,
+    val teamColorSsg: Color,
+    val teamColorNc: Color,
+    val teamColorKt: Color,
+    val teamColorKia: Color,
+    val teamColorDoosan: Color,
+    val teamColorKiwoom: Color,
+    val teamColorHanwha: Color,
 )
 
 val defaultMoballColors = MoballColors(
@@ -156,6 +191,21 @@ val defaultMoballColors = MoballColors(
     calendarTodayLabel = lime800,
     calendarTodayDate = lime700,
     calendarTodayDot = lime600,
+    // Pub Detail
+    textTitle = warmNeutral900,
+    teamListBadgeBg = teamBadgeBg,
+    teamListBadgeText = teamBadgeText,
+    teamColorAll = teamColorAll,
+    teamColorSamsung = teamColorSamsung,
+    teamColorLotte = teamColorLotte,
+    teamColorLg = teamColorLg,
+    teamColorSsg = teamColorSsg,
+    teamColorNc = teamColorNc,
+    teamColorKt = teamColorKt,
+    teamColorKia = teamColorKia,
+    teamColorDoosan = teamColorDoosan,
+    teamColorKiwoom = teamColorKiwoom,
+    teamColorHanwha = teamColorHanwha,
 )
 
 val LocalMoballColors = staticCompositionLocalOf { defaultMoballColors }
