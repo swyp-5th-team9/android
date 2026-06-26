@@ -81,7 +81,7 @@ private fun MainNavHost(
         )
         homeGraph(
             navigateToPubDetail = {
-                appState.navController.navigateToPubDetail()
+                appState.navController.navigateToPubDetail(pubId = "")
             },
         )
         signUpGraph(
@@ -96,7 +96,6 @@ private fun MainNavHost(
         scheduleGraph()
         pubDetailGraph(
             onBack = { appState.navController.popBackStack() },
-            onEditClick = { /* TODO */ },
         )
         myPageGraph(
             navController = appState.navController,
