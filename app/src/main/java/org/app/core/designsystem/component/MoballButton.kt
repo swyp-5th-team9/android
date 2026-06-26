@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
@@ -25,18 +26,16 @@ fun MoballButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    backgroundColor: Color = if (enabled) colors.accentPrimary else colors.accentDisabled,
+    textColor: Color = if (enabled) colors.textPrimary else colors.textQuaternary,
 ) {
-    val backgroundColor = if (enabled) colors.accentPrimary else colors.accentDisabled
-    val textColor = if (enabled) colors.textPrimary else colors.textQuaternary
-
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
-            .then(
-                if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier,
-            ).padding(vertical = 15.dp),
+            .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
+            .padding(vertical = 15.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
