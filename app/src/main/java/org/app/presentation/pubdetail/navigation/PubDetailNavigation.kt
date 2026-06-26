@@ -8,19 +8,20 @@ import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.Route
 import org.app.presentation.pubdetail.PubDetailRoute
 
-fun NavController.navigateToPubDetail(navOptions: NavOptions? = null) = navigate(PubDetail, navOptions)
+fun NavController.navigateToPubDetail(
+    pubId: String = "",
+    navOptions: NavOptions? = null,
+) = navigate(PubDetail(pubId = pubId), navOptions)
 
-fun NavGraphBuilder.pubDetailGraph(
-    onBack: () -> Unit,
-    onEditClick: () -> Unit,
-) {
-    composable<PubDetail> {
+fun NavGraphBuilder.pubDetailGraph(onBack: () -> Unit) {
+    composable<PubDetail> { backStackEntry ->
         PubDetailRoute(
             onBack = onBack,
-            onEditClick = onEditClick,
         )
     }
 }
 
 @Serializable
-data object PubDetail : Route
+data class PubDetail(
+    val pubId: String = "",
+) : Route
