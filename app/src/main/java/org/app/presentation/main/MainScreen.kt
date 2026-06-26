@@ -15,14 +15,14 @@ import androidx.navigation.compose.NavHost
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.homeGraph
-import org.app.presentation.home.pubdetail.navigation.navigateToPubDetail
-import org.app.presentation.home.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
 import org.app.presentation.onboarding.signup.navigation.SignUpNickname
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
+import org.app.presentation.pubdetail.navigation.navigateToPubDetail
+import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
 @Composable

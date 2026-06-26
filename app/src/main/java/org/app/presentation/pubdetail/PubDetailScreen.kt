@@ -1,4 +1,4 @@
-package org.app.presentation.home.pubdetail
+package org.app.presentation.pubdetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
