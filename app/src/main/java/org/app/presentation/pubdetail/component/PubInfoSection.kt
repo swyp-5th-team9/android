@@ -159,14 +159,8 @@ private fun BusinessHoursRow(
             )
             Spacer(modifier = Modifier.width(8.dp))
 
-            val statusText = when (hours.status) {
-                BusinessStatus.OPEN -> "영업중"
-                BusinessStatus.CLOSED -> "영업종료"
-                BusinessStatus.BREAK -> "브레이크타임"
-            }
-
             Text(
-                text = statusText,
+                text = hours.status.displayText(),
                 style = MoballTheme.typography.body.medium14,
                 color = MoballTheme.colors.textPrimary,
             )

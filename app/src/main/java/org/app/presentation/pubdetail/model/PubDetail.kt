@@ -44,6 +44,14 @@ enum class BusinessStatus {
     OPEN, // 영업중
     CLOSED, // 영업종료
     BREAK, // 브레이크타임
+    ;
+
+    fun displayText(): String =
+        when (this) {
+            OPEN -> "영업중"
+            CLOSED -> "영업종료"
+            BREAK -> "브레이크타임"
+        }
 }
 
 data class FacilityItem(
