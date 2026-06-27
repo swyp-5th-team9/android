@@ -39,7 +39,7 @@ fun PubHeroCarousel(
     modifier: Modifier = Modifier,
 ) {
     val pagerState = rememberPagerState(
-        initialPage = currentPage,
+        initialPage = currentPage.coerceIn(0, (imageUrls.size - 1).coerceAtLeast(0)),
         pageCount = { imageUrls.size.coerceAtLeast(1) },
     )
 
@@ -49,9 +49,10 @@ fun PubHeroCarousel(
         }
     }
 
-    LaunchedEffect(currentPage) {
-        if (pagerState.currentPage != currentPage) {
-            pagerState.scrollToPage(currentPage)
+    LaunchedEffect(currentPage, imageUrls.size) {
+        val targetPage = currentPage.coerceIn(0, (imageUrls.size - 1).coerceAtLeast(0))
+        if (pagerState.currentPage != targetPage) {
+            pagerState.scrollToPage(targetPage)
         }
     }
 
