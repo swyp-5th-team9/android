@@ -30,6 +30,7 @@ import org.app.core.extension.noRippleClickable
 import org.app.presentation.pubdetail.model.BusinessHours
 import org.app.presentation.pubdetail.model.BusinessStatus
 import org.app.presentation.pubdetail.model.KboTeam
+import org.app.presentation.pubdetail.model.KboTeamType
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

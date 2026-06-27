@@ -18,41 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-
-enum class KboTeamType(
-    val shortName: String,
-    val fullName: String,
-) {
-    ALL("전구단", "전구단 상영"),
-    KIA("KIA", "KIA 타이거즈"),
-    KT("KT", "KT 위즈"),
-    LG("LG", "LG 트윈스"),
-    NC("NC", "NC 다이노스"),
-    SSG("SSG", "SSG 랜더스"),
-    DOOSAN("두산", "두산 베어스"),
-    LOTTE("롯데", "롯데 자이언츠"),
-    SAMSUNG("삼성", "삼성 라이온즈"),
-    KIWOOM("키움", "키움 히어로즈"),
-    HANWHA("한화", "한화 이글스"),
-    ;
-
-    companion object {
-        fun fromId(id: Int): KboTeamType =
-            when (id) {
-                1 -> KIA
-                2 -> KT
-                3 -> LG
-                4 -> NC
-                5 -> SSG
-                6 -> DOOSAN
-                7 -> LOTTE
-                8 -> SAMSUNG
-                9 -> KIWOOM
-                10 -> HANWHA
-                else -> ALL
-            }
-    }
-}
+import org.app.presentation.pubdetail.model.KboTeamType
 
 val KboTeamType.teamColor: Color
     @Composable
@@ -70,9 +36,6 @@ val KboTeamType.teamColor: Color
         KboTeamType.HANWHA -> MoballTheme.colors.teamColorHanwha
     }
 
-/**
- * 펍 상세 상단 팀 배지 — 테두리+텍스트만, 채움 없음 (pill shape)
- */
 @Composable
 fun TeamBadge(
     teamType: KboTeamType,
@@ -94,9 +57,6 @@ fun TeamBadge(
     }
 }
 
-/**
- * 찜목록 등 리스트에서 사용하는 팀 배지 — 연두 배경 + 진녹색 텍스트, 4px radius
- */
 @Composable
 fun TeamListBadge(
     text: String,
