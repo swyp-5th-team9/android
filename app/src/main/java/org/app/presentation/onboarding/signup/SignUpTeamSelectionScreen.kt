@@ -32,7 +32,8 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.onboarding.signup.component.OnboardingProgressBar
 import org.app.presentation.onboarding.signup.component.OnboardingTeamItem
 
-data class KboTeam(
+/** 구단 로고·연고지를 포함한 UI 선택 아이템. 서버 모델 KboTeam과 별개 */
+data class KboTeamItem(
     val id: Int,
     val shortName: String,
     val fullName: String,
@@ -41,17 +42,17 @@ data class KboTeam(
 )
 
 // TODO teamId는 API 구현 후 서버 명세에 맞게 수정
-val KBO_TEAMS = listOf(
-    KboTeam(1, "KIA", "기아 타이거즈", "광주", R.drawable.img_kia),
-    KboTeam(2, "KT", "KT WIZ", "수원", R.drawable.img_kt),
-    KboTeam(3, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
-    KboTeam(4, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
-    KboTeam(5, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
-    KboTeam(6, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
-    KboTeam(7, "롯데", "롯데 자이언츠", "부산", R.drawable.img_lotte),
-    KboTeam(8, "삼성", "삼성 라이온즈", "대구", R.drawable.img_samsung),
-    KboTeam(9, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
-    KboTeam(10, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
+val KBO_TEAM_ITEMS = listOf(
+    KboTeamItem(1, "KIA", "기아 타이거즈", "광주", R.drawable.img_kia),
+    KboTeamItem(2, "KT", "KT WIZ", "수원", R.drawable.img_kt),
+    KboTeamItem(3, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
+    KboTeamItem(4, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
+    KboTeamItem(5, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
+    KboTeamItem(6, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
+    KboTeamItem(7, "롯데", "롯데 자이언츠", "부산", R.drawable.img_lotte),
+    KboTeamItem(8, "삼성", "삼성 라이온즈", "대구", R.drawable.img_samsung),
+    KboTeamItem(9, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
+    KboTeamItem(10, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
 )
 
 @Composable
@@ -156,7 +157,7 @@ private fun SignUpTeamSelectionScreen(
                     .weight(1f)
                     .fillMaxWidth(),
             ) {
-                items(KBO_TEAMS, key = { it.id }) { team ->
+                items(KBO_TEAM_ITEMS, key = { it.id }) { team ->
                     OnboardingTeamItem(
                         teamName = team.shortName,
                         city = team.city,
