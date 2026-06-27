@@ -80,8 +80,8 @@ private fun MainNavHost(
             },
         )
         homeGraph(
-            navigateToPubDetail = {
-                appState.navController.navigateToPubDetail(pubId = "")
+            navigateToPubDetail = { pubId ->
+                appState.navController.navigateToPubDetail(pubId = pubId)
             },
         )
         signUpGraph(

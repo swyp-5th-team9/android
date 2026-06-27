@@ -33,7 +33,7 @@ private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
 @Composable
 fun HomeRoute(
-    onPubClick: () -> Unit,
+    onPubClick: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -51,7 +51,7 @@ fun HomeRoute(
 
 @Composable
 internal fun HomeScreen(
-    onPubClick: () -> Unit,
+    onPubClick: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -153,7 +153,8 @@ internal fun HomeScreen(
                         map.locationOverlay.run {
                             isVisible = true
                             setOnClickListener {
-                                onPubClick()
+                                // TODO: 실제 마커 클릭 시 선택된 pubId 전달
+                                onPubClick("")
                                 true
                             }
                         }

@@ -10,7 +10,7 @@ import org.app.presentation.home.HomeRoute
 
 fun NavController.navigateToHome(navOptions: NavOptions? = null) = navigate(Home, navOptions)
 
-fun NavGraphBuilder.homeGraph(navigateToPubDetail: () -> Unit) {
+fun NavGraphBuilder.homeGraph(navigateToPubDetail: (pubId: String) -> Unit) {
     composable<Home> {
         HomeRoute(
             onPubClick = navigateToPubDetail,
