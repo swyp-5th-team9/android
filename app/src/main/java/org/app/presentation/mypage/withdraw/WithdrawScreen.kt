@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
@@ -55,7 +55,7 @@ fun WithdrawRoute(
 
     LaunchedEffect(etcTextState) {
         snapshotFlow { etcTextState.text.toString() }
-            .collect { viewModel.onEtcTextChange(it) }
+            .collect { viewModel.onEvent(WithdrawContract.Event.OnEtcTextChanged(it)) }
     }
 
     LaunchedEffect(Unit) {
@@ -85,12 +85,12 @@ fun WithdrawRoute(
         etcTextState = etcTextState,
         showSuccessDialog = showSuccessDialog,
         onBack = onBack,
-        onReasonSelected = viewModel::selectReason,
-        onAgreementToggle = viewModel::toggleAgreement,
-        onWithdrawClick = viewModel::withdraw,
+        onReasonSelected = { viewModel.onEvent(WithdrawContract.Event.OnReasonSelected(it)) },
+        onAgreementToggle = { viewModel.onEvent(WithdrawContract.Event.OnAgreementToggle) },
+        onWithdrawClick = { viewModel.onEvent(WithdrawContract.Event.OnWithdrawClick) },
         onConfirmDialog = {
             showSuccessDialog = false
-            viewModel.onWithdrawConfirm()
+            viewModel.onEvent(WithdrawContract.Event.OnWithdrawConfirm)
         },
         modifier = modifier,
     )

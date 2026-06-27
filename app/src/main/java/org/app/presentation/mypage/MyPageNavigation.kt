@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.MainTabRoute
-import org.app.presentation.home.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.mypage.editprofile.navigation.editProfileScreen
 import org.app.presentation.mypage.editprofile.navigation.navigateToEditProfile
 import org.app.presentation.mypage.report.navigation.navigateToReport
@@ -16,6 +15,7 @@ import org.app.presentation.mypage.wishlist.navigation.navigateToWishlist
 import org.app.presentation.mypage.wishlist.navigation.wishlistScreen
 import org.app.presentation.mypage.withdraw.navigation.navigateToWithdraw
 import org.app.presentation.mypage.withdraw.navigation.withdrawScreen
+import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 
 fun NavController.navigateToMyPage(navOptions: NavOptions? = null) = navigate(MyPageGraph, navOptions)
 
@@ -31,7 +31,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
                 navigateToWishlist = { navController.navigateToWishlist() },
-                navigateToPubDetail = { navController.navigateToPubDetail() },
+                navigateToPubDetail = { pubId -> navController.navigateToPubDetail(pubId) },
             )
         }
         editProfileScreen(onBack = { navController.popBackStack() })
@@ -42,7 +42,7 @@ fun NavGraphBuilder.myPageGraph(
         )
         wishlistScreen(
             onBack = { navController.popBackStack() },
-            navigateToPubDetail = { navController.navigateToPubDetail() },
+            navigateToPubDetail = { pubId -> navController.navigateToPubDetail(pubId) },
         )
     }
 }

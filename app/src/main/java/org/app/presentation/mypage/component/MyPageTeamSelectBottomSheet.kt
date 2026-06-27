@@ -42,9 +42,21 @@ import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
+import org.app.presentation.pubdetail.model.KboTeamType
 
-/** KBO 10개 구단 목록 */
-private val KboTeams = listOf("LG", "KT", "삼성", "한화", "KIA", "두산", "NC", "SSG", "롯데", "키움")
+/** KBO 10개 구단 목록 (전구단 제외, 기존 표시 순서 유지) */
+private val KboTeams = listOf(
+    KboTeamType.LG,
+    KboTeamType.KT,
+    KboTeamType.SAMSUNG,
+    KboTeamType.HANWHA,
+    KboTeamType.KIA,
+    KboTeamType.DOOSAN,
+    KboTeamType.NC,
+    KboTeamType.SSG,
+    KboTeamType.LOTTE,
+    KboTeamType.KIWOOM,
+).map { it.shortName }
 
 /**
  * 응원구단 선택 바텀시트

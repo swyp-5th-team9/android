@@ -25,19 +25,29 @@ class WithdrawViewModel
         private val _sideEffect = MutableSharedFlow<WithdrawContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
-        fun selectReason(reason: WithdrawReason) {
+        fun onEvent(event: WithdrawContract.Event) {
+            when (event) {
+                is WithdrawContract.Event.OnReasonSelected -> selectReason(event.reason)
+                is WithdrawContract.Event.OnEtcTextChanged -> onEtcTextChange(event.text)
+                WithdrawContract.Event.OnAgreementToggle -> toggleAgreement()
+                WithdrawContract.Event.OnWithdrawClick -> withdraw()
+                WithdrawContract.Event.OnWithdrawConfirm -> onWithdrawConfirm()
+            }
+        }
+
+        private fun selectReason(reason: WithdrawReason) {
             _state.update { it.copy(selectedReason = reason) }
         }
 
-        fun onEtcTextChange(text: String) {
+        private fun onEtcTextChange(text: String) {
             _state.update { it.copy(etcText = text) }
         }
 
-        fun toggleAgreement() {
+        private fun toggleAgreement() {
             _state.update { it.copy(isAgreed = !it.isAgreed) }
         }
 
-        fun withdraw() {
+        private fun withdraw() {
             viewModelScope.launch {
                 authRepository
                     .withdraw()
@@ -51,7 +61,7 @@ class WithdrawViewModel
             }
         }
 
-        fun onWithdrawConfirm() {
+        private fun onWithdrawConfirm() {
             viewModelScope.launch {
                 _sideEffect.emit(WithdrawContract.SideEffect.NavigateToLogin)
             }

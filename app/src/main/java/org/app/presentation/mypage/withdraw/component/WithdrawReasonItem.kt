@@ -1,7 +1,6 @@
 package org.app.presentation.mypage.withdraw.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 
 @Composable
 fun WithdrawReasonItem(
@@ -27,7 +27,7 @@ fun WithdrawReasonItem(
         modifier = modifier
             .fillMaxWidth()
             .background(MoballTheme.colors.backgroundBase)
-            .clickable(onClick = onClick)
+            .noRippleClickable(onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),

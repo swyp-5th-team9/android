@@ -22,28 +22,38 @@ class ReportViewModel
         private val _sideEffect = MutableSharedFlow<ReportContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
-        fun selectCategory(category: ReportCategory) {
+        fun onEvent(event: ReportContract.Event) {
+            when (event) {
+                is ReportContract.Event.OnCategorySelected -> selectCategory(event.category)
+                is ReportContract.Event.OnDetailTextChanged -> onDetailTextChange(event.text)
+                is ReportContract.Event.OnScreenshotsAdded -> addScreenshots(event.uris)
+                is ReportContract.Event.OnScreenshotRemoved -> removeScreenshot(event.uri)
+                ReportContract.Event.OnSubmit -> submit()
+            }
+        }
+
+        private fun selectCategory(category: ReportCategory) {
             _state.update { it.copy(selectedCategory = category) }
         }
 
-        fun onDetailTextChange(text: String) {
+        private fun onDetailTextChange(text: String) {
             _state.update { it.copy(detailText = text) }
         }
 
-        fun addScreenshots(uris: List<String>) {
+        private fun addScreenshots(uris: List<String>) {
             _state.update {
                 val newList = (it.screenshots + uris).take(3)
                 it.copy(screenshots = newList)
             }
         }
 
-        fun removeScreenshot(uri: String) {
+        private fun removeScreenshot(uri: String) {
             _state.update {
                 it.copy(screenshots = it.screenshots - uri)
             }
         }
 
-        fun submit() {
+        private fun submit() {
             viewModelScope.launch {
                 _state.update { it.copy(isSubmitting = true) }
                 try {

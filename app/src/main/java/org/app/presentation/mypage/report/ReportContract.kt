@@ -10,6 +10,26 @@ interface ReportContract {
         val canSubmit: Boolean get() = detailText.isNotBlank()
     }
 
+    sealed interface Event {
+        data class OnCategorySelected(
+            val category: ReportCategory,
+        ) : Event
+
+        data class OnDetailTextChanged(
+            val text: String,
+        ) : Event
+
+        data class OnScreenshotsAdded(
+            val uris: List<String>,
+        ) : Event
+
+        data class OnScreenshotRemoved(
+            val uri: String,
+        ) : Event
+
+        data object OnSubmit : Event
+    }
+
     sealed interface SideEffect {
         data object NavigateBack : SideEffect
 
