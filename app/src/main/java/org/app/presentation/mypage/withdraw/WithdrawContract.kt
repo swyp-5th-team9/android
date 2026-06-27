@@ -10,6 +10,22 @@ interface WithdrawContract {
             get() = selectedReason != null && isAgreed
     }
 
+    sealed interface Event {
+        data class OnReasonSelected(
+            val reason: WithdrawReason,
+        ) : Event
+
+        data class OnEtcTextChanged(
+            val text: String,
+        ) : Event
+
+        data object OnAgreementToggle : Event
+
+        data object OnWithdrawClick : Event
+
+        data object OnWithdrawConfirm : Event
+    }
+
     sealed interface SideEffect {
         data object NavigateToLogin : SideEffect
 

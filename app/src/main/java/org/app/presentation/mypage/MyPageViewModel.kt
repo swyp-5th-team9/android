@@ -87,7 +87,7 @@ class MyPageViewModel
             }
         }
 
-        fun logout() {
+        private fun logout() {
             viewModelScope.launch {
                 authRepository
                     .logout()
@@ -102,7 +102,7 @@ class MyPageViewModel
             }
         }
 
-        fun withdraw() {
+        private fun withdraw() {
             viewModelScope.launch {
                 authRepository
                     .withdraw()

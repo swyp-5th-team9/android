@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
@@ -74,13 +74,13 @@ fun ReportRoute(
         contract = ActivityResultContracts.PickMultipleVisualMedia(3),
     ) { uris ->
         if (uris.isNotEmpty()) {
-            viewModel.addScreenshots(uris.map { it.toString() })
+            viewModel.onEvent(ReportContract.Event.OnScreenshotsAdded(uris.map { it.toString() }))
         }
     }
 
     LaunchedEffect(detailTextState) {
         snapshotFlow { detailTextState.text.toString() }
-            .collect { viewModel.onDetailTextChange(it) }
+            .collect { viewModel.onEvent(ReportContract.Event.OnDetailTextChanged(it)) }
     }
 
     LaunchedEffect(Unit) {
@@ -106,12 +106,12 @@ fun ReportRoute(
         detailTextState = detailTextState,
         showSuccessDialog = showSuccessDialog,
         onBack = onBack,
-        onCategorySelected = viewModel::selectCategory,
+        onCategorySelected = { viewModel.onEvent(ReportContract.Event.OnCategorySelected(it)) },
         onImagesPicked = {
             launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         },
-        onImageRemoved = viewModel::removeScreenshot,
-        onSubmit = viewModel::submit,
+        onImageRemoved = { viewModel.onEvent(ReportContract.Event.OnScreenshotRemoved(it)) },
+        onSubmit = { viewModel.onEvent(ReportContract.Event.OnSubmit) },
         onConfirmDialog = {
             showSuccessDialog = false
             onBack()
