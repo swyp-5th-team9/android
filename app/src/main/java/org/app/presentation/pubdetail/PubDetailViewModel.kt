@@ -1,5 +1,6 @@
 package org.app.presentation.pubdetail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +23,12 @@ import javax.inject.Inject
 @HiltViewModel
 class PubDetailViewModel
     @Inject
-    constructor() : ViewModel() {
-        private val _state = MutableStateFlow(PubDetailContract.State())
+    constructor(
+        savedStateHandle: SavedStateHandle,
+    ) : ViewModel() {
+        private val pubId: String = savedStateHandle.get<String>("pubId") ?: ""
+
+        private val _state = MutableStateFlow(PubDetailContract.State(pubId = pubId))
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<PubDetailContract.SideEffect>()
@@ -124,12 +129,12 @@ class PubDetailViewModel
         }
 
         private fun loadMockData() {
-            // TODO: 서버 API 연동 시 pubId를 파라미터로 받아 실제 데이터 로드
+            // TODO: 서버 API 연동 시 pubId 기준으로 실제 데이터 로드
             _state.update {
                 it.copy(
                     isLoading = false,
                     pubDetail = PubDetail(
-                        id = "mock-001",
+                        id = pubId.ifEmpty { "mock-001" },
                         name = "시그니처 펍",
                         imageUrls = listOf(
                             "https://picsum.photos/seed/pub1/400/400",
