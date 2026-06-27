@@ -209,7 +209,7 @@ private fun BusinessHoursRow(
                         modifier = Modifier.width(80.dp),
                     )
                     Text(
-                        text = "$bs - ${hours.breakEndTime ?: ""}",
+                        text = hours.breakEndTime?.let { be -> "$bs - $be" } ?: bs,
                         style = MoballTheme.typography.caption.regular12,
                         color = MoballTheme.colors.textSecondary,
                     )
