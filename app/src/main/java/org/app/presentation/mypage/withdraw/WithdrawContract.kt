@@ -5,6 +5,7 @@ interface WithdrawContract {
         val selectedReason: WithdrawReason? = null,
         val etcText: String = "",
         val isAgreed: Boolean = false,
+        val isLoading: Boolean = false,
     ) {
         val canWithdraw: Boolean
             get() = selectedReason != null && isAgreed
