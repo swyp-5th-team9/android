@@ -9,18 +9,42 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.UserRepository
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel
     @Inject
-    constructor() : ViewModel() {
+    constructor(
+        private val userRepository: UserRepository,
+    ) : ViewModel() {
         private val _state = MutableStateFlow(EditProfileContract.State())
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<EditProfileContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
+
+        init {
+            loadUser()
+        }
+
+        private fun loadUser() {
+            viewModelScope.launch {
+                userRepository
+                    .getUser()
+                    .onSuccess { user ->
+                        _state.update {
+                            it.copy(
+                                originalNickname = user.nickname,
+                                nickname = user.nickname,
+                            )
+                        }
+                    }.onFailure { error ->
+                        Timber.e("내 정보 조회 실패: $error")
+                    }
+            }
+        }
 
         fun onEvent(event: EditProfileContract.Event) {
             when (event) {
@@ -43,19 +67,25 @@ class EditProfileViewModel
         }
 
         private fun save() {
+            if (_state.value.isLoading) return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                try {
-                    // TODO: API 연결
-                    Timber.d("닉네임 변경: ${_state.value.nickname}")
-                    _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("정보가 수정됐어요."))
-                    _sideEffect.emit(EditProfileContract.SideEffect.NavigateBack)
-                } catch (e: Exception) {
-                    _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("수정 실패: ${e.message}"))
-                    Timber.e("닉네임 변경 실패: $e")
-                } finally {
-                    _state.update { it.copy(isLoading = false) }
+                val nickname = _state.value.nickname.trim().takeIf {
+                    it.isNotBlank() && it != _state.value.originalNickname
                 }
+
+                userRepository
+                    .patchUser(nickname = nickname)
+                    .onSuccess {
+                        _state.update { it.copy(isLoading = false) }
+                        _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("정보가 수정됐어요."))
+                        _sideEffect.emit(EditProfileContract.SideEffect.NavigateBack)
+                        Timber.d("내 정보 수정 성공")
+                    }.onFailure { error ->
+                        _state.update { it.copy(isLoading = false) }
+                        _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("수정 실패: ${error.message}"))
+                        Timber.e("내 정보 수정 실패: $error")
+                    }
             }
         }
     }
