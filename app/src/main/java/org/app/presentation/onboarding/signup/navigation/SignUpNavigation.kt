@@ -43,7 +43,6 @@ fun NavGraphBuilder.signUpGraph(
     composable<SignUpTeamSelection> { backStackEntry ->
         val args = backStackEntry.toRoute<SignUpTeamSelection>()
         SignUpTeamSelectionRoute(
-            nickname = args.nickname,
             onBack = { navController.popBackStack() },
             navigateToComplete = {
                 navController.navigateToSignUpComplete(args.nickname)

@@ -1,5 +1,6 @@
 package org.app.presentation.onboarding.signup
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,8 +18,11 @@ class SignUpViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
+        savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(SignUpContract.State())
+        private val _state = MutableStateFlow(
+            SignUpContract.State(nickname = savedStateHandle.get<String>("nickname") ?: ""),
+        )
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<SignUpContract.SideEffect>()
@@ -31,10 +35,14 @@ class SignUpViewModel
                 }
 
                 SignUpContract.Event.OnNicknameNext -> {
-                    val nickname = _state.value.nickname
+                    val nickname = _state.value.nickname.trim()
                     when {
                         nickname.isBlank() -> _state.update {
                             it.copy(nicknameError = "닉네임을 입력해주세요")
+                        }
+
+                        nickname.length < 2 -> _state.update {
+                            it.copy(nicknameError = "닉네임은 2자 이상 입력해주세요")
                         }
 
                         nickname.length > 20 -> _state.update {
@@ -43,7 +51,7 @@ class SignUpViewModel
 
                         else -> viewModelScope.launch {
                             _sideEffect.emit(
-                                SignUpContract.SideEffect.NavigateToTeamSelection(_state.value.nickname),
+                                SignUpContract.SideEffect.NavigateToTeamSelection(nickname),
                             )
                         }
                     }
@@ -82,7 +90,7 @@ class SignUpViewModel
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 val nickname = _state.value.nickname.trim()
-                val teamIds = if (skipTeams) emptyList() else _state.value.selectedTeamIds.toList()
+                val teamIds = if (skipTeams) emptyList() else _state.value.selectedTeamIds.map { it.toLong() }
 
                 userRepository
                     .postOnboarding(nickname = nickname, teamIds = teamIds)

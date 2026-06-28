@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
-import org.app.presentation.mypage.wishlist.WishlistItem
+import org.app.data.repository.api.UserRepository
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -19,22 +19,43 @@ class MyPageViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
+        private val userRepository: UserRepository,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(
-            MyPageContract.State(
-                nickname = "모볼매니아",
-                supportedTeams = listOf("한화", "KT"),
-                wishlistItems = listOf(
-                    WishlistItem("1", "야구펍 홍대점", "마포구"),
-                    WishlistItem("2", "롯데 응원 맛집", "잠실동"),
-                    WishlistItem("3", "시그니처 펍", "용산구"),
-                ),
-            ),
-        )
+        private val _state = MutableStateFlow(MyPageContract.State())
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<MyPageContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
+
+        init {
+            loadUser()
+        }
+
+        fun refresh() {
+            loadUser()
+        }
+
+        private fun loadUser() {
+            if (_state.value.isLoading) return
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                userRepository
+                    .getUser()
+                    .onSuccess { user ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                nickname = user.nickname,
+                                supportedTeams = user.favoriteTeams.map { team -> team.teamName },
+                            )
+                        }
+                    }.onFailure { error ->
+                        _state.update { it.copy(isLoading = false) }
+                        emit(MyPageContract.SideEffect.ShowToast("내 정보 조회에 실패했습니다."))
+                        Timber.e("내 정보 조회 실패: $error")
+                    }
+            }
+        }
 
         fun onEvent(event: MyPageContract.Event) {
             when (event) {
@@ -73,8 +94,7 @@ class MyPageViewModel
                     }
                 }
 
-                MyPageContract.Event.OnTeamSelectDismiss -> {
-                    Unit
+                MyPageContract.Event.OnTeamSelectDismiss -> { // no-op
                 }
 
                 MyPageContract.Event.OnCopyEmailClick -> {
@@ -92,27 +112,11 @@ class MyPageViewModel
                 authRepository
                     .logout()
                     .onSuccess {
-                        emit(MyPageContract.SideEffect.ShowToast("로그아웃 성공"))
                         emit(MyPageContract.SideEffect.NavigateToLogin)
                         Timber.d("로그아웃 성공")
                     }.onFailure { error ->
                         emit(MyPageContract.SideEffect.ShowToast("로그아웃 실패: ${error.message}"))
                         Timber.e("로그아웃 실패: $error")
-                    }
-            }
-        }
-
-        private fun withdraw() {
-            viewModelScope.launch {
-                authRepository
-                    .withdraw()
-                    .onSuccess {
-                        emit(MyPageContract.SideEffect.ShowToast("회원 탈퇴 성공"))
-                        emit(MyPageContract.SideEffect.NavigateToLogin)
-                        Timber.d("회원 탈퇴 성공")
-                    }.onFailure { error ->
-                        emit(MyPageContract.SideEffect.ShowToast("회원 탈퇴 실패: ${error.message}"))
-                        Timber.e("회원 탈퇴 실패: $error")
                     }
             }
         }
