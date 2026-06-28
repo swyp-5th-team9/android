@@ -35,7 +35,7 @@ class SignUpViewModel
                 }
 
                 SignUpContract.Event.OnNicknameNext -> {
-                    val nickname = _state.value.nickname
+                    val nickname = _state.value.nickname.trim()
                     when {
                         nickname.isBlank() -> _state.update {
                             it.copy(nicknameError = "닉네임을 입력해주세요")
@@ -51,7 +51,7 @@ class SignUpViewModel
 
                         else -> viewModelScope.launch {
                             _sideEffect.emit(
-                                SignUpContract.SideEffect.NavigateToTeamSelection(_state.value.nickname),
+                                SignUpContract.SideEffect.NavigateToTeamSelection(nickname),
                             )
                         }
                     }

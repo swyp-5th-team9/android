@@ -32,6 +32,7 @@ class UserRepositoryImpl
             teamIds: List<Long>?,
         ): Result<Unit> =
             suspendRunCatching {
+                require(nickname != null || teamIds != null) { "변경할 필드가 없습니다." }
                 userRemoteDataSource.patchUser(nickname = nickname, teamIds = teamIds).let {}
             }
 

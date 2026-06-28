@@ -70,9 +70,17 @@ class EditProfileViewModel
             if (_state.value.isLoading) return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                val nickname = _state.value.nickname.trim().takeIf {
-                    it.isNotBlank() && it != _state.value.originalNickname
+                val trimmedNickname = _state.value.nickname.trim()
+                if (trimmedNickname.isBlank()) {
+                    _state.update { it.copy(isLoading = false) }
+                    _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("닉네임을 입력해 주세요."))
+                    return@launch
                 }
+                val nickname = trimmedNickname.takeIf { it != _state.value.originalNickname }
+                    ?: run {
+                        _state.update { it.copy(isLoading = false) }
+                        return@launch
+                    }
 
                 userRepository
                     .patchUser(nickname = nickname)

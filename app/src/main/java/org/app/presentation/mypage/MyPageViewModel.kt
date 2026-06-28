@@ -51,6 +51,7 @@ class MyPageViewModel
                         }
                     }.onFailure { error ->
                         _state.update { it.copy(isLoading = false) }
+                        emit(MyPageContract.SideEffect.ShowToast("내 정보 조회에 실패했습니다."))
                         Timber.e("내 정보 조회 실패: $error")
                     }
             }
@@ -93,7 +94,8 @@ class MyPageViewModel
                     }
                 }
 
-                MyPageContract.Event.OnTeamSelectDismiss -> { /* no-op */ }
+                MyPageContract.Event.OnTeamSelectDismiss -> { // no-op
+                }
 
                 MyPageContract.Event.OnCopyEmailClick -> {
                     emit(MyPageContract.SideEffect.ShowToast("이메일 주소가 복사되었습니다."))

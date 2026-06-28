@@ -50,6 +50,7 @@ class WithdrawViewModel
         }
 
         private fun withdraw() {
+            if (_state.value.isLoading) return
             val reason = _state.value.selectedReason ?: return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }

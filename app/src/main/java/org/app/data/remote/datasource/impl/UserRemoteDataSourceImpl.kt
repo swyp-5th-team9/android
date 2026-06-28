@@ -29,7 +29,7 @@ class UserRemoteDataSourceImpl
             10L to "한화",
         )
 
-        private var mockUser = GetUserResponse(
+        private var mockUser: GetUserResponse? = GetUserResponse(
             userId = 1L,
             nickname = "모볼매니아",
             role = "FAN",
@@ -42,7 +42,7 @@ class UserRemoteDataSourceImpl
             teamIds: List<Long>,
         ): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
-                mockUser = mockUser.copy(
+                mockUser = checkNotNull(mockUser).copy(
                     nickname = nickname,
                     onboardingCompleted = true,
                     favoriteTeams = teamIds.map {
@@ -63,7 +63,7 @@ class UserRemoteDataSourceImpl
                 return BaseResponse(
                     status = "success_mock",
                     statusCode = 200,
-                    data = mockUser,
+                    data = checkNotNull(mockUser) { "탈퇴한 사용자입니다." },
                     timestamp = "",
                 )
             }
@@ -75,11 +75,12 @@ class UserRemoteDataSourceImpl
             teamIds: List<Long>?,
         ): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
-                mockUser = mockUser.copy(
-                    nickname = nickname ?: mockUser.nickname,
+                val current = checkNotNull(mockUser) { "탈퇴한 사용자입니다." }
+                mockUser = current.copy(
+                    nickname = nickname ?: current.nickname,
                     favoriteTeams =
                         teamIds?.map { FavoriteTeamResponse(teamId = it, teamName = mockTeamNames[it] ?: "팀$it") }
-                            ?: mockUser.favoriteTeams,
+                            ?: current.favoriteTeams,
                 )
                 return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
             }
@@ -91,6 +92,7 @@ class UserRemoteDataSourceImpl
             detail: String?,
         ): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
+                mockUser = null
                 return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
             }
             return userService.deleteUser(DeleteUserRequest(reasonCode = reasonCode, detail = detail))
