@@ -1,15 +1,26 @@
 package org.app.data.repository.api
 
+import org.app.data.model.UserInfo
+
 interface UserRepository {
-    /**
-     * 온보딩 완료 처리
-     * POST /api/v1/users/me/onboarding
-     *
-     * @param nickname  닉네임 (최대 20자, 필수)
-     * @param teamIds   선호 구단 ID 목록 (최대 3개, 선택)
-     */
+    /** POST /api/v1/users/me/onboarding */
     suspend fun postOnboarding(
         nickname: String,
-        teamIds: List<Int>,
+        teamIds: List<Long>,
+    ): Result<Unit>
+
+    /** GET /api/v1/users/me */
+    suspend fun getUser(): Result<UserInfo>
+
+    /** PATCH /api/v1/users/me */
+    suspend fun patchUser(
+        nickname: String? = null,
+        teamIds: List<Long>? = null,
+    ): Result<Unit>
+
+    /** DELETE /api/v1/users/me */
+    suspend fun deleteUser(
+        reasonCode: String,
+        detail: String? = null,
     ): Result<Unit>
 }
