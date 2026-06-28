@@ -57,7 +57,6 @@ val KBO_TEAM_ITEMS = listOf(
 
 @Composable
 fun SignUpTeamSelectionRoute(
-    nickname: String,
     onBack: () -> Unit,
     navigateToComplete: () -> Unit,
     modifier: Modifier = Modifier,
@@ -65,11 +64,6 @@ fun SignUpTeamSelectionRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    // TODO nav arg로 전달된 nickname을 ViewModel에 반영 (별도 ViewModel 인스턴스인 경우 대비)
-    LaunchedEffect(nickname) {
-        viewModel.onEvent(SignUpContract.Event.OnNicknameChanged(nickname))
-    }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
