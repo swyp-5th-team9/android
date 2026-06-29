@@ -26,12 +26,13 @@ class SplashViewModel
             viewModelScope.launch {
                 val isLoggedInDeferred = async { authRepository.isLoggedIn() }
                 delay(SPLASH_DELAY_MS)
-                val isLoggedIn = isLoggedInDeferred.await()
-                if (isLoggedIn) {
-                    _sideEffect.emit(SplashContract.SideEffect.NavigateToHome)
+                val loginResult: Result<Boolean> = isLoggedInDeferred.await()
+                val destination = if (loginResult.getOrElse { false }) {
+                    SplashContract.SideEffect.NavigateToHome
                 } else {
-                    _sideEffect.emit(SplashContract.SideEffect.NavigateToLogin)
+                    SplashContract.SideEffect.NavigateToLogin
                 }
+                _sideEffect.emit(destination)
             }
         }
     }
