@@ -8,15 +8,15 @@ interface PubRepository {
     suspend fun getPubs(
         keyword: String? = null,
         teamId: Long? = null,
+        teamIds: List<Long>? = null,
         region: String? = null,
         facilityCodes: List<String>? = null,
         styleCodes: List<String>? = null,
         themeCodes: List<String>? = null,
         foodCodes: List<String>? = null,
         capacityRange: String? = null,
-        businessStatus: String? = null,
-        businessDays: List<Int>? = null,
-        sort: String? = null,
+        openNow: Boolean? = null,
+        businessDay: String? = null,
         page: Int? = null,
         size: Int? = null,
     ): Result<PubPage>
