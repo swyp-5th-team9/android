@@ -26,33 +26,25 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
-
-private val KBO_TEAMS: List<Pair<Int?, String>> = listOf(
-    null to "전체",
-    1 to "KIA",
-    2 to "KT",
-    3 to "LG",
-    4 to "NC",
-    5 to "SSG",
-    6 to "두산",
-    7 to "롯데",
-    8 to "삼성",
-    9 to "키움",
-    10 to "한화",
-)
+import org.app.data.model.TeamItem
 
 @Composable
 fun ScheduleTeamChipBar(
-    selectedTeamId: Int?,
-    onTeamSelected: (Int?) -> Unit,
+    teams: List<TeamItem>,
+    selectedTeamId: Long?,
+    onTeamSelected: (Long?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // null = 전체, 나머지는 API teamId
+    val items: List<Pair<Long?, String>> = listOf(null to "전체") +
+        teams.map { it.teamId to it.shortName }
+
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(horizontal = 0.dp),
     ) {
-        items(KBO_TEAMS, key = { it.first?.toString() ?: "all" }) { (teamId, label) ->
+        items(items, key = { it.first?.toString() ?: "all" }) { (teamId, label) ->
             ScheduleTeamChip(
                 label = label,
                 isSelected = teamId == selectedTeamId,
@@ -112,6 +104,11 @@ internal fun ScheduleTeamChip(
 private fun ScheduleTeamChipBarPreview() {
     MoballTheme {
         ScheduleTeamChipBar(
+            teams = listOf(
+                TeamItem(1L, "LG 트윈스", "LG", "KBO", null),
+                TeamItem(2L, "두산 베어스", "두산", "KBO", null),
+                TeamItem(6L, "KIA 타이거즈", "KIA", "KBO", null),
+            ),
             selectedTeamId = null,
             onTeamSelected = {},
             modifier = Modifier.padding(16.dp),

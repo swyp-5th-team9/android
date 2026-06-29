@@ -1,16 +1,19 @@
 package org.app.presentation.schedule
 
+import org.app.data.model.TeamItem
 import org.app.presentation.schedule.model.GameSchedule
 import java.time.LocalDate
 import java.time.YearMonth
 
 interface ScheduleContract {
     data class State(
+        /** GET /api/v1/teams 응답 — 팀 칩바에 사용 */
+        val teams: List<TeamItem> = emptyList(),
         val selectedDate: LocalDate = LocalDate.now(),
         val games: List<GameSchedule> = emptyList(),
         val isLoading: Boolean = false,
         val showCalendarDialog: Boolean = false,
-        val selectedTeamId: Int? = null, // null = 전체
+        val selectedTeamId: Long? = null, // null = 전체
     ) {
         /** 현재 표시 중인 달 (selectedDate 기준) */
         val currentMonth: YearMonth
@@ -54,7 +57,7 @@ interface ScheduleContract {
         data object OnCalendarDismiss : Event
 
         data class OnTeamSelected(
-            val teamId: Int?,
+            val teamId: Long?,
         ) : Event
     }
 

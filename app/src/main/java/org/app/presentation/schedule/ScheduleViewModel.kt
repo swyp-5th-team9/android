@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.TeamRepository
 import org.app.presentation.schedule.model.GameSchedule
 import org.app.presentation.schedule.model.GameStatus
 import java.time.LocalDate
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class ScheduleViewModel
     @Inject
     constructor(
+        private val teamRepository: TeamRepository,
         // TODO: ScheduleRepository 주입 (API 구현 후)
     ) : ViewModel() {
         private val _state = MutableStateFlow(ScheduleContract.State())
@@ -29,7 +31,16 @@ class ScheduleViewModel
         val sideEffect = _sideEffect.asSharedFlow()
 
         init {
+            loadTeams()
             loadGames(_state.value.currentMonth)
+        }
+
+        private fun loadTeams() {
+            viewModelScope.launch {
+                teamRepository.getTeams(sportType = "KBO").onSuccess { teams ->
+                    _state.update { it.copy(teams = teams) }
+                }
+            }
         }
 
         fun onEvent(event: ScheduleContract.Event) {
