@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballDialog
@@ -67,7 +67,6 @@ fun WishlistRoute(
         onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
         onDeleteClick = { showDeleteDialog = true },
         onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
-        onHeartClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnToggleFavorite(pubId)) },
         modifier = modifier,
     )
 
@@ -92,8 +91,7 @@ private fun WishlistScreen(
     onEditClick: () -> Unit,
     onCancelEdit: () -> Unit,
     onDeleteClick: () -> Unit,
-    onCardClick: (pubId: String) -> Unit,
-    onHeartClick: (pubId: String) -> Unit,
+    onCardClick: (pubId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -140,9 +138,8 @@ private fun WishlistScreen(
                             WishlistItemCard(
                                 item = item,
                                 isEditMode = state.isEditMode,
-                                isSelected = item.pubId in state.selectedIds,
+                                isSelected = item.favoriteId in state.selectedIds,
                                 onCardClick = { onCardClick(item.pubId) },
-                                onHeartClick = { onHeartClick(item.pubId) },
                                 modifier = Modifier.weight(1f),
                             )
                         }
@@ -173,11 +170,11 @@ private fun WishlistScreenPreview() {
         WishlistScreen(
             state = WishlistContract.State(
                 items = listOf(
-                    WishlistItem("1", "펍 이름 1", "홍대", null),
-                    WishlistItem("2", "펍 이름 2", "강남", null),
-                    WishlistItem("3", "펍 이름 3", "이태원", null),
-                    WishlistItem("4", "펍 이름 4", "건대", null),
-                    WishlistItem("5", "펍 이름 5", "신촌", null),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3"),
+                    WishlistItem(favoriteId = 4L, pubId = 14L, pubName = "펍 이름 4"),
+                    WishlistItem(favoriteId = 5L, pubId = 15L, pubName = "펍 이름 5"),
                 ),
             ),
             onBack = {},
@@ -185,7 +182,6 @@ private fun WishlistScreenPreview() {
             onCancelEdit = {},
             onDeleteClick = {},
             onCardClick = {},
-            onHeartClick = {},
         )
     }
 }
@@ -197,19 +193,18 @@ private fun WishlistScreenEditPreview() {
         WishlistScreen(
             state = WishlistContract.State(
                 items = listOf(
-                    WishlistItem("1", "펍 이름 1", "홍대", null),
-                    WishlistItem("2", "펍 이름 2", "강남", null),
-                    WishlistItem("3", "펍 이름 3", "이태원", null),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3"),
                 ),
                 isEditMode = true,
-                selectedIds = setOf("1"),
+                selectedIds = setOf(1L),
             ),
             onBack = {},
             onEditClick = {},
             onCancelEdit = {},
             onDeleteClick = {},
             onCardClick = {},
-            onHeartClick = {},
         )
     }
 }

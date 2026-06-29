@@ -35,7 +35,6 @@ fun WishlistItemCard(
     isEditMode: Boolean,
     isSelected: Boolean,
     onCardClick: () -> Unit,
-    onHeartClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -51,7 +50,7 @@ fun WishlistItemCard(
                 .background(MoballTheme.colors.backgroundSurface),
         ) {
             UrlImage(
-                url = item.imageUrl,
+                url = item.thumbnailImageUrl,
                 contentDescription = item.pubName,
                 contentScale = ContentScale.Crop,
                 placeholderRes = R.drawable.img_wishlist_item,
@@ -67,14 +66,10 @@ fun WishlistItemCard(
             }
 
             Icon(
-                imageVector = ImageVector.vectorResource(
-                    if (item.isFavorite) R.drawable.ic_wish_heart_fill else R.drawable.ic_wish_heart,
-                ),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_wish_heart_fill),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .noRippleClickable(onClick = onHeartClick),
+                modifier = Modifier.align(Alignment.BottomEnd),
             )
 
             if (isEditMode) {
@@ -100,16 +95,6 @@ fun WishlistItemCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Text(
-            text = item.location,
-            style = MoballTheme.typography.caption.medium12,
-            color = MoballTheme.colors.textSecondary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }
 
@@ -118,11 +103,10 @@ fun WishlistItemCard(
 private fun WishlistItemCardEditSelectedPreview() {
     MoballTheme {
         WishlistItemCard(
-            item = WishlistItem(pubId = "1", pubName = "야구펍 홍대점", location = "마포구"),
+            item = WishlistItem(favoriteId = 1L, pubId = 12L, pubName = "야구펍 홍대점"),
             isEditMode = true,
             isSelected = true,
             onCardClick = {},
-            onHeartClick = {},
             modifier = Modifier.size(124.dp, 172.dp),
         )
     }
@@ -133,11 +117,10 @@ private fun WishlistItemCardEditSelectedPreview() {
 private fun WishlistItemCardEditUnselectedPreview() {
     MoballTheme {
         WishlistItemCard(
-            item = WishlistItem(pubId = "2", pubName = "롯데 응원 맛집", location = "잠실동"),
+            item = WishlistItem(favoriteId = 2L, pubId = 15L, pubName = "롯데 응원 맛집"),
             isEditMode = true,
             isSelected = false,
             onCardClick = {},
-            onHeartClick = {},
             modifier = Modifier.size(124.dp, 172.dp),
         )
     }
