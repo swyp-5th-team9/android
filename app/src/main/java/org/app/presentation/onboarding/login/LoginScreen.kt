@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,18 +110,11 @@ private fun LoginScreen(
             contentScale = ContentScale.FillWidth,
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(29.dp))
 
-        // TODO 수정가능성있음 슬로건
-        Text(
-            text = buildAnnotatedString {
-                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Medium, fontSize = 18.sp)) {
-                    append("야구는 같이, ")
-                }
-                withStyle(SpanStyle(color = Color(0xFFC8E263), fontWeight = FontWeight.Bold, fontSize = 18.sp)) {
-                    append("모여볼!")
-                }
-            },
+        Image(
+            painter = painterResource(R.drawable.img_splash_slogan1),
+            contentDescription = null,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -141,7 +133,7 @@ private fun LoginScreen(
             onClick = onKakaoLoginClick,
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(22.dp))
 
         Text(
             text = buildAnnotatedString {
@@ -156,7 +148,7 @@ private fun LoginScreen(
                 }
             },
             modifier = Modifier
-                .padding(10.dp)
+                .padding(bottom = 10.dp)
                 .noRippleClickable(onClick = onPrivacyPolicyClick),
         )
     }
