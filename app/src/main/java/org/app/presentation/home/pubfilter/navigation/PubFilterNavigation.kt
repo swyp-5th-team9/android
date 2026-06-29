@@ -21,8 +21,9 @@ fun NavGraphBuilder.pubFilterScreen(
         }
         PubFilterRoute(
             onBack = onBack,
-            onApplyFilter = { teamNames, region ->
+            onApplyFilter = { teamIds, teamNames, region ->
                 navController.previousBackStackEntry?.savedStateHandle?.apply {
+                    set("pub_filter_team_ids", ArrayList(teamIds))
                     set("pub_filter_team_names", ArrayList(teamNames))
                     set("pub_filter_region", region)
                     set("pub_filter_applied", true)

@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +35,9 @@ fun HomeSearchRoute(
     viewModel: HomeSearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val textFieldState = rememberTextFieldState()
+    val textFieldState = rememberSaveable(saver = TextFieldState.Saver) {
+        TextFieldState(initialText = state.query)
+    }
 
     LaunchedEffect(textFieldState) {
         snapshotFlow { textFieldState.text.toString() }
@@ -127,7 +129,7 @@ private fun HomeSearchScreenWithResultsPreview() {
                     PubSearchResult("2", "시그마 펍", "서울 강남구"),
                 ),
             ),
-            textFieldState = rememberTextFieldState("시그"),
+            textFieldState = rememberSaveable(saver = TextFieldState.Saver) { TextFieldState("시그") },
             onEvent = {},
         )
     }
@@ -139,7 +141,7 @@ private fun HomeSearchScreenEmptyPreview() {
     MoballTheme {
         HomeSearchScreen(
             state = HomeSearchContract.State(isEmpty = true),
-            textFieldState = rememberTextFieldState("없는펍"),
+            textFieldState = rememberSaveable(saver = TextFieldState.Saver) { TextFieldState("없는펍") },
             onEvent = {},
         )
     }

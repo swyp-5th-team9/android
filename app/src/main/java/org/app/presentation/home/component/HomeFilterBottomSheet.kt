@@ -133,10 +133,18 @@ fun HomeFilterBottomSheet(
             selectedRegion = selectedRegion,
             onTabChange = { currentTab = it },
             onToggleTeam = { teamId ->
-                if (teamId in selectedTeamIds) {
-                    selectedTeamIds.remove(teamId)
-                } else {
-                    selectedTeamIds.add(teamId)
+                when {
+                    teamId == 0 -> {
+                        selectedTeamIds.clear()
+                        selectedTeamIds.add(0)
+                    }
+                    teamId in selectedTeamIds -> {
+                        selectedTeamIds.remove(teamId)
+                    }
+                    else -> {
+                        selectedTeamIds.remove(0)
+                        selectedTeamIds.add(teamId)
+                    }
                 }
             },
             onSelectRegion = { region ->

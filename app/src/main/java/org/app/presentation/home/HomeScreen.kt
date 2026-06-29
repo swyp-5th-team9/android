@@ -34,9 +34,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
@@ -44,6 +46,7 @@ import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
+import org.app.presentation.home.model.PubMarker
 
 private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
@@ -65,7 +68,8 @@ fun HomeRoute(
                 HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
                 HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
                 is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
-                is HomeContract.SideEffect.ShowToast -> { /* TODO: Toast */ }
+                is HomeContract.SideEffect.ShowToast -> { // TODO: Toast
+                }
             }
         }
     }
@@ -89,10 +93,13 @@ internal fun HomeScreen(
 
     var hasLocationPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED,
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED,
         )
     }
+
     var naverMap by remember { mutableStateOf<NaverMap?>(null) }
 
     val locationSource = remember {
@@ -124,6 +131,7 @@ internal fun HomeScreen(
     }
 
     val mapView = remember { MapView(context) }
+    val activeMarkers = remember { mutableListOf<Marker>() }
 
     DisposableEffect(lifecycleOwner) {
         mapView.onCreate(null)
@@ -156,14 +164,24 @@ internal fun HomeScreen(
                             // TODO: 내 위치 마커 클릭 시 동작
                             false
                         }
-                        // TODO: state.pubMarkers 로 Marker 추가
                     }
+                }
+            },
+            update = {
+                naverMap?.let { map ->
+                    renderPubMarkers(
+                        map = map,
+                        markers = state.pubMarkers,
+                        currentMarkers = activeMarkers,
+                        onMarkerClick = { pubId ->
+                            onEvent(HomeContract.Event.OnPubMarkerClick(pubId))
+                        },
+                    )
                 }
             },
             modifier = Modifier.fillMaxSize(),
         )
 
-        // ── 2. 상단 오버레이 (검색바 + 필터 칩) ───────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -205,7 +223,6 @@ internal fun HomeScreen(
             )
         }
 
-        // ── 5. 필터 바텀시트 ──────────────────────────────────────────
         if (state.showFilterBottomSheet) {
             HomeFilterBottomSheet(
                 initialTab = state.filterBottomSheetTab,
@@ -218,6 +235,28 @@ internal fun HomeScreen(
                 onDismiss = { onEvent(HomeContract.Event.OnFilterBottomSheetDismiss) },
             )
         }
+    }
+}
+
+private fun renderPubMarkers(
+    map: NaverMap,
+    markers: List<PubMarker>,
+    currentMarkers: MutableList<Marker>,
+    onMarkerClick: (String) -> Unit,
+) {
+    currentMarkers.forEach { it.map = null }
+    currentMarkers.clear()
+    markers.forEach { pubMarker ->
+        val marker = Marker().apply {
+            position = LatLng(pubMarker.latitude, pubMarker.longitude)
+            captionText = pubMarker.name
+            this.map = map
+            setOnClickListener {
+                onMarkerClick(pubMarker.pubId)
+                true
+            }
+        }
+        currentMarkers.add(marker)
     }
 }
 

@@ -33,13 +33,30 @@ class PubFilterViewModel
                     val state = _state.value
                     val selectedOptions = state.selectedOptions
                     val teamSection = state.sections.find { it.sectionId == "team" }
-                    val selectedTeamIds = selectedOptions["team"] ?: emptySet()
+                    val selectedTeamOptionIds = selectedOptions["team"] ?: emptySet()
+                    val teamIdMap = mapOf(
+                        "all" to 0,
+                        "kia" to 1,
+                        "samsung" to 2,
+                        "lg" to 3,
+                        "doosan" to 4,
+                        "kt" to 5,
+                        "ssg" to 6,
+                        "lotte" to 7,
+                        "hanwha" to 8,
+                        "nc" to 9,
+                        "kiwoom" to 10,
+                    )
+                    val teamIds = when {
+                        "all" in selectedTeamOptionIds -> listOf(0)
+                        else -> selectedTeamOptionIds.mapNotNull { teamIdMap[it] }
+                    }
                     val teamNames = when {
-                        "all" in selectedTeamIds -> listOf("KBO 전체")
+                        "all" in selectedTeamOptionIds -> listOf("KBO 전체")
                         else ->
                             teamSection
                                 ?.options
-                                ?.filter { it.id in selectedTeamIds }
+                                ?.filter { it.id in selectedTeamOptionIds }
                                 ?.map { it.label }
                                 ?: emptyList()
                     }
@@ -53,7 +70,7 @@ class PubFilterViewModel
                                 ?.firstOrNull { it.id in selectedRegionIds }
                                 ?.label
                     }
-                    emit(PubFilterContract.SideEffect.ApplyFilter(selectedOptions, teamNames, region))
+                    emit(PubFilterContract.SideEffect.ApplyFilter(selectedOptions, teamIds, teamNames, region))
                 }
 
                 is PubFilterContract.Event.OnOptionToggle -> toggleOption(event.sectionId, event.optionId)

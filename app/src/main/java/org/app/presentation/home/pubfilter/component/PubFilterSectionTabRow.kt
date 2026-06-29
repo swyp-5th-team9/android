@@ -29,15 +29,17 @@ fun PubFilterTabRow(
     onTabClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (tabs.isEmpty()) return
+    val safeActiveIndex = activeIndex.coerceIn(0, tabs.lastIndex)
     val indicatorPosition by animateFloatAsState(
-        targetValue = activeIndex.toFloat(),
+        targetValue = safeActiveIndex.toFloat(),
         label = "pubFilterTabIndicator",
     )
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth()) {
             tabs.forEachIndexed { idx, label ->
-                val isActive = idx == activeIndex
+                val isActive = idx == safeActiveIndex
                 Text(
                     text = label,
                     style = if (isActive) {

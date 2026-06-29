@@ -32,6 +32,7 @@ interface PubFilterContract {
 
         data class ApplyFilter(
             val selected: Map<String, Set<String>>,
+            val teamIds: List<Int>,
             val teamNames: List<String>,
             val region: String?,
         ) : SideEffect

@@ -54,7 +54,7 @@ private fun tabIndexToItemIndex(tabIdx: Int) = tabIdx + 1
 fun PubFilterRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    onApplyFilter: (teamNames: List<String>, region: String?) -> Unit = { _, _ -> },
+    onApplyFilter: (teamIds: List<Int>, teamNames: List<String>, region: String?) -> Unit = { _, _, _ -> },
     viewModel: PubFilterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -64,7 +64,7 @@ fun PubFilterRoute(
             when (effect) {
                 PubFilterContract.SideEffect.NavigateBack -> onBack()
                 is PubFilterContract.SideEffect.ApplyFilter -> {
-                    onApplyFilter(effect.teamNames, effect.region)
+                    onApplyFilter(effect.teamIds, effect.teamNames, effect.region)
                     onBack()
                 }
             }

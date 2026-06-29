@@ -53,6 +53,10 @@ fun NavGraphBuilder.homeGraph(
 
             LaunchedEffect(pubFilterApplied) {
                 if (pubFilterApplied) {
+                    val ids: List<Int> =
+                        savedStateHandle
+                            .get<ArrayList<Int>>("pub_filter_team_ids")
+                            ?.toList() ?: emptyList()
                     val names: List<String> =
                         savedStateHandle
                             .get<ArrayList<String>>("pub_filter_team_names")
@@ -60,7 +64,7 @@ fun NavGraphBuilder.homeGraph(
                     val region: String? = savedStateHandle["pub_filter_region"]
                     homeViewModel.onEvent(
                         HomeContract.Event.OnFilterApply(
-                            teamIds = List(names.size) { i -> i + 1 },
+                            teamIds = ids,
                             teamNames = names,
                             region = region,
                         ),
