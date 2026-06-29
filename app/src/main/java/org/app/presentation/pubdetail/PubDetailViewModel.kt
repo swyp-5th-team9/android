@@ -70,7 +70,7 @@ class PubDetailViewModel
                                             favoriteId = null,
                                             pubDetail = detail.copy(
                                                 isWishlisted = false,
-                                                wishlistCount = detail.wishlistCount - 1,
+                                                wishlistCount = (detail.wishlistCount - 1).coerceAtLeast(0),
                                             ),
                                         )
                                     }
@@ -81,7 +81,6 @@ class PubDetailViewModel
                                     )
                                 }
                         } else {
-                            // 찜 추가
                             val pubIdLong = pubId.toLongOrNull() ?: run {
                                 _state.update { it.copy(isWishlistLoading = false) }
                                 _sideEffect.emit(PubDetailContract.SideEffect.ShowToast("오류가 발생했습니다."))

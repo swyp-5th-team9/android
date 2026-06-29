@@ -57,7 +57,7 @@ fun WishlistPreviewCard(
                 color = MoballTheme.colors.textPrimaryInverse,
                 maxLines = 1,
             )
-            if (location != null) {
+            if (!location.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = location,

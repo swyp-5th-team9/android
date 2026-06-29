@@ -7,4 +7,8 @@ import kotlinx.serialization.Serializable
 data class DeleteFavoritesRequest(
     @SerialName("favoriteIds")
     val favoriteIds: List<Long>,
-)
+) {
+    init {
+        require(favoriteIds.isNotEmpty()) { "favoriteIds must not be empty" }
+    }
+}

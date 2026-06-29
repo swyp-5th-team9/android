@@ -21,9 +21,9 @@ class FavoriteRepositoryImpl
 
         override suspend fun getFavorites(): Result<List<FavoriteItem>> =
             suspendRunCatching {
-                val response = favoriteRemoteDataSource.getFavorites()
-                response.data?.favorites?.map { it.toFavoriteItem() }
-                    ?: emptyList()
+                val favorites = favoriteRemoteDataSource.getFavorites().data?.favorites
+                    ?: throw IllegalStateException("favorites is null")
+                favorites.map { it.toFavoriteItem() }
             }
 
         override suspend fun deleteFavorites(favoriteIds: List<Long>): Result<Unit> =

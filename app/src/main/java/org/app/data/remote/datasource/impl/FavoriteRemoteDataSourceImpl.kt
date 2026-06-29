@@ -50,7 +50,7 @@ class FavoriteRemoteDataSourceImpl
                 return BaseResponse(
                     status = "success_mock",
                     statusCode = 200,
-                    data = GetFavoritesResponse(favorites = mockFavorites.toList()),
+                    data = GetFavoritesResponse(favorites = mockFavorites.sortedByDescending { it.favoriteId }),
                     timestamp = "",
                 )
             }
