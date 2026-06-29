@@ -87,6 +87,11 @@ class AuthRepositoryImpl
                 localTokenDataSource.clearTokens()
             }
 
+        override suspend fun isLoggedIn(): Result<Boolean> =
+            suspendRunCatching {
+                !localTokenDataSource.getAccessToken().isNullOrBlank()
+            }
+
         companion object {
             private const val LOGIN_TYPE_KAKAO = "KAKAO"
             private const val LOGIN_TYPE_NAVER = "NAVER"

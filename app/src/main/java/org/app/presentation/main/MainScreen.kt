@@ -67,6 +67,12 @@ private fun MainNavHost(
         modifier = Modifier.padding(innerPadding),
     ) {
         splashGraph(
+            navigateToHome = {
+                appState.navController.navigate(HomeGraph) {
+                    popUpTo<Splash> { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
             navigateToLogin = {
                 appState.navController.navigate(Login) {
                     popUpTo<Splash> { inclusive = true }
