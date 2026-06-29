@@ -18,18 +18,19 @@ enum class KboTeamType(
     ;
 
     companion object {
+        /** 백엔드 V2 시드 기준 (PR #63) */
         fun fromId(id: Int): KboTeamType =
             when (id) {
-                1 -> KIA
-                2 -> KT
-                3 -> LG
-                4 -> NC
-                5 -> SSG
-                6 -> DOOSAN
+                1 -> LG
+                2 -> DOOSAN
+                3 -> KT
+                4 -> SSG
+                5 -> NC
+                6 -> KIA
                 7 -> LOTTE
                 8 -> SAMSUNG
-                9 -> KIWOOM
-                10 -> HANWHA
+                9 -> HANWHA
+                10 -> KIWOOM
                 else -> ALL
             }
     }
