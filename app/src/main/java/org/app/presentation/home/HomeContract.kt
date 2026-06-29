@@ -45,6 +45,13 @@ interface HomeContract {
 
         data object OnRegionSearchClick : Event
 
+        data class OnMapBoundsChanged(
+            val swLat: Double,
+            val swLng: Double,
+            val neLat: Double,
+            val neLng: Double,
+        ) : Event
+
         data class OnPubMarkerClick(
             val pubId: String,
         ) : Event
