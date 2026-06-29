@@ -21,6 +21,8 @@ import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
 import org.app.presentation.onboarding.signup.navigation.SignUpNickname
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
+import org.app.presentation.onboarding.splash.navigation.Splash
+import org.app.presentation.onboarding.splash.navigation.splashGraph
 import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
@@ -64,6 +66,14 @@ private fun MainNavHost(
         startDestination = appState.startDestination,
         modifier = Modifier.padding(innerPadding),
     ) {
+        splashGraph(
+            navigateToLogin = {
+                appState.navController.navigate(Login) {
+                    popUpTo<Splash> { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
+        )
         loginGraph(
             navigateToHome = {
                 appState.navController.navigate(HomeGraph) {

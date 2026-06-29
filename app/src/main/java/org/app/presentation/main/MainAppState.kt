@@ -18,7 +18,7 @@ import org.app.core.extension.stateInWhileSubscribed
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.navigateToHome
 import org.app.presentation.mypage.navigateToMyPage
-import org.app.presentation.onboarding.login.navigation.Login
+import org.app.presentation.onboarding.splash.navigation.Splash
 import org.app.presentation.schedule.navigation.navigateToSchedule
 
 @Stable
@@ -26,7 +26,7 @@ class MainAppState(
     val navController: NavHostController,
     coroutineScope: CoroutineScope,
 ) {
-    val startDestination = Login
+    val startDestination: Any = Splash
 
     private val currentDestination = navController.currentBackStackEntryFlow
         .map { it.destination }
