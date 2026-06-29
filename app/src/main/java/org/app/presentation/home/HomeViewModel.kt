@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.UserRepository
+import org.app.presentation.home.model.PubCluster
+import org.app.presentation.home.model.PubMarker
+import org.app.presentation.home.model.PubMarkerType
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,6 +30,56 @@ class HomeViewModel
 
         init {
             loadUserFavoriteTeams()
+            loadMockMarkers()
+        }
+
+        private fun loadMockMarkers() {
+            val mockMarkers = listOf(
+                PubMarker(
+                    pubId = "1",
+                    name = "잠실 응원 펍",
+                    latitude = 37.5113,
+                    longitude = 127.0730,
+                    type = PubMarkerType.FAVORITE,
+                    isFavorite = true,
+                ),
+                PubMarker(
+                    pubId = "2",
+                    name = "신천 야구 펍",
+                    latitude = 37.5100,
+                    longitude = 127.0800,
+                    type = PubMarkerType.MATCH,
+                    isFavorite = false,
+                ),
+                PubMarker(
+                    pubId = "3",
+                    name = "종합운동장 펍",
+                    latitude = 37.5150,
+                    longitude = 127.0750,
+                    type = PubMarkerType.MATCH,
+                    isFavorite = false,
+                ),
+            )
+
+            val mockClusters = listOf(
+                PubCluster(
+                    latitude = 37.5120,
+                    longitude = 127.0900,
+                    count = 14,
+                ),
+                PubCluster(
+                    latitude = 37.5050,
+                    longitude = 127.1000,
+                    count = 3,
+                ),
+            )
+
+            _state.update {
+                it.copy(
+                    pubMarkers = mockMarkers,
+                    pubClusters = mockClusters,
+                )
+            }
         }
 
         /** 온보딩/마이페이지에서 응원 구단이 변경된 후 홈 탭 복귀 시 재호출 */

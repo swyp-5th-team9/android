@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.graphics.PointF
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -34,11 +35,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.R
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
@@ -46,13 +49,16 @@ import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
+import org.app.presentation.home.component.clusterOverlayImage
+import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
+import org.app.presentation.home.model.PubMarkerType
 
 private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
 @Composable
 fun HomeRoute(
-    onNavigateToPubDetail: (pubId: String) -> Unit,
+    onNavigateToPubDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToPubFilter: () -> Unit,
     onNavigateToReport: () -> Unit,
@@ -62,13 +68,14 @@ fun HomeRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-                HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
-                HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
-                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
-                is HomeContract.SideEffect.ShowToast -> { // TODO: Toast
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
+                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(sideEffect.pubId)
+                is HomeContract.SideEffect.ShowToast -> {
+                    // TODO: Toast show logic
                 }
             }
         }
@@ -83,7 +90,7 @@ fun HomeRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeScreen(
+fun HomeScreen(
     state: HomeContract.State,
     onEvent: (HomeContract.Event) -> Unit,
     modifier: Modifier = Modifier,
@@ -91,32 +98,23 @@ internal fun HomeScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var hasLocationPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED,
-        )
-    }
+    val locationSource =
+        remember { FusedLocationSource(context.findActivity()!!, LOCATION_PERMISSION_REQUEST_CODE) }
 
     var naverMap by remember { mutableStateOf<NaverMap?>(null) }
-
-    val locationSource = remember {
-        context.findActivity()?.let { FusedLocationSource(it, LOCATION_PERMISSION_REQUEST_CODE) }
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED,
+        )
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
-        hasLocationPermission = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-    }
-
-    LaunchedEffect(hasLocationPermission, naverMap) {
-        if (hasLocationPermission) {
-            naverMap?.locationTrackingMode = LocationTrackingMode.Follow
-        }
+        hasLocationPermission = permissions.values.all { it }
     }
 
     LaunchedEffect(Unit) {
@@ -132,6 +130,7 @@ internal fun HomeScreen(
 
     val mapView = remember { MapView(context) }
     val activeMarkers = remember { mutableListOf<Marker>() }
+    val activeClusters = remember { mutableListOf<Marker>() }
 
     DisposableEffect(lifecycleOwner) {
         mapView.onCreate(null)
@@ -170,12 +169,19 @@ internal fun HomeScreen(
             update = {
                 naverMap?.let { map ->
                     renderPubMarkers(
+                        context = context,
                         map = map,
                         markers = state.pubMarkers,
                         currentMarkers = activeMarkers,
                         onMarkerClick = { pubId ->
                             onEvent(HomeContract.Event.OnPubMarkerClick(pubId))
                         },
+                    )
+                    renderPubClusters(
+                        context = context,
+                        map = map,
+                        clusters = state.pubClusters,
+                        currentClusters = activeClusters,
                     )
                 }
             },
@@ -239,6 +245,7 @@ internal fun HomeScreen(
 }
 
 private fun renderPubMarkers(
+    context: Context,
     map: NaverMap,
     markers: List<PubMarker>,
     currentMarkers: MutableList<Marker>,
@@ -249,7 +256,10 @@ private fun renderPubMarkers(
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            captionText = pubMarker.name
+            icon = when (pubMarker.type) {
+                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.ic_pin)
+                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.ic_pub_favorite)
+            }
             this.map = map
             setOnClickListener {
                 onMarkerClick(pubMarker.pubId)
@@ -260,7 +270,26 @@ private fun renderPubMarkers(
     }
 }
 
-private fun Context.findActivity(): Activity? {
+private fun renderPubClusters(
+    context: Context,
+    map: NaverMap,
+    clusters: List<PubCluster>,
+    currentClusters: MutableList<Marker>,
+) {
+    currentClusters.forEach { it.map = null }
+    currentClusters.clear()
+    clusters.forEach { cluster ->
+        val marker = Marker().apply {
+            position = LatLng(cluster.latitude, cluster.longitude)
+            icon = clusterOverlayImage(context, cluster.count)
+            anchor = PointF(0.5f, 0.5f)
+            this.map = map
+        }
+        currentClusters.add(marker)
+    }
+}
+
+fun Context.findActivity(): Activity? {
     var context = this
     while (context is ContextWrapper) {
         if (context is Activity) return context
@@ -269,15 +298,12 @@ private fun Context.findActivity(): Activity? {
     return null
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-private fun HomeScreenPreview() {
+fun HomeScreenPreview() {
     MoballTheme {
         HomeScreen(
-            state = HomeContract.State(
-                userFavoriteTeamNames = listOf("한화"),
-            ),
+            state = HomeContract.State(),
             onEvent = {},
         )
     }
