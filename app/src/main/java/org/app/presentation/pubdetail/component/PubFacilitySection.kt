@@ -14,10 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -32,17 +29,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.presentation.pubdetail.model.FacilityItem
-import org.app.presentation.pubdetail.model.FacilityType
-import org.app.presentation.pubdetail.model.ParkingItem
-import org.app.presentation.pubdetail.model.ParkingType
 
+/**
+ * 편의시설 / 스타일 / 테마 / 음식 코드 문자열 목록을 아이콘 칩으로 표시.
+ * 빈 목록이면 아무것도 렌더링하지 않는다.
+ */
 @Composable
 fun PubFacilitySection(
-    facilities: List<FacilityItem>,
+    title: String = "편의시설",
+    codes: List<String>,
     modifier: Modifier = Modifier,
 ) {
-    if (facilities.isEmpty()) return
+    if (codes.isEmpty()) return
 
     Column(
         modifier = modifier
@@ -50,7 +48,7 @@ fun PubFacilitySection(
             .padding(horizontal = 16.dp),
     ) {
         Text(
-            text = "편의시설",
+            text = title,
             style = MoballTheme.typography.heading6.bold16,
             color = MoballTheme.colors.textPrimary,
         )
@@ -64,49 +62,10 @@ fun PubFacilitySection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                facilities.forEach { item ->
+                codes.forEach { code ->
                     FacilityChip(
-                        icon = item.type.toIcon(),
-                        label = item.type.label,
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-    }
-}
-
-@Composable
-fun PubParkingSection(
-    parkingItems: List<ParkingItem>,
-    modifier: Modifier = Modifier,
-) {
-    if (parkingItems.isEmpty()) return
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
-        Text(
-            text = "주차",
-            style = MoballTheme.typography.heading6.bold16,
-            color = MoballTheme.colors.textPrimary,
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        FacilityCard {
-            @OptIn(ExperimentalLayoutApi::class)
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                parkingItems.forEach { item ->
-                    FacilityChip(
-                        icon = item.type.toIcon(),
-                        label = item.type.label,
+                        icon = codeToIcon(code),
+                        label = codeToLabel(code),
                     )
                 }
             }
@@ -155,24 +114,44 @@ private fun FacilityChip(
     }
 }
 
-// TODO 아이콘이 추가되기 전까지 기본 내장 아이콘으로 대체 (추후 커스텀 아이콘으로 교체 예정)
-private fun FacilityType.toIcon(): ImageVector =
-    when (this) {
-        FacilityType.GROUP_SEATING -> Icons.Default.Person
-        FacilityType.WAITING_AREA -> Icons.Default.Person
-        FacilityType.CORKAGE -> Icons.Default.Star
-        FacilityType.PRIVATE_ROOM -> Icons.Default.Home
-        FacilityType.SMOKING_AREA -> Icons.Default.Warning
-        FacilityType.PROJECTOR -> Icons.Default.PlayArrow
-        FacilityType.SOUND_SYSTEM -> Icons.Default.Settings
+// TODO 커스텀 아이콘 디자인 에셋이 추가되면 교체
+private fun codeToIcon(code: String): ImageVector =
+    when (code) {
+        "GROUP_SEAT" -> Icons.Default.Person
+        "SOLO_SEAT" -> Icons.Default.Person
+        "PARKING" -> Icons.Default.Info
+        "MULTI_TV", "BIG_SCREEN" -> Icons.Default.PlayArrow
+        "PRIVATE_ROOM" -> Icons.Default.Home
+        "SMOKING_AREA" -> Icons.Default.Warning
+        "SOUND_SYSTEM" -> Icons.Default.Settings
+        "OFFICIAL_PUB" -> Icons.Default.Star
+        "STADIUM_MODE" -> Icons.Default.PlayArrow
+        "CHICKEN" -> Icons.Default.Star
+        "BEER", "SOJU" -> Icons.Default.Info
+        "PIZZA" -> Icons.Default.Home
+        else -> Icons.Default.Info
     }
 
-private fun ParkingType.toIcon(): ImageVector =
-    when (this) {
-        ParkingType.AVAILABLE -> Icons.Default.Place
-        ParkingType.NEARBY -> Icons.Default.LocationOn
-        ParkingType.VALET -> Icons.Default.Lock
-        ParkingType.NONE -> Icons.Default.Info
+private fun codeToLabel(code: String): String =
+    when (code) {
+        "GROUP_SEAT" -> "단체석"
+        "SOLO_SEAT" -> "혼자석"
+        "PARKING" -> "주차"
+        "MULTI_TV" -> "다중 TV"
+        "BIG_SCREEN" -> "대형 스크린"
+        "PRIVATE_ROOM" -> "단독룸"
+        "SMOKING_AREA" -> "흡연 구역"
+        "SOUND_SYSTEM" -> "음향 시스템"
+        "OFFICIAL_PUB" -> "공식 펍"
+        "STADIUM_MODE" -> "경기장 모드"
+        "SPACIOUS_VIEW" -> "탁 트인 뷰"
+        "COMFY_SEAT" -> "편안한 좌석"
+        "CHICKEN" -> "치킨"
+        "BEER" -> "맥주"
+        "SOJU" -> "소주"
+        "PIZZA" -> "피자"
+        "SET" -> "세트 메뉴"
+        else -> code
     }
 
 @Preview(showBackground = true)
@@ -181,17 +160,7 @@ fun PubFacilitySectionPreview() {
     MoballTheme {
         Column {
             PubFacilitySection(
-                facilities = listOf(
-                    FacilityItem(FacilityType.GROUP_SEATING),
-                    FacilityItem(FacilityType.PROJECTOR),
-                    FacilityItem(FacilityType.SOUND_SYSTEM),
-                    FacilityItem(FacilityType.PRIVATE_ROOM),
-                ),
-            )
-            PubParkingSection(
-                parkingItems = listOf(
-                    ParkingItem(ParkingType.AVAILABLE),
-                ),
+                codes = listOf("GROUP_SEAT", "BIG_SCREEN", "OFFICIAL_PUB", "PARKING"),
             )
         }
     }

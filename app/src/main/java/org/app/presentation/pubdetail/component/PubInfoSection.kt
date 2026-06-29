@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,25 +28,27 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
-import org.app.presentation.pubdetail.model.BusinessHours
-import org.app.presentation.pubdetail.model.BusinessStatus
+import org.app.presentation.pubdetail.model.BusinessHour
 import org.app.presentation.pubdetail.model.KboTeam
 import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.presentation.pubdetail.model.PubStatus
+import java.time.LocalDate
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PubInfoSection(
     pubName: String,
     teams: List<KboTeam>,
-    businessHours: BusinessHours?,
+    businessHours: List<BusinessHour>,
     address: String,
     phoneNumber: String?,
-    seatCount: Int?,
+    groupSeatMaxPeople: Int?,
+    status: PubStatus,
     isHoursExpanded: Boolean,
     onHoursToggle: () -> Unit,
     onPhoneCall: () -> Unit,
     isWished: Boolean,
-    wishCount: Int,
+    favoriteCount: Int,
     onWishToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,7 +70,7 @@ fun PubInfoSection(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     teams.forEach { team ->
-                        TeamBadge(teamType = KboTeamType.fromId(team.id))
+                        TeamBadge(teamType = KboTeamType.fromId(team.teamId.toInt()))
                     }
                 }
             } else {
@@ -87,7 +90,7 @@ fun PubInfoSection(
                     modifier = Modifier.size(24.dp),
                 )
                 Text(
-                    text = wishCount.toString(),
+                    text = favoriteCount.toString(),
                     style = MoballTheme.typography.caption.regular12,
                     color = MoballTheme.colors.textTertiary,
                 )
@@ -104,9 +107,10 @@ fun PubInfoSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        businessHours?.let { hours ->
+        if (businessHours.isNotEmpty()) {
             BusinessHoursRow(
-                hours = hours,
+                status = status,
+                hours = businessHours,
                 isExpanded = isHoursExpanded,
                 onToggle = onHoursToggle,
             )
@@ -127,11 +131,11 @@ fun PubInfoSection(
             )
         }
 
-        seatCount?.let { seats ->
+        groupSeatMaxPeople?.let { seats ->
             Spacer(modifier = Modifier.height(12.dp))
             InfoRow(
                 icon = ImageVector.vectorResource(R.drawable.ic_chair),
-                text = "좌석 ${seats}석",
+                text = "단체석 최대 ${seats}명",
             )
         }
 
@@ -141,10 +145,15 @@ fun PubInfoSection(
 
 @Composable
 private fun BusinessHoursRow(
-    hours: BusinessHours,
+    status: PubStatus,
+    hours: List<BusinessHour>,
     isExpanded: Boolean,
     onToggle: () -> Unit,
 ) {
+    // ISO 기준 오늘 요일 (1=월 … 7=일)
+    val todayIso = remember { LocalDate.now().dayOfWeek.value }
+    val todayHours = hours.firstOrNull { it.dayOfWeek == todayIso }
+
     Column {
         Row(
             modifier = Modifier
@@ -160,16 +169,25 @@ private fun BusinessHoursRow(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = hours.status.displayText(),
+                text = status.label,
                 style = MoballTheme.typography.body.medium14,
-                color = MoballTheme.colors.textPrimary,
+                color = when (status) {
+                    PubStatus.OPEN -> MoballTheme.colors.accentPrimary
+                    PubStatus.CLOSED -> MoballTheme.colors.textTertiary
+                    PubStatus.TEMP_CLOSED -> MoballTheme.colors.textSecondary
+                },
             )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = "${hours.openTime} - ${hours.closeTime}",
-                style = MoballTheme.typography.body.regular14,
-                color = MoballTheme.colors.textSecondary,
-            )
+
+            if (todayHours != null && !todayHours.isClosed) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "${todayHours.openTime} - ${todayHours.closeTime}",
+                    style = MoballTheme.typography.body.regular14,
+                    color = MoballTheme.colors.textSecondary,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
@@ -180,36 +198,32 @@ private fun BusinessHoursRow(
 
         if (isExpanded) {
             Spacer(modifier = Modifier.height(6.dp))
-            hours.lastOrder?.let { lo ->
-                Row(modifier = Modifier.padding(start = 26.dp)) {
+            hours.sortedBy { it.dayOfWeek }.forEach { hour ->
+                Row(
+                    modifier = Modifier.padding(start = 26.dp, top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        text = "라스트오더",
+                        text = hour.dayLabel,
                         style = MoballTheme.typography.caption.regular12,
                         color = MoballTheme.colors.textTertiary,
-                        modifier = Modifier.width(80.dp),
+                        modifier = Modifier.width(24.dp),
                     )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    val textColor =
+                        if (hour.isClosed) {
+                            MoballTheme.colors.textTertiary
+                        } else {
+                            MoballTheme.colors.textSecondary
+                        }
                     Text(
-                        text = lo,
+                        text = if (hour.isClosed) "휴무" else "${hour.openTime} - ${hour.closeTime}",
                         style = MoballTheme.typography.caption.regular12,
-                        color = MoballTheme.colors.textSecondary,
+                        color = textColor,
                     )
                 }
             }
-            hours.breakStartTime?.let { bs ->
-                Row(modifier = Modifier.padding(start = 26.dp, top = 4.dp)) {
-                    Text(
-                        text = "브레이크타임",
-                        style = MoballTheme.typography.caption.regular12,
-                        color = MoballTheme.colors.textTertiary,
-                        modifier = Modifier.width(80.dp),
-                    )
-                    Text(
-                        text = hours.breakEndTime?.let { be -> "$bs - $be" } ?: bs,
-                        style = MoballTheme.typography.caption.regular12,
-                        color = MoballTheme.colors.textSecondary,
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 }
@@ -231,8 +245,7 @@ private fun InfoRow(
             imageVector = icon,
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier
-                .size(18.dp),
+            modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -250,24 +263,27 @@ fun PubInfoSectionPreview() {
         PubInfoSection(
             pubName = "시그니처 펍",
             teams = listOf(
-                KboTeam(id = 3, shortName = "LG", fullName = "LG 트윈스"),
-                KboTeam(id = 6, shortName = "두산", fullName = "두산 베어스"),
+                KboTeam(teamId = 3L, shortName = "LG", name = "LG 트윈스"),
+                KboTeam(teamId = 6L, shortName = "두산", name = "두산 베어스"),
             ),
-            businessHours = BusinessHours(
-                openTime = "17:00",
-                closeTime = "02:00",
-                lastOrder = "01:30",
-                isOpenNow = true,
-                status = BusinessStatus.OPEN,
+            businessHours = listOf(
+                BusinessHour(1, "17:00", "02:00", false),
+                BusinessHour(2, "17:00", "02:00", false),
+                BusinessHour(3, "17:00", "02:00", false),
+                BusinessHour(4, "17:00", "02:00", false),
+                BusinessHour(5, "17:00", "03:00", false),
+                BusinessHour(6, "15:00", "03:00", false),
+                BusinessHour(7, null, null, true),
             ),
+            status = PubStatus.OPEN,
             address = "서울특별시 마포구 월드컵북로 396",
             phoneNumber = "02-1234-5678",
-            seatCount = 60,
+            groupSeatMaxPeople = 30,
             isHoursExpanded = false,
             onHoursToggle = {},
             onPhoneCall = {},
             isWished = false,
-            wishCount = 237,
+            favoriteCount = 237,
             onWishToggle = {},
         )
     }
