@@ -1,5 +1,6 @@
 package org.app.presentation.mypage.report
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -36,6 +37,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -71,10 +73,10 @@ fun ReportRoute(
     val detailTextState = rememberTextFieldState(state.detailText)
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(3),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(ReportContract.State.MAX_IMAGES),
     ) { uris ->
         if (uris.isNotEmpty()) {
-            viewModel.onEvent(ReportContract.Event.OnScreenshotsAdded(uris.map { it.toString() }))
+            viewModel.onEvent(ReportContract.Event.OnImagesAdded(uris))
         }
     }
 
@@ -86,9 +88,7 @@ fun ReportRoute(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
             when (effect) {
-                ReportContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+                ReportContract.SideEffect.NavigateBack -> onBack()
 
                 ReportContract.SideEffect.ShowSuccessDialog -> {
                     showSuccessDialog = true
@@ -110,7 +110,7 @@ fun ReportRoute(
         onImagesPicked = {
             launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         },
-        onImageRemoved = { viewModel.onEvent(ReportContract.Event.OnScreenshotRemoved(it)) },
+        onImageRemoved = { viewModel.onEvent(ReportContract.Event.OnImageRemoved(it)) },
         onSubmit = { viewModel.onEvent(ReportContract.Event.OnSubmit) },
         onConfirmDialog = {
             showSuccessDialog = false
@@ -128,7 +128,7 @@ private fun ReportScreen(
     onBack: () -> Unit,
     onCategorySelected: (ReportCategory) -> Unit,
     onImagesPicked: () -> Unit,
-    onImageRemoved: (String) -> Unit,
+    onImageRemoved: (Uri) -> Unit,
     onSubmit: () -> Unit,
     onConfirmDialog: () -> Unit,
     modifier: Modifier = Modifier,
@@ -223,15 +223,15 @@ private fun ReportScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                if (state.screenshots.size < 3) {
+                if (state.remainingImageSlots > 0) {
                     item {
+                        val borderColor = MoballTheme.colors.borderStrong
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
                                 .noRippleClickable(onClick = onImagesPicked),
                             contentAlignment = Alignment.Center,
                         ) {
-                            val borderColor = MoballTheme.colors.borderStrong
                             Canvas(modifier = Modifier.fillMaxSize()) {
                                 drawRoundRect(
                                     color = borderColor,
@@ -242,8 +242,7 @@ private fun ReportScreen(
                                             phase = 0f,
                                         ),
                                     ),
-                                    cornerRadius = androidx.compose.ui.geometry
-                                        .CornerRadius(12.dp.toPx()),
+                                    cornerRadius = CornerRadius(12.dp.toPx()),
                                 )
                             }
                             Icon(
@@ -255,12 +254,10 @@ private fun ReportScreen(
                     }
                 }
 
-                items(state.screenshots) { uri ->
-                    Box(
-                        modifier = Modifier.size(60.dp),
-                    ) {
+                items(state.imageUris) { uri ->
+                    Box(modifier = Modifier.size(60.dp)) {
                         UrlImage(
-                            url = uri,
+                            url = uri.toString(),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(12.dp)),
@@ -294,7 +291,7 @@ private fun ReportScreen(
         MoballButton(
             text = "제보 보내기",
             onClick = onSubmit,
-            enabled = state.canSubmit && !state.isSubmitting,
+            enabled = state.canSubmit,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
