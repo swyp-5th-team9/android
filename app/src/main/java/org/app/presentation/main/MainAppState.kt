@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.app.core.extension.stateInWhileSubscribed
-import org.app.presentation.home.navigation.Home
+import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.navigateToHome
 import org.app.presentation.mypage.navigateToMyPage
 import org.app.presentation.onboarding.login.navigation.Login
@@ -69,7 +69,7 @@ class MainAppState(
 
     fun navigate(tab: MainTab) {
         val navOptions = navOptions {
-            popUpTo<Home> {
+            popUpTo<HomeGraph> {
                 saveState = true
             }
             launchSingleTop = true

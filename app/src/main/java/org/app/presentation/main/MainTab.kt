@@ -8,7 +8,7 @@ import com.moball.app.R.string.mypage
 import com.moball.app.R.string.schedule
 import org.app.core.common.navigation.MainTabRoute
 import org.app.core.common.navigation.Route
-import org.app.presentation.home.navigation.Home
+import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.mypage.MyPageGraph
 import org.app.presentation.schedule.navigation.Schedule
 
@@ -22,7 +22,7 @@ enum class MainTab(
         selectedIconRes = drawable.ic_home_selected_,
         unselectedIconRes = drawable.ic_home_unselected,
         titleRes = home,
-        route = Home,
+        route = HomeGraph,
     ),
 
     SCHEDULE(
