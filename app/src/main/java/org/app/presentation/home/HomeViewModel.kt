@@ -56,7 +56,7 @@ class HomeViewModel
                     .onSuccess { user ->
                         _state.update {
                             it.copy(
-                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId.toInt() },
+                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId },
                                 userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName },
                             )
                         }
@@ -125,12 +125,10 @@ class HomeViewModel
                     // NaverMap 위치 추적은 Screen 레이어에서 직접 처리
                 }
 
-                HomeContract.Event.OnRegionSearchClick ->
-                    loadMapPubs(
-                        teamId = _state.value.filter.selectedTeamIds
-                            .firstOrNull()
-                            ?.toLong(),
-                    )
+                HomeContract.Event.OnRegionSearchClick -> {
+                    val selectedIds = _state.value.filter.selectedTeamIds
+                    loadMapPubs(teamId = selectedIds.firstOrNull())
+                }
 
                 is HomeContract.Event.OnMapBoundsChanged -> {
                     currentSwLat = event.swLat
@@ -149,11 +147,13 @@ class HomeViewModel
                                 selectedTeamIds = event.teamIds,
                                 selectedTeamNames = event.teamNames,
                                 selectedRegion = event.region,
+                                openNow = event.openNow,
+                                businessDay = event.businessDay,
                             ),
                             showFilterBottomSheet = false,
                         )
                     }
-                    loadMapPubs(teamId = event.teamIds.firstOrNull()?.toLong())
+                    loadMapPubs(teamId = event.teamIds.firstOrNull())
                 }
             }
         }
