@@ -7,6 +7,8 @@ interface PubDetailContract {
         val pubId: String = "",
         val pubDetail: PubDetail? = null,
         val isLoading: Boolean = false,
+        val favoriteId: Long? = null, // 찜 등록 시 서버에서 받은 ID (삭제에 사용)
+        val isWishlistLoading: Boolean = false,
         val currentImageIndex: Int = 0,
         val isHoursExpanded: Boolean = false,
         val showPhotoGallery: Boolean = false,

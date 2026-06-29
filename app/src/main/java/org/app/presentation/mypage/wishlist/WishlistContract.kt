@@ -5,7 +5,7 @@ interface WishlistContract {
         val items: List<WishlistItem> = emptyList(),
         val isLoading: Boolean = false,
         val isEditMode: Boolean = false,
-        val selectedIds: Set<String> = emptySet(),
+        val selectedIds: Set<Long> = emptySet(), // favoriteId 기준
     ) {
         val hasSelection: Boolean get() = selectedIds.isNotEmpty()
     }
@@ -18,15 +18,11 @@ interface WishlistContract {
         data object OnDeleteSelected : Event
 
         data class OnToggleSelect(
-            val pubId: String,
-        ) : Event
-
-        data class OnToggleFavorite(
-            val pubId: String,
+            val favoriteId: Long,
         ) : Event
 
         data class OnPubClick(
-            val pubId: String,
+            val pubId: Long,
         ) : Event
     }
 
@@ -44,9 +40,8 @@ interface WishlistContract {
 }
 
 data class WishlistItem(
-    val pubId: String,
+    val favoriteId: Long,
+    val pubId: Long,
     val pubName: String,
-    val location: String,
-    val imageUrl: String? = null,
-    val isFavorite: Boolean = true,
+    val thumbnailImageUrl: String? = null,
 )

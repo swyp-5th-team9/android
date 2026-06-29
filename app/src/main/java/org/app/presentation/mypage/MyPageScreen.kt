@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -216,9 +216,8 @@ private fun MyPageScreen(
                         items(state.wishlistItems.take(5)) { item ->
                             WishlistPreviewCard(
                                 pubName = item.pubName,
-                                location = item.location,
-                                imageUrl = item.imageUrl,
-                                onClick = { onEvent(MyPageContract.Event.OnPubClick(item.pubId)) },
+                                imageUrl = item.thumbnailImageUrl,
+                                onClick = { onEvent(MyPageContract.Event.OnPubClick(item.pubId.toString())) },
                             )
                         }
                     }
@@ -354,9 +353,9 @@ private fun MyPageScreenWithWishlistPreview() {
                 nickname = "닉네임",
                 supportedTeams = listOf("한화", "KT", "삼성"),
                 wishlistItems = listOf(
-                    WishlistItem("1", "버드나무 브루어리", "강릉", null),
-                    WishlistItem("2", "데블스도어", "반포", null),
-                    WishlistItem("3", "플레이볼", "잠실", null),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼"),
                 ),
             ),
             isTeamSheetVisible = false,
