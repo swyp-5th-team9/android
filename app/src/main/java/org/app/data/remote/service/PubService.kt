@@ -13,15 +13,15 @@ interface PubService {
     suspend fun getPubs(
         @Query("keyword") keyword: String? = null,
         @Query("teamId") teamId: Long? = null,
+        @Query("teamIds") teamIds: List<Long>? = null,
         @Query("region") region: String? = null,
         @Query("facilityCodes") facilityCodes: List<String>? = null,
         @Query("styleCodes") styleCodes: List<String>? = null,
         @Query("themeCodes") themeCodes: List<String>? = null,
         @Query("foodCodes") foodCodes: List<String>? = null,
         @Query("capacityRange") capacityRange: String? = null,
-        @Query("businessStatus") businessStatus: String? = null,
-        @Query("businessDays") businessDays: List<Int>? = null,
-        @Query("sort") sort: String? = null,
+        @Query("openNow") openNow: Boolean? = null,
+        @Query("businessDay") businessDay: String? = null,
         @Query("page") page: Int? = null,
         @Query("size") size: Int? = null,
     ): BaseResponse<GetPubsResponse>

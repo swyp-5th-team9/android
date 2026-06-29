@@ -9,15 +9,15 @@ interface PubRemoteDataSource {
     suspend fun getPubs(
         keyword: String?,
         teamId: Long?,
+        teamIds: List<Long>?,
         region: String?,
         facilityCodes: List<String>?,
         styleCodes: List<String>?,
         themeCodes: List<String>?,
         foodCodes: List<String>?,
         capacityRange: String?,
-        businessStatus: String?,
-        businessDays: List<Int>?,
-        sort: String?,
+        openNow: Boolean?,
+        businessDay: String?,
         page: Int?,
         size: Int?,
     ): BaseResponse<GetPubsResponse>
