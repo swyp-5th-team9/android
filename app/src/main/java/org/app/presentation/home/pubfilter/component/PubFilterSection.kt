@@ -52,7 +52,7 @@ fun PubFilterSection(
         ) {
             section.options.forEach { option ->
                 PubFilterOptionChip(
-                    option = option,
+                    label = option.label,
                     isSelected = option.id in selectedOptionIds,
                     onToggle = { onToggle(option.id) },
                 )
@@ -62,8 +62,8 @@ fun PubFilterSection(
 }
 
 @Composable
-private fun PubFilterOptionChip(
-    option: PubFilterOption,
+fun PubFilterOptionChip(
+    label: String,
     isSelected: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -73,7 +73,7 @@ private fun PubFilterOptionChip(
     val textColor = if (isSelected) MoballTheme.colors.textPrimary else MoballTheme.colors.textSecondary
 
     Text(
-        text = option.label,
+        text = label,
         style = MoballTheme.typography.heading7.semibold14,
         color = textColor,
         modifier = modifier
