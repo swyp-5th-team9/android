@@ -39,7 +39,8 @@ class TeamRemoteDataSourceImpl
             return teamService
                 .getTeams(sportType)
                 .data
-                .teams
-                .map { it.toTeamItem() }
+                ?.teams
+                ?.map { it.toTeamItem() }
+                ?: emptyList()
         }
     }
