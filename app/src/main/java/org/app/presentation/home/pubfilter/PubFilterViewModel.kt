@@ -66,7 +66,18 @@ class PubFilterViewModel
         ) {
             _state.update { current ->
                 val currentSet = current.selectedOptions[sectionId] ?: emptySet()
-                val newSet = if (optionId in currentSet) currentSet - optionId else currentSet + optionId
+                val newSet =
+                    when (sectionId) {
+                        "region" ->
+                            if (optionId in currentSet) {
+                                emptySet()
+                            } else {
+                                setOf(optionId)
+                            }
+
+                        else ->
+                            if (optionId in currentSet) currentSet - optionId else currentSet + optionId
+                    }
                 current.copy(
                     selectedOptions = current.selectedOptions + (sectionId to newSet),
                 )
