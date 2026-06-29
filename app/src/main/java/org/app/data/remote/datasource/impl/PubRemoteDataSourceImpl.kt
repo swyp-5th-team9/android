@@ -127,15 +127,15 @@ class PubRemoteDataSourceImpl
         override suspend fun getPubs(
             keyword: String?,
             teamId: Long?,
+            teamIds: List<Long>?,
             region: String?,
             facilityCodes: List<String>?,
             styleCodes: List<String>?,
             themeCodes: List<String>?,
             foodCodes: List<String>?,
             capacityRange: String?,
-            businessStatus: String?,
-            businessDays: List<Int>?,
-            sort: String?,
+            openNow: Boolean?,
+            businessDay: String?,
             page: Int?,
             size: Int?,
         ): BaseResponse<GetPubsResponse> {
@@ -147,13 +147,18 @@ class PubRemoteDataSourceImpl
                             it.address.contains(keyword, ignoreCase = true)
                     }
                 }
-                if (teamId != null) {
+                val effectiveTeamIds = teamIds?.takeIf { it.isNotEmpty() }
+                    ?: listOfNotNull(teamId)
+                if (effectiveTeamIds.isNotEmpty()) {
                     filtered = filtered.filter { item ->
-                        item.supportedTeams.any { it.teamId == teamId }
+                        item.supportedTeams.any { it.teamId in effectiveTeamIds }
                     }
                 }
                 if (!region.isNullOrBlank()) {
                     filtered = filtered.filter { it.region == region }
+                }
+                if (openNow == true) {
+                    filtered = filtered.filter { it.businessStatus == "OPEN_NOW" }
                 }
                 return BaseResponse(
                     status = "success_mock",
@@ -171,15 +176,15 @@ class PubRemoteDataSourceImpl
             return pubService.getPubs(
                 keyword,
                 teamId,
+                teamIds,
                 region,
                 facilityCodes,
                 styleCodes,
                 themeCodes,
                 foodCodes,
                 capacityRange,
-                businessStatus,
-                businessDays,
-                sort,
+                openNow,
+                businessDay,
                 page,
                 size,
             )
