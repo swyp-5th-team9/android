@@ -1,9 +1,8 @@
-package org.app
+package com.moball.app
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import com.kakao.sdk.common.KakaoSdk
-import com.moball.app.BuildConfig
 import com.navercorp.nid.NidOAuth
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
