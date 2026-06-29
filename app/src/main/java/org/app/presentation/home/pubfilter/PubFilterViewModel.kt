@@ -35,17 +35,19 @@ class PubFilterViewModel
                     val selectedOptions = state.selectedOptions
                     val teamSection = state.sections.find { it.sectionId == "team" }
                     val selectedTeamOptionIds = selectedOptions["team"] ?: emptySet()
+
+                    /** 백엔드 V2 시드 기준 */
                     val teamIdMap = mapOf(
                         "all" to 0,
-                        "kia" to 1,
-                        "samsung" to 2,
-                        "lg" to 3,
-                        "doosan" to 4,
-                        "kt" to 5,
-                        "ssg" to 6,
+                        "lg" to 1,
+                        "doosan" to 2,
+                        "kt" to 3,
+                        "ssg" to 4,
+                        "nc" to 5,
+                        "kia" to 6,
                         "lotte" to 7,
-                        "hanwha" to 8,
-                        "nc" to 9,
+                        "samsung" to 8,
+                        "hanwha" to 9,
                         "kiwoom" to 10,
                     )
                     val teamIds = when {
@@ -71,7 +73,32 @@ class PubFilterViewModel
                                 ?.firstOrNull { it.id in selectedRegionIds }
                                 ?.label
                     }
-                    emit(PubFilterContract.SideEffect.ApplyFilter(selectedOptions, teamIds, teamNames, region))
+                    val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
+                    val businessDayOptionId = (selectedOptions["business_day"] ?: emptySet())
+                        .firstOrNull { it != "all_days" }
+                    val businessDay = when (businessDayOptionId) {
+                        "weekdays" -> "WEEKDAY"
+                        "weekends" -> "WEEKEND"
+                        "always_open" -> "EVERYDAY"
+                        "mon" -> "MON"
+                        "tue" -> "TUE"
+                        "wed" -> "WED"
+                        "thu" -> "THU"
+                        "fri" -> "FRI"
+                        "sat" -> "SAT"
+                        "sun" -> "SUN"
+                        else -> null
+                    }
+                    emit(
+                        PubFilterContract.SideEffect.ApplyFilter(
+                            selectedOptions,
+                            teamIds,
+                            teamNames,
+                            region,
+                            openNow,
+                            businessDay,
+                        ),
+                    )
                 }
 
                 is PubFilterContract.Event.OnOptionToggle -> toggleOption(event.sectionId, event.optionId)

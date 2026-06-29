@@ -35,6 +35,8 @@ interface PubFilterContract {
             val teamIds: List<Int>,
             val teamNames: List<String>,
             val region: String?,
+            val openNow: Boolean?,
+            val businessDay: String?,
         ) : SideEffect
     }
 }
