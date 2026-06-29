@@ -28,17 +28,12 @@ import org.app.presentation.pubdetail.component.PubBottomBar
 import org.app.presentation.pubdetail.component.PubFacilitySection
 import org.app.presentation.pubdetail.component.PubHeroCarousel
 import org.app.presentation.pubdetail.component.PubInfoSection
-import org.app.presentation.pubdetail.component.PubParkingSection
 import org.app.presentation.pubdetail.component.PubPhotoGallery
 import org.app.presentation.pubdetail.component.PubPhotoSection
-import org.app.presentation.pubdetail.model.BusinessHours
-import org.app.presentation.pubdetail.model.BusinessStatus
-import org.app.presentation.pubdetail.model.FacilityItem
-import org.app.presentation.pubdetail.model.FacilityType
+import org.app.presentation.pubdetail.model.BusinessHour
 import org.app.presentation.pubdetail.model.KboTeam
-import org.app.presentation.pubdetail.model.ParkingItem
-import org.app.presentation.pubdetail.model.ParkingType
 import org.app.presentation.pubdetail.model.PubDetail
+import org.app.presentation.pubdetail.model.PubStatus
 
 @Composable
 fun PubDetailRoute(
@@ -52,9 +47,7 @@ fun PubDetailRoute(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
             when (effect) {
-                is PubDetailContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+                is PubDetailContract.SideEffect.NavigateBack -> onBack()
 
                 is PubDetailContract.SideEffect.CallPhone -> {
                     context.startActivity(
@@ -90,9 +83,7 @@ internal fun PubDetailScreen(
     onEvent: (PubDetailContract.Event) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         if (state.isLoading || state.pubDetail == null) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
@@ -116,35 +107,36 @@ internal fun PubDetailScreen(
                     onPageChanged = { onEvent(PubDetailContract.Event.OnImagePageChanged(it)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
+
                 PubInfoSection(
                     pubName = detail.name,
                     teams = detail.teams,
                     businessHours = detail.businessHours,
+                    status = detail.status,
                     address = detail.address,
                     phoneNumber = detail.phoneNumber,
-                    seatCount = detail.seatCount,
+                    groupSeatMaxPeople = detail.groupSeatMaxPeople,
                     isHoursExpanded = state.isHoursExpanded,
                     onHoursToggle = { onEvent(PubDetailContract.Event.OnHoursToggle) },
                     onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
                     isWished = detail.isWishlisted,
-                    wishCount = detail.wishlistCount,
+                    favoriteCount = detail.favoriteCount,
                     onWishToggle = { onEvent(PubDetailContract.Event.OnWishlistToggle) },
                 )
 
                 Divider()
 
-                if (detail.facilities.isNotEmpty()) {
+                // 편의시설 (facility + style + theme + food 전부 한 섹션)
+                val allCodes = detail.facilityCodes + detail.styleCodes + detail.themeCodes + detail.foodCodes
+                if (allCodes.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    PubFacilitySection(facilities = detail.facilities)
-                }
-
-                if (detail.parkingOptions.isNotEmpty()) {
-                    PubParkingSection(parkingItems = detail.parkingOptions)
+                    PubFacilitySection(codes = allCodes)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Divider()
                 Spacer(modifier = Modifier.height(20.dp))
+
                 PubPhotoSection(
                     imageUrls = detail.imageUrls,
                     onPhotoClick = { index -> onEvent(PubDetailContract.Event.OnPhotoClick(index)) },
@@ -152,6 +144,7 @@ internal fun PubDetailScreen(
 
                 Spacer(modifier = Modifier.navigationBarsPadding())
             }
+
             PubBottomBar(
                 hasPhoneNumber = detail.phoneNumber != null,
                 onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
@@ -188,32 +181,38 @@ private fun PubDetailScreenPreview() {
         PubDetailScreen(
             state = PubDetailContract.State(
                 pubDetail = PubDetail(
-                    id = "preview",
+                    pubId = 1L,
                     name = "시그니처 펍",
-                    imageUrls = emptyList(),
-                    teams = listOf(
-                        KboTeam(id = 3, shortName = "LG", fullName = "LG 트윈스"),
-                        KboTeam(id = 6, shortName = "두산", fullName = "두산 베어스"),
-                    ),
-                    isWishlisted = false,
-                    wishlistCount = 12,
                     address = "서울특별시 마포구 월드컵북로 396",
-                    phoneNumber = "02-1234-5678",
-                    businessHours = BusinessHours(
-                        openTime = "17:00",
-                        closeTime = "02:00",
-                        lastOrder = "01:30",
-                        isOpenNow = true,
-                        status = BusinessStatus.OPEN,
-                    ),
-                    seatCount = 60,
-                    facilities = listOf(
-                        FacilityItem(FacilityType.GROUP_SEATING),
-                        FacilityItem(FacilityType.PROJECTOR),
-                    ),
-                    parkingOptions = listOf(ParkingItem(ParkingType.NEARBY, "도보 3분 내 공영주차장")),
+                    region = "MAPO",
                     latitude = 37.5516,
                     longitude = 126.9086,
+                    phoneNumber = "02-1234-5678",
+                    status = PubStatus.OPEN,
+                    capacityRange = null,
+                    groupSeatMaxPeople = 30,
+                    favoriteCount = 12,
+                    description = null,
+                    imageUrls = emptyList(),
+                    teams = listOf(
+                        KboTeam(teamId = 3L, shortName = "LG", name = "LG 트윈스"),
+                        KboTeam(teamId = 6L, shortName = "두산", name = "두산 베어스"),
+                    ),
+                    facilityCodes = listOf("GROUP_SEAT", "BIG_SCREEN"),
+                    styleCodes = listOf("OFFICIAL_PUB"),
+                    themeCodes = emptyList(),
+                    foodCodes = listOf("CHICKEN", "BEER"),
+                    businessHours = listOf(
+                        BusinessHour(1, "17:00", "02:00", false),
+                        BusinessHour(2, "17:00", "02:00", false),
+                        BusinessHour(3, "17:00", "02:00", false),
+                        BusinessHour(4, "17:00", "02:00", false),
+                        BusinessHour(5, "17:00", "03:00", false),
+                        BusinessHour(6, "15:00", "03:00", false),
+                        BusinessHour(7, null, null, true),
+                    ),
+                    menus = emptyList(),
+                    isWishlisted = false,
                 ),
             ),
             onEvent = {},

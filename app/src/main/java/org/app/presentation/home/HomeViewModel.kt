@@ -9,18 +9,26 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.model.PubMapItem
+import org.app.data.repository.api.PubRepository
 import org.app.data.repository.api.UserRepository
-import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
 import org.app.presentation.home.model.PubMarkerType
 import timber.log.Timber
 import javax.inject.Inject
+
+// 서울 전체를 커버하는 기본 BBox
+private const val DEFAULT_SW_LAT = 37.413294
+private const val DEFAULT_SW_LNG = 126.734086
+private const val DEFAULT_NE_LAT = 37.715133
+private const val DEFAULT_NE_LNG = 127.269311
 
 @HiltViewModel
 class HomeViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
+        private val pubRepository: PubRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow(HomeContract.State())
         val state = _state.asStateFlow()
@@ -28,61 +36,17 @@ class HomeViewModel
         private val _sideEffect = MutableSharedFlow<HomeContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
+        // 현재 지도 BBox (OnMapBoundsChanged 로 업데이트)
+        private var currentSwLat = DEFAULT_SW_LAT
+        private var currentSwLng = DEFAULT_SW_LNG
+        private var currentNeLat = DEFAULT_NE_LAT
+        private var currentNeLng = DEFAULT_NE_LNG
+
         init {
             loadUserFavoriteTeams()
-            loadMockMarkers()
+            loadMapPubs()
         }
 
-        private fun loadMockMarkers() {
-            val mockMarkers = listOf(
-                PubMarker(
-                    pubId = "1",
-                    name = "잠실 응원 펍",
-                    latitude = 37.5113,
-                    longitude = 127.0730,
-                    type = PubMarkerType.FAVORITE,
-                    isFavorite = true,
-                ),
-                PubMarker(
-                    pubId = "2",
-                    name = "신천 야구 펍",
-                    latitude = 37.5100,
-                    longitude = 127.0800,
-                    type = PubMarkerType.MATCH,
-                    isFavorite = false,
-                ),
-                PubMarker(
-                    pubId = "3",
-                    name = "종합운동장 펍",
-                    latitude = 37.5150,
-                    longitude = 127.0750,
-                    type = PubMarkerType.MATCH,
-                    isFavorite = false,
-                ),
-            )
-
-            val mockClusters = listOf(
-                PubCluster(
-                    latitude = 37.5120,
-                    longitude = 127.0900,
-                    count = 14,
-                ),
-                PubCluster(
-                    latitude = 37.5050,
-                    longitude = 127.1000,
-                    count = 3,
-                ),
-            )
-
-            _state.update {
-                it.copy(
-                    pubMarkers = mockMarkers,
-                    pubClusters = mockClusters,
-                )
-            }
-        }
-
-        /** 온보딩/마이페이지에서 응원 구단이 변경된 후 홈 탭 복귀 시 재호출 */
         fun refreshFavoriteTeams() = loadUserFavoriteTeams()
 
         private fun loadUserFavoriteTeams() {
@@ -96,11 +60,42 @@ class HomeViewModel
                                 userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName },
                             )
                         }
+                    }.onFailure { Timber.e("응원 구단 로드 실패: $it") }
+            }
+        }
+
+        private fun loadMapPubs(teamId: Long? = null) {
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                pubRepository
+                    .getMapPubs(
+                        swLat = currentSwLat,
+                        swLng = currentSwLng,
+                        neLat = currentNeLat,
+                        neLng = currentNeLng,
+                        teamId = teamId,
+                    ).onSuccess { items ->
+                        _state.update {
+                            it.copy(isLoading = false, pubMarkers = items.toMarkers(), pubClusters = emptyList())
+                        }
                     }.onFailure { error ->
-                        Timber.e("응원 구단 로드 실패: $error")
+                        Timber.e("지도 펍 로드 실패: $error")
+                        _state.update { it.copy(isLoading = false) }
                     }
             }
         }
+
+        private fun List<PubMapItem>.toMarkers(): List<PubMarker> =
+            map { item ->
+                PubMarker(
+                    pubId = item.pubId.toString(),
+                    name = item.name,
+                    latitude = item.latitude,
+                    longitude = item.longitude,
+                    type = PubMarkerType.MATCH,
+                    isFavorite = false,
+                )
+            }
 
         fun onEvent(event: HomeContract.Event) {
             when (event) {
@@ -112,18 +107,12 @@ class HomeViewModel
 
                 HomeContract.Event.OnTeamChipClick ->
                     _state.update {
-                        it.copy(
-                            showFilterBottomSheet = true,
-                            filterBottomSheetTab = FilterBottomSheetTab.TEAM,
-                        )
+                        it.copy(showFilterBottomSheet = true, filterBottomSheetTab = FilterBottomSheetTab.TEAM)
                     }
 
                 HomeContract.Event.OnRegionChipClick ->
                     _state.update {
-                        it.copy(
-                            showFilterBottomSheet = true,
-                            filterBottomSheetTab = FilterBottomSheetTab.REGION,
-                        )
+                        it.copy(showFilterBottomSheet = true, filterBottomSheetTab = FilterBottomSheetTab.REGION)
                     }
 
                 HomeContract.Event.OnFilterBottomSheetDismiss ->
@@ -136,9 +125,18 @@ class HomeViewModel
                     // NaverMap 위치 추적은 Screen 레이어에서 직접 처리
                 }
 
-                HomeContract.Event.OnRegionSearchClick -> {
-                    // 현재 지도 영역 기반 재검색 — TODO: 서버 연결 후 구현
-                    emit(HomeContract.SideEffect.ShowToast("이 지역 검색 기능은 준비 중입니다."))
+                HomeContract.Event.OnRegionSearchClick ->
+                    loadMapPubs(
+                        teamId = _state.value.filter.selectedTeamIds
+                            .firstOrNull()
+                            ?.toLong(),
+                    )
+
+                is HomeContract.Event.OnMapBoundsChanged -> {
+                    currentSwLat = event.swLat
+                    currentSwLng = event.swLng
+                    currentNeLat = event.neLat
+                    currentNeLng = event.neLng
                 }
 
                 is HomeContract.Event.OnPubMarkerClick ->
@@ -155,7 +153,7 @@ class HomeViewModel
                             showFilterBottomSheet = false,
                         )
                     }
-                    // TODO: 필터 조건으로 펍 목록 재조회
+                    loadMapPubs(teamId = event.teamIds.firstOrNull()?.toLong())
                 }
             }
         }
