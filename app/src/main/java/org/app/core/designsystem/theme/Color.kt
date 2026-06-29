@@ -69,6 +69,11 @@ val teamColorDoosan = Color(0xFF121130) // 두산 베어스
 val teamColorKiwoom = Color(0xFF820023) // 키움 히어로즈
 val teamColorHanwha = Color(0xFFFF6501) // 한화 이글스
 
+// Map overlay colors
+val mapClusterOverlayBg = Color(0x473D4652) // rgba(61,70,82,0.28)
+val mapClusterIconOverlayBg = Color(0xB23D4652) // rgba(61,70,82,0.70)
+val mapMyLocationRingBg = Color(0x33FF3838) // rgba(255,56,56,0.20)
+
 // Team List Badge
 val teamBadgeBg = Color(0xFFEEF7CB)
 val teamBadgeText = Color(0xFF526C13) // same as lime900
@@ -128,6 +133,11 @@ data class MoballColors(
     val textTitle: Color,
     val teamListBadgeBg: Color,
     val teamListBadgeText: Color,
+    // Map
+    val mapClusterBg: Color,
+    val mapClusterIconBg: Color,
+    val mapMyLocationBg: Color,
+    // Team colors
     val teamColorAll: Color,
     val teamColorSamsung: Color,
     val teamColorLotte: Color,
@@ -195,6 +205,9 @@ val defaultMoballColors = MoballColors(
     textTitle = warmNeutral900,
     teamListBadgeBg = teamBadgeBg,
     teamListBadgeText = teamBadgeText,
+    mapClusterBg = mapClusterOverlayBg,
+    mapClusterIconBg = mapClusterIconOverlayBg,
+    mapMyLocationBg = mapMyLocationRingBg,
     teamColorAll = teamColorAll,
     teamColorSamsung = teamColorSamsung,
     teamColorLotte = teamColorLotte,
