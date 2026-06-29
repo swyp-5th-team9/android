@@ -60,6 +60,8 @@ interface HomeContract {
             val teamIds: List<Int>,
             val teamNames: List<String>,
             val region: String?,
+            val openNow: Boolean? = null,
+            val businessDay: String? = null,
         ) : Event
     }
 

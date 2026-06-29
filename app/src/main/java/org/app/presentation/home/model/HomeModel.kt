@@ -63,6 +63,10 @@ data class HomeFilter(
     val selectedTeamIds: List<Int> = emptyList(),
     val selectedTeamNames: List<String> = emptyList(),
     val selectedRegion: String? = null,
+    /** GET /api/v1/pubs openNow 파라미터 */
+    val openNow: Boolean? = null,
+    /** GET /api/v1/pubs businessDay 파라미터 */
+    val businessDay: String? = null,
 ) {
     val isTeamFilterActive: Boolean get() = selectedTeamIds.isNotEmpty()
     val isRegionFilterActive: Boolean get() = selectedRegion != null

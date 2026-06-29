@@ -149,6 +149,8 @@ class HomeViewModel
                                 selectedTeamIds = event.teamIds,
                                 selectedTeamNames = event.teamNames,
                                 selectedRegion = event.region,
+                                openNow = event.openNow,
+                                businessDay = event.businessDay,
                             ),
                             showFilterBottomSheet = false,
                         )
