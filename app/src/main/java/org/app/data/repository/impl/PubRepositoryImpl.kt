@@ -57,10 +57,12 @@ class PubRepositoryImpl
             neLat: Double,
             neLng: Double,
             teamId: Long?,
+            openNow: Boolean?,
+            businessDay: String?,
         ): Result<List<PubMapItem>> =
             suspendRunCatching {
                 pubRemoteDataSource
-                    .getMapPubs(swLat, swLng, neLat, neLng, teamId)
+                    .getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
                     .data
                     ?.toPubMapItems() ?: error("data is null")
             }

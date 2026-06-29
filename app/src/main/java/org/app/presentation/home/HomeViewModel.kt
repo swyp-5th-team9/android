@@ -56,7 +56,7 @@ class HomeViewModel
                     .onSuccess { user ->
                         _state.update {
                             it.copy(
-                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId.toInt() },
+                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId },
                                 userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName },
                             )
                         }
@@ -64,7 +64,11 @@ class HomeViewModel
             }
         }
 
-        private fun loadMapPubs(teamId: Long? = null) {
+        private fun loadMapPubs(
+            teamId: Long? = null,
+            openNow: Boolean? = null,
+            businessDay: String? = null,
+        ) {
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 pubRepository
@@ -74,6 +78,8 @@ class HomeViewModel
                         neLat = currentNeLat,
                         neLng = currentNeLng,
                         teamId = teamId,
+                        openNow = openNow,
+                        businessDay = businessDay,
                     ).onSuccess { items ->
                         _state.update {
                             it.copy(isLoading = false, pubMarkers = items.toMarkers(), pubClusters = emptyList())
@@ -125,12 +131,14 @@ class HomeViewModel
                     // NaverMap 위치 추적은 Screen 레이어에서 직접 처리
                 }
 
-                HomeContract.Event.OnRegionSearchClick ->
+                HomeContract.Event.OnRegionSearchClick -> {
+                    val filter = _state.value.filter
                     loadMapPubs(
-                        teamId = _state.value.filter.selectedTeamIds
-                            .firstOrNull()
-                            ?.toLong(),
+                        teamId = filter.selectedTeamIds.firstOrNull(),
+                        openNow = filter.openNow,
+                        businessDay = filter.businessDay,
                     )
+                }
 
                 is HomeContract.Event.OnMapBoundsChanged -> {
                     currentSwLat = event.swLat
@@ -149,11 +157,17 @@ class HomeViewModel
                                 selectedTeamIds = event.teamIds,
                                 selectedTeamNames = event.teamNames,
                                 selectedRegion = event.region,
+                                openNow = event.openNow,
+                                businessDay = event.businessDay,
                             ),
                             showFilterBottomSheet = false,
                         )
                     }
-                    loadMapPubs(teamId = event.teamIds.firstOrNull()?.toLong())
+                    loadMapPubs(
+                        teamId = event.teamIds.firstOrNull(),
+                        openNow = event.openNow,
+                        businessDay = event.businessDay,
+                    )
                 }
             }
         }

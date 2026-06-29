@@ -102,6 +102,7 @@ internal fun ScheduleScreen(
 
             item {
                 ScheduleTeamChipBar(
+                    teams = state.teams,
                     selectedTeamId = state.selectedTeamId,
                     onTeamSelected = { teamId ->
                         onEvent(ScheduleContract.Event.OnTeamSelected(teamId))

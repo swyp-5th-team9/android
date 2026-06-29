@@ -27,7 +27,9 @@ interface PubRemoteDataSource {
         swLng: Double,
         neLat: Double,
         neLng: Double,
-        teamId: Long?,
+        teamId: Long? = null,
+        openNow: Boolean? = null,
+        businessDay: String? = null,
     ): BaseResponse<GetPubsMapResponse>
 
     suspend fun getPubDetail(pubId: Long): BaseResponse<PubDetailResponse>

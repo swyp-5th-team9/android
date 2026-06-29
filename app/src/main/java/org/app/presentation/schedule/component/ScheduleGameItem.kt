@@ -34,8 +34,8 @@ private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
  * API 연결 후 서버 teamId 기준으로 수정
  */
 @DrawableRes
-fun teamLogoRes(teamId: Int): Int =
-    when (teamId) {
+fun teamLogoRes(teamId: Long): Int =
+    when (teamId.toInt()) {
         1 -> R.drawable.img_kia
         2 -> R.drawable.img_kt
         3 -> R.drawable.img_lg

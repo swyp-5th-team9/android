@@ -10,7 +10,7 @@ interface HomeContract {
         val pubMarkers: List<PubMarker> = emptyList(),
         val pubClusters: List<PubCluster> = emptyList(),
         val filter: HomeFilter = HomeFilter(),
-        val userFavoriteTeamIds: List<Int> = emptyList(),
+        val userFavoriteTeamIds: List<Long> = emptyList(),
         val userFavoriteTeamNames: List<String> = emptyList(),
         val showFilterBottomSheet: Boolean = false,
         val filterBottomSheetTab: FilterBottomSheetTab = FilterBottomSheetTab.TEAM,
@@ -57,9 +57,11 @@ interface HomeContract {
         ) : Event
 
         data class OnFilterApply(
-            val teamIds: List<Int>,
+            val teamIds: List<Long>,
             val teamNames: List<String>,
             val region: String?,
+            val openNow: Boolean? = null,
+            val businessDay: String? = null,
         ) : Event
     }
 
