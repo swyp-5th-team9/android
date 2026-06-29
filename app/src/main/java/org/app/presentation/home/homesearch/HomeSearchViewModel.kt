@@ -12,14 +12,18 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.PubRepository
 import org.app.presentation.home.model.PubSearchResult
+import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class HomeSearchViewModel
     @Inject
-    constructor() : ViewModel() {
+    constructor(
+        private val pubRepository: PubRepository,
+    ) : ViewModel() {
         private val _state = MutableStateFlow(HomeSearchContract.State())
         val state = _state.asStateFlow()
 
@@ -59,19 +63,23 @@ class HomeSearchViewModel
             }
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                // TODO: 서버 API 연결 후 실제 검색 호출
-                val mockResults = listOf(
-                    PubSearchResult("1", "시그니처 펍", "서울 마포구 홍대로 10"),
-                    PubSearchResult("2", "야구 천국", "서울 송파구 올림픽로 20"),
-                ).filter { it.name.contains(query, ignoreCase = true) }
-
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        results = mockResults,
-                        isEmpty = mockResults.isEmpty(),
-                    )
-                }
+                pubRepository
+                    .getPubs(keyword = query, size = 20)
+                    .onSuccess { page ->
+                        val results = page.content.map { item ->
+                            PubSearchResult(
+                                pubId = item.pubId.toString(),
+                                name = item.name,
+                                address = item.address,
+                            )
+                        }
+                        _state.update {
+                            it.copy(isLoading = false, results = results, isEmpty = results.isEmpty())
+                        }
+                    }.onFailure { error ->
+                        Timber.e("검색 실패: $error")
+                        _state.update { it.copy(isLoading = false, results = emptyList(), isEmpty = true) }
+                    }
             }
         }
 
