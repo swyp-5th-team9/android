@@ -9,28 +9,24 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.FavoriteRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class WishlistViewModel
     @Inject
-    constructor() : ViewModel() {
-        private val _state = MutableStateFlow(
-            WishlistContract.State(
-                items = listOf(
-                    WishlistItem("1", "야구펍 홍대점", "마포구", isFavorite = true),
-                    WishlistItem("2", "롯데 응원 맛집", "잠실동", isFavorite = false),
-                    WishlistItem("3", "시그니처 펍", "용산구", isFavorite = true),
-                    WishlistItem("4", "홈런 안주 맛집", "강남구", isFavorite = true),
-                    WishlistItem("5", "베이스볼 파크", "영등포구", isFavorite = false),
-                    WishlistItem("6", "스트라이크 존", "송파구", isFavorite = true),
-                ),
-            ),
-        )
+    constructor(
+        private val favoriteRepository: FavoriteRepository,
+    ) : ViewModel() {
+        private val _state = MutableStateFlow(WishlistContract.State())
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<WishlistContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
+
+        init {
+            loadFavorites()
+        }
 
         fun onEvent(event: WishlistContract.Event) {
             when (event) {
@@ -43,50 +39,79 @@ class WishlistViewModel
                 }
 
                 WishlistContract.Event.OnDeleteSelected -> {
-                    val toRemove = _state.value.selectedIds
-                    val count = toRemove.size
-                    _state.update { current ->
-                        current.copy(
-                            items = current.items.filter { it.pubId !in toRemove },
-                            selectedIds = emptySet(),
-                            isEditMode = false,
-                        )
-                    }
+                    val favoriteIds = _state.value.selectedIds.toList()
+                    if (favoriteIds.isEmpty()) return
                     viewModelScope.launch {
-                        _sideEffect.emit(WishlistContract.SideEffect.ShowToast("${count}개의 펍이 삭제되었습니다."))
+                        _state.update { it.copy(isLoading = true) }
+                        favoriteRepository
+                            .deleteFavorites(favoriteIds)
+                            .onSuccess {
+                                _state.update { current ->
+                                    current.copy(
+                                        items = current.items.filter { it.favoriteId !in favoriteIds },
+                                        selectedIds = emptySet(),
+                                        isEditMode = false,
+                                        isLoading = false,
+                                    )
+                                }
+                                _sideEffect.emit(
+                                    WishlistContract.SideEffect.ShowToast("${favoriteIds.size}개의 펍이 삭제되었습니다."),
+                                )
+                            }.onFailure { e ->
+                                _state.update { it.copy(isLoading = false) }
+                                _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
+                            }
                     }
-                    // TODO: API 연결 - 서버에서 찜 삭제
                 }
 
                 is WishlistContract.Event.OnToggleSelect -> {
                     _state.update { current ->
                         val ids = current.selectedIds.toMutableSet()
-                        if (event.pubId in ids) ids.remove(event.pubId) else ids.add(event.pubId)
+                        if (event.favoriteId in ids) ids.remove(event.favoriteId) else ids.add(event.favoriteId)
                         current.copy(selectedIds = ids)
                     }
                 }
 
-                is WishlistContract.Event.OnToggleFavorite -> {
-                    _state.update { current ->
-                        current.copy(
-                            items = current.items.map {
-                                if (it.pubId == event.pubId) it.copy(isFavorite = !it.isFavorite) else it
-                            },
-                        )
-                    }
-                    // TODO: API 연결 - 찜 상태 업데이트
-                }
-
                 is WishlistContract.Event.OnPubClick -> {
-                    // 편집 모드일 때는 선택 토글, 일반 모드에서는 상세 이동
                     if (_state.value.isEditMode) {
-                        onEvent(WishlistContract.Event.OnToggleSelect(event.pubId))
+                        val favoriteId = _state.value.items
+                            .find { it.pubId == event.pubId }
+                            ?.favoriteId ?: return
+                        onEvent(WishlistContract.Event.OnToggleSelect(favoriteId))
                     } else {
                         viewModelScope.launch {
-                            _sideEffect.emit(WishlistContract.SideEffect.NavigateToPubDetail(event.pubId))
+                            _sideEffect.emit(
+                                WishlistContract.SideEffect.NavigateToPubDetail(event.pubId.toString()),
+                            )
                         }
                     }
                 }
+            }
+        }
+
+        private fun loadFavorites() {
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                favoriteRepository
+                    .getFavorites()
+                    .onSuccess { items ->
+                        _state.update { current ->
+                            current.copy(
+                                isLoading = false,
+                                items = items.map { item ->
+                                    WishlistItem(
+                                        favoriteId = item.favoriteId,
+                                        pubId = item.pubId,
+                                        pubName = item.pubName,
+                                        thumbnailImageUrl = item.thumbnailImageUrl,
+                                    )
+                                },
+                            )
+                        }
+                    }.onFailure { e ->
+                        _state.update { it.copy(isLoading = false) }
+                        _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "목록을 불러오지 못했습니다."))
+                    }
             }
         }
     }
