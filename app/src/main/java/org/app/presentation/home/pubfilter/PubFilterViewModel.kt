@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.emptySet
 
 @HiltViewModel
 class PubFilterViewModel
@@ -83,18 +84,32 @@ class PubFilterViewModel
         ) {
             _state.update { current ->
                 val currentSet = current.selectedOptions[sectionId] ?: emptySet()
-                val newSet =
-                    when (sectionId) {
-                        "region" ->
-                            if (optionId in currentSet) {
+                val newSet = when (sectionId) {
+                    "team" -> when {
+                        optionId == "all" ->
+                            if (currentSet == setOf("all")) {
                                 emptySet()
                             } else {
-                                setOf(optionId)
+                                setOf("all")
                             }
 
-                        else ->
-                            if (optionId in currentSet) currentSet - optionId else currentSet + optionId
+                        else -> {
+                            val baseSet = currentSet - "all"
+                            if (optionId in baseSet) baseSet - optionId else baseSet + optionId
+                        }
                     }
+
+                    "region" ->
+                        if (optionId in currentSet) {
+                            emptySet()
+                        } else {
+                            setOf(optionId)
+                        }
+
+                    else ->
+                        if (optionId in currentSet) currentSet - optionId else currentSet + optionId
+                }
+
                 current.copy(
                     selectedOptions = current.selectedOptions + (sectionId to newSet),
                 )
