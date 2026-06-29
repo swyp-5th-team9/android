@@ -24,7 +24,6 @@ class SplashViewModel
 
         init {
             viewModelScope.launch {
-                // 토큰 확인과 최소 표시 시간을 병렬로 실행
                 val isLoggedInDeferred = async { authRepository.isLoggedIn() }
                 delay(SPLASH_DELAY_MS)
                 val isLoggedIn = isLoggedInDeferred.await()
