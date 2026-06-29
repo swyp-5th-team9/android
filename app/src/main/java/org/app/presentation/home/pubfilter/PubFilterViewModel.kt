@@ -55,6 +55,8 @@ class PubFilterViewModel
                                 },
                             )
                         }
+                    }.onFailure {
+                        emit(PubFilterContract.SideEffect.ShowToast("팀 목록을 불러오는데 실패했습니다."))
                     }
             }
         }
@@ -71,6 +73,14 @@ class PubFilterViewModel
                     val state = _state.value
                     val selectedOptions = state.selectedOptions
                     val selectedTeamOptionIds = selectedOptions["team"] ?: emptySet()
+
+                    if (state.teams.isEmpty() &&
+                        "all" !in selectedTeamOptionIds &&
+                        selectedTeamOptionIds.isNotEmpty()
+                    ) {
+                        emit(PubFilterContract.SideEffect.ShowToast("팀 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요."))
+                        return
+                    }
 
                     // teamId = optionId(Long 문자열) 직접 파싱 — 하드코딩 맵 불필요
                     val teamIds: List<Long> = when {
@@ -150,7 +160,7 @@ class PubFilterViewModel
                         }
                     }
 
-                    "region" ->
+                    "region", "business_day" ->
                         if (optionId in currentSet) {
                             emptySet()
                         } else {

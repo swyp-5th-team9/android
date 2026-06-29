@@ -37,10 +37,18 @@ class ScheduleViewModel
 
         private fun loadTeams() {
             viewModelScope.launch {
-                teamRepository.getTeams(sportType = "KBO").onSuccess { teams ->
-                    _state.update { it.copy(teams = teams) }
-                }
+                teamRepository
+                    .getTeams(sportType = "KBO")
+                    .onSuccess { teams ->
+                        _state.update { it.copy(teams = teams) }
+                    }.onFailure {
+                        emit(ScheduleContract.SideEffect.ShowToast("팀 정보를 불러오는데 실패했습니다."))
+                    }
             }
+        }
+
+        private fun emit(effect: ScheduleContract.SideEffect) {
+            viewModelScope.launch { _sideEffect.emit(effect) }
         }
 
         fun onEvent(event: ScheduleContract.Event) {

@@ -1,5 +1,6 @@
 package org.app.presentation.home.pubfilter
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,6 +66,7 @@ fun PubFilterRoute(
     viewModel: PubFilterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
@@ -72,6 +75,10 @@ fun PubFilterRoute(
                 is PubFilterContract.SideEffect.ApplyFilter -> {
                     onApplyFilter(effect.teamIds, effect.teamNames, effect.region, effect.openNow, effect.businessDay)
                     onBack()
+                }
+
+                is PubFilterContract.SideEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

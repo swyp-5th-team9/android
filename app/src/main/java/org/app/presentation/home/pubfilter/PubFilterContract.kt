@@ -54,6 +54,10 @@ interface PubFilterContract {
             val openNow: Boolean?,
             val businessDay: String?,
         ) : SideEffect
+
+        data class ShowToast(
+            val message: String,
+        ) : SideEffect
     }
 }
 

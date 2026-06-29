@@ -41,6 +41,6 @@ class TeamRemoteDataSourceImpl
                 .data
                 ?.teams
                 ?.map { it.toTeamItem() }
-                ?: emptyList()
+                ?: throw Exception("Failed to get teams: data is null")
         }
     }

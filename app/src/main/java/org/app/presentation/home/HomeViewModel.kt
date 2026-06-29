@@ -64,7 +64,11 @@ class HomeViewModel
             }
         }
 
-        private fun loadMapPubs(teamId: Long? = null) {
+        private fun loadMapPubs(
+            teamId: Long? = null,
+            openNow: Boolean? = null,
+            businessDay: String? = null,
+        ) {
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 pubRepository
@@ -74,6 +78,8 @@ class HomeViewModel
                         neLat = currentNeLat,
                         neLng = currentNeLng,
                         teamId = teamId,
+                        openNow = openNow,
+                        businessDay = businessDay,
                     ).onSuccess { items ->
                         _state.update {
                             it.copy(isLoading = false, pubMarkers = items.toMarkers(), pubClusters = emptyList())
@@ -126,8 +132,12 @@ class HomeViewModel
                 }
 
                 HomeContract.Event.OnRegionSearchClick -> {
-                    val selectedIds = _state.value.filter.selectedTeamIds
-                    loadMapPubs(teamId = selectedIds.firstOrNull())
+                    val filter = _state.value.filter
+                    loadMapPubs(
+                        teamId = filter.selectedTeamIds.firstOrNull(),
+                        openNow = filter.openNow,
+                        businessDay = filter.businessDay,
+                    )
                 }
 
                 is HomeContract.Event.OnMapBoundsChanged -> {
@@ -153,7 +163,11 @@ class HomeViewModel
                             showFilterBottomSheet = false,
                         )
                     }
-                    loadMapPubs(teamId = event.teamIds.firstOrNull())
+                    loadMapPubs(
+                        teamId = event.teamIds.firstOrNull(),
+                        openNow = event.openNow,
+                        businessDay = event.businessDay,
+                    )
                 }
             }
         }
