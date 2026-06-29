@@ -45,127 +45,156 @@ fun MoballDialog(
         onDismissRequest = { onDismiss?.invoke() ?: onConfirm() },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Column(
-            modifier = Modifier
-                .width(343.dp)
-                .background(
-                    color = MoballTheme.colors.backgroundBase,
-                    shape = RoundedCornerShape(16.dp),
-                ).padding(bottom = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.height(39.dp))
+        MoballDialogContent(
+            title = title,
+            subtitle = subtitle,
+            confirmText = confirmText,
+            onConfirm = onConfirm,
+            dismissText = dismissText,
+            onDismiss = onDismiss,
+            iconRes = iconRes,
+            iconVector = iconVector,
+        )
+    }
+}
 
-            if (iconRes != null || iconVector != null) {
+@Composable
+private fun MoballDialogContent(
+    title: String,
+    subtitle: String,
+    onConfirm: () -> Unit,
+    confirmText: String,
+    onDismiss: (() -> Unit)?,
+    dismissText: String,
+    iconRes: Int?,
+    iconVector: ImageVector?,
+) {
+    Column(
+        modifier = Modifier
+            .width(343.dp)
+            .background(
+                color = MoballTheme.colors.backgroundBase,
+                shape = RoundedCornerShape(16.dp),
+            ).padding(bottom = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.height(39.dp))
+
+        if (iconRes != null || iconVector != null) {
+            Box(
+                modifier = Modifier
+                    .size(88.dp)
+                    .background(
+                        color = MoballTheme.colors.textPrimary,
+                        shape = CircleShape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                val vector = iconVector ?: iconRes?.let { ImageVector.vectorResource(id = it) }
+                if (vector != null) {
+                    Icon(
+                        imageVector = vector,
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+
+        Text(
+            text = title,
+            style = MoballTheme.typography.heading2.bold22,
+            color = MoballTheme.colors.textPrimary,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = subtitle,
+            style = MoballTheme.typography.heading6.semibold16,
+            color = MoballTheme.colors.textSecondary,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(36.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            if (onDismiss != null) {
                 Box(
                     modifier = Modifier
-                        .size(88.dp)
+                        .weight(1f)
                         .background(
-                            color = MoballTheme.colors.textPrimary,
-                            shape = CircleShape,
-                        ),
+                            color = MoballTheme.colors.backgroundSurface,
+                            shape = RoundedCornerShape(12.dp),
+                        ).noRippleClickable(onClick = onDismiss)
+                        .padding(vertical = 15.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    val vector = iconVector
-                        ?: iconRes?.let { ImageVector.vectorResource(id = it) }
-                    if (vector != null) {
-                        Icon(
-                            imageVector = vector,
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(44.dp),
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(28.dp))
+                    Text(
+                        text = dismissText,
+                        style = MoballTheme.typography.heading5.semibold18,
+                        color = MoballTheme.colors.textPrimary,
+                    )
                 }
+            }
 
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(
+                        color = MoballTheme.colors.accentPrimary,
+                        shape = RoundedCornerShape(12.dp),
+                    ).noRippleClickable(onClick = onConfirm)
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
                 Text(
-                    text = title,
-                    style = MoballTheme.typography.heading2.bold22,
+                    text = confirmText,
+                    style = MoballTheme.typography.heading5.semibold18,
                     color = MoballTheme.colors.textPrimary,
-                    textAlign = TextAlign.Center,
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = subtitle,
-                    style = MoballTheme.typography.heading6.semibold16,
-                    color = MoballTheme.colors.textSecondary,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(36.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    if (onDismiss != null) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .background(
-                                    color = MoballTheme.colors.backgroundSurface,
-                                    shape = RoundedCornerShape(12.dp),
-                                ).noRippleClickable(onClick = onDismiss)
-                                .padding(vertical = 15.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = dismissText,
-                                style = MoballTheme.typography.heading5.semibold18,
-                                color = MoballTheme.colors.textPrimary,
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(
-                                color = MoballTheme.colors.accentPrimary,
-                                shape = RoundedCornerShape(12.dp),
-                            ).noRippleClickable(onClick = onConfirm)
-                            .padding(vertical = 15.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = confirmText,
-                            style = MoballTheme.typography.heading5.semibold18,
-                            color = MoballTheme.colors.textPrimary,
-                        )
-                    }
-                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "확인 단일 버튼")
 @Composable
 private fun MoballDialogPreview() {
     MoballTheme {
-        MoballDialog(
+        MoballDialogContent(
             title = "제보가 접수됐어요",
             subtitle = "소중한 의견 감사합니다.",
+            confirmText = "확인",
             onConfirm = {},
+            dismissText = "취소",
+            onDismiss = null,
+            iconRes = R.drawable.ic_report_check,
+            iconVector = null,
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "취소 + 확인 + 아이콘")
 @Composable
 private fun MoballConfirmDialogPreview() {
     MoballTheme {
-        MoballDialog(
+        MoballDialogContent(
             title = "펍 즐겨찾기 삭제",
             subtitle = "즐겨찾기 목록에서 삭제할까요?",
+            confirmText = "확인",
             onConfirm = {},
+            dismissText = "취소",
             onDismiss = {},
             iconRes = R.drawable.ic_trash_full,
+            iconVector = null,
         )
     }
 }

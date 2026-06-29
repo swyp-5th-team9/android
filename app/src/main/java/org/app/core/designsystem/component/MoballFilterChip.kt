@@ -29,6 +29,7 @@ private val ChipShape = RoundedCornerShape(100.dp)
  * @param modifier    외부 Modifier
  * @param isSelected  선택 상태 여부 (true → lime 테두리 표시)
  * @param leadingIcon 좌측 아이콘 (null이면 미표시)
+ * @param showTrailingIcon 우측 화살표 아이콘 표시 여부
  */
 @Composable
 fun MoballFilterChip(
@@ -37,6 +38,7 @@ fun MoballFilterChip(
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     leadingIcon: ImageVector? = null,
+    showTrailingIcon: Boolean = true,
 ) {
     Row(
         modifier = modifier
@@ -62,21 +64,31 @@ fun MoballFilterChip(
                 onClick = onClick,
             ).padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         if (leadingIcon != null) {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                tint = MoballTheme.colors.iconSecondary,
+                tint = Color.Unspecified,
             )
         }
 
-        Text(
-            text = label,
-            style = MoballTheme.typography.heading6.bold16,
-            color = MoballTheme.colors.textPrimary,
-        )
+        if (label.isNotEmpty()) {
+            Text(
+                text = label,
+                style = MoballTheme.typography.heading6.bold16,
+                color = MoballTheme.colors.textPrimary,
+                modifier = Modifier.padding(start = if (leadingIcon != null) 4.dp else 0.dp),
+            )
+        }
+
+        if (showTrailingIcon) {
+            Icon(
+                imageVector = ImageVector.vectorResource(drawable.ic_arrow_down),
+                contentDescription = null,
+                tint = Color.Unspecified,
+            )
+        }
     }
 }
 

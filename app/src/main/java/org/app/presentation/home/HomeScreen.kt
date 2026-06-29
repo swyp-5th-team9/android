@@ -5,10 +5,17 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.graphics.PointF
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -16,48 +23,85 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.R
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import org.app.core.designsystem.theme.MoballTheme
+import org.app.presentation.home.component.HomeFilterBottomSheet
+import org.app.presentation.home.component.HomeFilterChipBar
+import org.app.presentation.home.component.HomeMyLocationButton
+import org.app.presentation.home.component.HomeReportButton
+import org.app.presentation.home.component.HomeSearchTextField
+import org.app.presentation.home.component.clusterOverlayImage
+import org.app.presentation.home.model.PubCluster
+import org.app.presentation.home.model.PubMarker
+import org.app.presentation.home.model.PubMarkerType
 
 private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
 @Composable
 fun HomeRoute(
-    onPubClick: (pubId: String) -> Unit,
+    onNavigateToPubDetail: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToPubFilter: () -> Unit,
+    onNavigateToReport: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(viewModel.sideEffect) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { sideEffect ->
-            // SideEffect 처리 (현재는 정의된 효과가 없음)
+            when (sideEffect) {
+                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
+                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(sideEffect.pubId)
+                is HomeContract.SideEffect.ShowToast -> {
+                    // TODO: Toast show logic
+                }
+            }
         }
     }
 
     HomeScreen(
-        onPubClick = onPubClick,
+        state = state,
+        onEvent = viewModel::onEvent,
         modifier = modifier,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeScreen(
-    onPubClick: (pubId: String) -> Unit,
+fun HomeScreen(
+    state: HomeContract.State,
+    onEvent: (HomeContract.Event) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // 위치 권한 상태 관리
+    val locationSource =
+        remember { FusedLocationSource(context.findActivity()!!, LOCATION_PERMISSION_REQUEST_CODE) }
+
+    var naverMap by remember { mutableStateOf<NaverMap?>(null) }
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -67,33 +111,12 @@ internal fun HomeScreen(
         )
     }
 
-    // NaverMap 객체 저장
-    var naverMap by remember { mutableStateOf<NaverMap?>(null) }
-
-    // FusedLocationSource 초기화
-    val locationSource = remember {
-        context.findActivity()?.let {
-            FusedLocationSource(it, LOCATION_PERMISSION_REQUEST_CODE)
-        }
-    }
-
-    // 권한 요청 런처
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
-        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-        hasLocationPermission = granted
+        hasLocationPermission = permissions.values.all { it }
     }
 
-    // 권한 상태나 지도 객체가 변경될 때 위치 추적 모드 처리
-    LaunchedEffect(hasLocationPermission, naverMap) {
-        if (hasLocationPermission) {
-            naverMap?.locationTrackingMode = LocationTrackingMode.Follow
-        }
-    }
-
-    // 처음 진입 시 권한 체크 및 요청
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             permissionLauncher.launch(
@@ -105,33 +128,18 @@ internal fun HomeScreen(
         }
     }
 
-    // MapView 라이프사이클 관리
     val mapView = remember { MapView(context) }
+    val activeMarkers = remember { mutableListOf<Marker>() }
+    val activeClusters = remember { mutableListOf<Marker>() }
 
     DisposableEffect(lifecycleOwner) {
         mapView.onCreate(null)
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> {
-                    mapView.onStart()
-                }
-
-                Lifecycle.Event.ON_RESUME -> {
-                    mapView.onResume()
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    mapView.onPause()
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    mapView.onStop()
-                }
-
-                Lifecycle.Event.ON_DESTROY -> {
-                    mapView.onDestroy()
-                }
-
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
                 else -> {}
             }
         }
@@ -144,33 +152,159 @@ internal fun HomeScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
-            factory = { ctx ->
+            factory = {
                 mapView.apply {
                     getMapAsync { map ->
                         naverMap = map
                         map.locationSource = locationSource
-                        map.uiSettings.isLocationButtonEnabled = true
-                        map.locationOverlay.run {
-                            isVisible = true
-                            setOnClickListener {
-                                // TODO: 실제 마커 클릭 시 선택된 pubId 전달
-                                onPubClick("")
-                                true
-                            }
+                        map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
+                        map.locationOverlay.isVisible = true
+                        map.locationOverlay.setOnClickListener {
+                            // TODO: 내 위치 마커 클릭 시 동작
+                            false
                         }
                     }
                 }
             },
+            update = {
+                naverMap?.let { map ->
+                    renderPubMarkers(
+                        context = context,
+                        map = map,
+                        markers = state.pubMarkers,
+                        currentMarkers = activeMarkers,
+                        onMarkerClick = { pubId ->
+                            onEvent(HomeContract.Event.OnPubMarkerClick(pubId))
+                        },
+                    )
+                    renderPubClusters(
+                        context = context,
+                        map = map,
+                        clusters = state.pubClusters,
+                        currentClusters = activeClusters,
+                    )
+                }
+            },
             modifier = Modifier.fillMaxSize(),
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .align(Alignment.TopCenter),
+        ) {
+            HomeSearchTextField(
+                onSearchClick = { onEvent(HomeContract.Event.OnSearchBarClick) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            HomeFilterChipBar(
+                teamChipLabel = state.teamChipLabel,
+                regionChipLabel = state.regionChipLabel,
+                isTeamSelected = state.filter.isTeamFilterActive,
+                isRegionSelected = state.filter.isRegionFilterActive,
+                onMenuClick = { onEvent(HomeContract.Event.OnMenuFilterClick) },
+                onTeamClick = { onEvent(HomeContract.Event.OnTeamChipClick) },
+                onRegionClick = { onEvent(HomeContract.Event.OnRegionChipClick) },
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 16.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            HomeReportButton(
+                onClick = { onEvent(HomeContract.Event.OnReportClick) },
+            )
+            HomeMyLocationButton(
+                onClick = {
+                    onEvent(HomeContract.Event.OnMyLocationClick)
+                    naverMap?.locationTrackingMode = LocationTrackingMode.Follow
+                },
+            )
+        }
+
+        if (state.showFilterBottomSheet) {
+            HomeFilterBottomSheet(
+                initialTab = state.filterBottomSheetTab,
+                userFavoriteTeamIds = state.userFavoriteTeamIds,
+                initialTeamIds = state.filter.selectedTeamIds,
+                initialRegion = state.filter.selectedRegion,
+                onApply = { teamIds, teamNames, region ->
+                    onEvent(HomeContract.Event.OnFilterApply(teamIds, teamNames, region))
+                },
+                onDismiss = { onEvent(HomeContract.Event.OnFilterBottomSheetDismiss) },
+            )
+        }
     }
 }
 
-private fun Context.findActivity(): Activity? {
+private fun renderPubMarkers(
+    context: Context,
+    map: NaverMap,
+    markers: List<PubMarker>,
+    currentMarkers: MutableList<Marker>,
+    onMarkerClick: (String) -> Unit,
+) {
+    currentMarkers.forEach { it.map = null }
+    currentMarkers.clear()
+    markers.forEach { pubMarker ->
+        val marker = Marker().apply {
+            position = LatLng(pubMarker.latitude, pubMarker.longitude)
+            icon = when (pubMarker.type) {
+                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.ic_pin)
+                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.ic_pub_favorite)
+            }
+            this.map = map
+            setOnClickListener {
+                onMarkerClick(pubMarker.pubId)
+                true
+            }
+        }
+        currentMarkers.add(marker)
+    }
+}
+
+private fun renderPubClusters(
+    context: Context,
+    map: NaverMap,
+    clusters: List<PubCluster>,
+    currentClusters: MutableList<Marker>,
+) {
+    currentClusters.forEach { it.map = null }
+    currentClusters.clear()
+    clusters.forEach { cluster ->
+        val marker = Marker().apply {
+            position = LatLng(cluster.latitude, cluster.longitude)
+            icon = clusterOverlayImage(context, cluster.count)
+            anchor = PointF(0.5f, 0.5f)
+            this.map = map
+        }
+        currentClusters.add(marker)
+    }
+}
+
+fun Context.findActivity(): Activity? {
     var context = this
     while (context is ContextWrapper) {
         if (context is Activity) return context
         context = context.baseContext
     }
     return null
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    MoballTheme {
+        HomeScreen(
+            state = HomeContract.State(),
+            onEvent = {},
+        )
+    }
 }

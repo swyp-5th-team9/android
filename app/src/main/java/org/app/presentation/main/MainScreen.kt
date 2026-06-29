@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import kotlinx.collections.immutable.toImmutableList
-import org.app.presentation.home.navigation.Home
+import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
@@ -66,7 +66,7 @@ private fun MainNavHost(
     ) {
         loginGraph(
             navigateToHome = {
-                appState.navController.navigate(Home) {
+                appState.navController.navigate(HomeGraph) {
                     popUpTo(appState.navController.graph.startDestinationId) {
                         inclusive = true
                     }
@@ -80,14 +80,16 @@ private fun MainNavHost(
             },
         )
         homeGraph(
+            navController = appState.navController,
             navigateToPubDetail = { pubId ->
                 appState.navController.navigateToPubDetail(pubId = pubId)
             },
+            onUpdateBottomBarVisible = appState::updateBottomBarVisible,
         )
         signUpGraph(
             navController = appState.navController,
             navigateToHome = {
-                appState.navController.navigate(Home) {
+                appState.navController.navigate(HomeGraph) {
                     popUpTo(appState.navController.graph.id) { inclusive = true }
                     launchSingleTop = true
                 }
