@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.FavoriteRepository
 import org.app.presentation.pubdetail.model.BusinessHours
 import org.app.presentation.pubdetail.model.BusinessStatus
 import org.app.presentation.pubdetail.model.FacilityItem
@@ -25,6 +26,7 @@ class PubDetailViewModel
     @Inject
     constructor(
         savedStateHandle: SavedStateHandle,
+        private val favoriteRepository: FavoriteRepository,
     ) : ViewModel() {
         private val pubId: String = savedStateHandle.get<String>("pubId") ?: ""
 
@@ -48,17 +50,63 @@ class PubDetailViewModel
 
                 is PubDetailContract.Event.OnWishlistToggle -> {
                     val detail = _state.value.pubDetail ?: return
-                    _state.update { state ->
-                        state.copy(
-                            pubDetail = detail.copy(
-                                isWishlisted = !detail.isWishlisted,
-                                wishlistCount = if (detail.isWishlisted) {
-                                    detail.wishlistCount - 1
-                                } else {
-                                    detail.wishlistCount + 1
-                                },
-                            ),
-                        )
+                    if (_state.value.isWishlistLoading) return
+                    viewModelScope.launch {
+                        _state.update { it.copy(isWishlistLoading = true) }
+                        if (detail.isWishlisted) {
+                            // 찜 해제
+                            val favId = _state.value.favoriteId
+                            if (favId == null) {
+                                _state.update { it.copy(isWishlistLoading = false) }
+                                _sideEffect.emit(PubDetailContract.SideEffect.ShowToast("오류가 발생했습니다."))
+                                return@launch
+                            }
+                            favoriteRepository
+                                .deleteFavorites(listOf(favId))
+                                .onSuccess {
+                                    _state.update { s ->
+                                        s.copy(
+                                            isWishlistLoading = false,
+                                            favoriteId = null,
+                                            pubDetail = detail.copy(
+                                                isWishlisted = false,
+                                                wishlistCount = detail.wishlistCount - 1,
+                                            ),
+                                        )
+                                    }
+                                }.onFailure { e ->
+                                    _state.update { it.copy(isWishlistLoading = false) }
+                                    _sideEffect.emit(
+                                        PubDetailContract.SideEffect.ShowToast(e.message ?: "찜 해제에 실패했습니다."),
+                                    )
+                                }
+                        } else {
+                            // 찜 추가
+                            val pubIdLong = pubId.toLongOrNull() ?: run {
+                                _state.update { it.copy(isWishlistLoading = false) }
+                                _sideEffect.emit(PubDetailContract.SideEffect.ShowToast("오류가 발생했습니다."))
+                                return@launch
+                            }
+                            favoriteRepository
+                                .addFavorite(pubIdLong)
+                                .onSuccess { newFavoriteId ->
+                                    _state.update { s ->
+                                        s.copy(
+                                            isWishlistLoading = false,
+                                            favoriteId = newFavoriteId,
+                                            pubDetail = detail.copy(
+                                                isWishlisted = true,
+                                                wishlistCount = detail.wishlistCount + 1,
+                                            ),
+                                        )
+                                    }
+                                }.onFailure { e ->
+                                    _state.update { it.copy(isWishlistLoading = false) }
+                                    _sideEffect.emit(
+                                        PubDetailContract.SideEffect.ShowToast(e.message ?: "찜 추가에 실패했습니다."),
+                                    )
+                                }
+                        }
                     }
                 }
 
