@@ -60,7 +60,7 @@ data class PubSearchResult(
  * @param selectedRegion    선택된 지역 이름 (null = 미선택)
  */
 data class HomeFilter(
-    val selectedTeamIds: List<Int> = emptyList(),
+    val selectedTeamIds: List<Long> = emptyList(),
     val selectedTeamNames: List<String> = emptyList(),
     val selectedRegion: String? = null,
 ) {

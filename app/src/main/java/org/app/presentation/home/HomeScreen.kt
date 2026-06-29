@@ -236,7 +236,7 @@ fun HomeScreen(
                 initialTeamIds = state.filter.selectedTeamIds,
                 initialRegion = state.filter.selectedRegion,
                 onApply = { teamIds, teamNames, region ->
-                    onEvent(HomeContract.Event.OnFilterApply(teamIds, teamNames, region))
+                    onEvent(HomeContract.Event.OnFilterApply(teamIds, teamNames, region, null, null))
                 },
                 onDismiss = { onEvent(HomeContract.Event.OnFilterBottomSheetDismiss) },
             )
