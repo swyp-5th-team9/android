@@ -8,8 +8,14 @@ import org.app.presentation.onboarding.splash.SplashRoute
 @Serializable
 data object Splash
 
-fun NavGraphBuilder.splashGraph(navigateToLogin: () -> Unit) {
+fun NavGraphBuilder.splashGraph(
+    navigateToHome: () -> Unit,
+    navigateToLogin: () -> Unit,
+) {
     composable<Splash> {
-        SplashRoute(navigateToLogin = navigateToLogin)
+        SplashRoute(
+            navigateToHome = navigateToHome,
+            navigateToLogin = navigateToLogin,
+        )
     }
 }

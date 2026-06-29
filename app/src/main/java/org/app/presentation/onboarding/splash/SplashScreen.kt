@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.moball.app.R
-import kotlinx.coroutines.delay
 import org.app.core.designsystem.theme.MoballTheme
 
 private val splashBackground = Brush.verticalGradient(
@@ -34,16 +34,20 @@ private val SLOGAN_RES_LIST = listOf(
     R.drawable.img_splash_slogan3,
 )
 
-private const val SPLASH_DELAY_MS = 2000L
-
 @Composable
 fun SplashRoute(
+    navigateToHome: () -> Unit,
     navigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SplashViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
-        delay(SPLASH_DELAY_MS)
-        navigateToLogin()
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                SplashContract.SideEffect.NavigateToHome -> navigateToHome()
+                SplashContract.SideEffect.NavigateToLogin -> navigateToLogin()
+            }
+        }
     }
     SplashScreen(modifier = modifier)
 }
