@@ -25,10 +25,10 @@ import org.app.core.extension.noRippleClickable
 @Composable
 fun WishlistPreviewCard(
     pubName: String,
-    location: String,
     imageUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    location: String? = null,
 ) {
     Column(
         modifier = modifier
@@ -57,13 +57,15 @@ fun WishlistPreviewCard(
                 color = MoballTheme.colors.textPrimaryInverse,
                 maxLines = 1,
             )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = location,
-                style = MoballTheme.typography.caption.medium12,
-                color = MoballTheme.colors.textPrimaryInverse,
-                maxLines = 1,
-            )
+            if (location != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = location,
+                    style = MoballTheme.typography.caption.medium12,
+                    color = MoballTheme.colors.textPrimaryInverse,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
@@ -74,9 +76,9 @@ private fun WishlistPreviewCardPreview() {
     MoballTheme {
         WishlistPreviewCard(
             pubName = "버드나무 브루어리",
-            location = "강릉",
             imageUrl = null,
             onClick = {},
+            location = "강릉",
             modifier = Modifier.padding(16.dp),
         )
     }
