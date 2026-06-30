@@ -162,6 +162,8 @@ private fun EditProfileScreen(
                         placeholder = "사용할 닉네임을 적어주세요",
                         modifier = Modifier.fillMaxWidth(),
                         showCharCount = true,
+                        isError = state.nicknameError != null,
+                        errorMessage = state.nicknameError,
                     )
                 } else {
                     EditProfileNicknameCard(

@@ -49,7 +49,7 @@ class EditProfileViewModel
         fun onEvent(event: EditProfileContract.Event) {
             when (event) {
                 is EditProfileContract.Event.OnNicknameChange -> {
-                    _state.update { it.copy(nickname = event.nickname) }
+                    _state.update { it.copy(nickname = event.nickname, nicknameError = null) }
                 }
 
                 is EditProfileContract.Event.OnProfileImageChange -> {

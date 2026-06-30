@@ -35,7 +35,7 @@ class ReportViewModel
                     _state.update { it.copy(selectedCategory = event.category) }
 
                 is ReportContract.Event.OnDetailTextChanged -> {
-                    _state.update { it.copy(detailText = event.text) }
+                    _state.update { it.copy(detailText = event.text, detailError = null) }
                 }
 
                 is ReportContract.Event.OnImagesAdded -> {

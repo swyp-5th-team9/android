@@ -162,6 +162,8 @@ private fun WithdrawScreen(
                         MoballAreaTextField(
                             state = etcTextState,
                             placeholder = "예: 영업시간이 실제와 달라요.",
+                            isError = state.etcError != null,
+                            errorMessage = state.etcError,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }

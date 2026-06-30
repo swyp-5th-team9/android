@@ -42,7 +42,7 @@ class WithdrawViewModel
         }
 
         private fun onEtcTextChange(text: String) {
-            _state.update { it.copy(etcText = text) }
+            _state.update { it.copy(etcText = text, etcError = null) }
         }
 
         private fun toggleAgreement() {

@@ -105,6 +105,8 @@ fun MoballLineTextField(
                         .padding(
                             start = 10.dp,
                             end = if (isFilled) 48.dp else 10.dp,
+                        ).padding(
+                            vertical = 12.dp,
                         ).onFocusEvent { isFocused = it.isFocused },
                     onKeyboardAction = { focusManager.clearFocus() },
                 )
@@ -195,7 +197,7 @@ private fun MoballLineTextFieldPreview() {
                 placeholder = "사용할 닉네임을 적어주세요",
                 label = "닉네임",
                 isError = true,
-                errorMessage = "500자 이내로 입력해주세요.",
+                errorMessage = "20자 이내로 입력해주세요.",
             )
         }
     }

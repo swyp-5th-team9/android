@@ -204,6 +204,8 @@ private fun ReportScreen(
                 state = detailTextState,
                 placeholder = "예: 영업시간이 실제와 달라요.",
                 maxLength = ReportContract.State.MAX_CONTENT_LENGTH,
+                isError = state.detailError != null,
+                errorMessage = state.detailError,
                 modifier = Modifier.fillMaxWidth(),
             )
 

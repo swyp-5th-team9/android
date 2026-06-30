@@ -7,7 +7,8 @@ interface SignUpContract {
         val isLoading: Boolean = false,
         val nicknameError: String? = null,
     ) {
-        val isNicknameValid: Boolean get() = nickname.isNotBlank() && nickname.length <= 20
+        val isNicknameValid: Boolean
+            get() = nickname.isNotBlank() && nickname.length <= 20 && nicknameError == null
         val canSelectMoreTeams: Boolean get() = selectedTeamIds.size < 3
     }
 
