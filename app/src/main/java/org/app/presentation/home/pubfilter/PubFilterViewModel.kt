@@ -9,18 +9,56 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.TeamRepository
+import org.app.presentation.home.model.PubFilterOption
+import org.app.presentation.home.model.PubFilterSection
 import javax.inject.Inject
-import kotlin.collections.emptySet
 
 @HiltViewModel
 class PubFilterViewModel
     @Inject
-    constructor() : ViewModel() {
+    constructor(
+        private val teamRepository: TeamRepository,
+    ) : ViewModel() {
         private val _state = MutableStateFlow(PubFilterContract.State())
         val state = _state.asStateFlow()
 
         private val _sideEffect = MutableSharedFlow<PubFilterContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
+
+        init {
+            loadTeams()
+        }
+
+        private fun loadTeams() {
+            viewModelScope.launch {
+                teamRepository
+                    .getTeams(sportType = "KBO")
+                    .onSuccess { teams ->
+                        _state.update { current ->
+                            val teamSection = PubFilterSection(
+                                sectionId = "team",
+                                title = "응원팀",
+                                options = listOf(PubFilterOption("all", "KBO 전체")) +
+                                    teams.map {
+                                        PubFilterOption(
+                                            it.teamId.toString(),
+                                            it.shortName,
+                                        )
+                                    },
+                            )
+                            current.copy(
+                                teams = teams,
+                                sections = current.sections.map { s ->
+                                    if (s.sectionId == "team") teamSection else s
+                                },
+                            )
+                        }
+                    }.onFailure {
+                        emit(PubFilterContract.SideEffect.ShowToast("팀 목록을 불러오는데 실패했습니다."))
+                    }
+            }
+        }
 
         fun onEvent(event: PubFilterContract.Event) {
             when (event) {
@@ -33,36 +71,27 @@ class PubFilterViewModel
                 PubFilterContract.Event.OnApply -> {
                     val state = _state.value
                     val selectedOptions = state.selectedOptions
-                    val teamSection = state.sections.find { it.sectionId == "team" }
                     val selectedTeamOptionIds = selectedOptions["team"] ?: emptySet()
 
-                    /** 백엔드 V2 시드 기준 */
-                    val teamIdMap = mapOf(
-                        "all" to 0,
-                        "lg" to 1,
-                        "doosan" to 2,
-                        "kt" to 3,
-                        "ssg" to 4,
-                        "nc" to 5,
-                        "kia" to 6,
-                        "lotte" to 7,
-                        "samsung" to 8,
-                        "hanwha" to 9,
-                        "kiwoom" to 10,
-                    )
-                    val teamIds = when {
-                        "all" in selectedTeamOptionIds -> listOf(0)
-                        else -> selectedTeamOptionIds.mapNotNull { teamIdMap[it] }
+                    if (state.teams.isEmpty() &&
+                        "all" !in selectedTeamOptionIds &&
+                        selectedTeamOptionIds.isNotEmpty()
+                    ) {
+                        emit(PubFilterContract.SideEffect.ShowToast("팀 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요."))
+                        return
                     }
-                    val teamNames = when {
+                    val teamIds: List<Long> = when {
+                        "all" in selectedTeamOptionIds -> emptyList()
+                        else -> selectedTeamOptionIds.mapNotNull { it.toLongOrNull() }
+                    }
+                    val teamNames: List<String> = when {
                         "all" in selectedTeamOptionIds -> listOf("KBO 전체")
                         else ->
-                            teamSection
-                                ?.options
-                                ?.filter { it.id in selectedTeamOptionIds }
-                                ?.map { it.label }
-                                ?: emptyList()
+                            state.teams
+                                .filter { it.teamId.toString() in selectedTeamOptionIds }
+                                .map { it.shortName }
                     }
+
                     val regionSection = state.sections.find { it.sectionId == "region" }
                     val selectedRegionIds = selectedOptions["region"] ?: emptySet()
                     val region = when {
@@ -73,9 +102,10 @@ class PubFilterViewModel
                                 ?.firstOrNull { it.id in selectedRegionIds }
                                 ?.label
                     }
+
                     val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
-                    val businessDayOptionId = (selectedOptions["business_day"] ?: emptySet())
-                        .firstOrNull { it != "all_days" }
+                    val businessDayOptionId =
+                        (selectedOptions["business_day"] ?: emptySet()).firstOrNull { it != "all_days" }
                     val businessDay = when (businessDayOptionId) {
                         "weekdays" -> "WEEKDAY"
                         "weekends" -> "WEEKEND"
@@ -89,6 +119,7 @@ class PubFilterViewModel
                         "sun" -> "SUN"
                         else -> null
                     }
+
                     emit(
                         PubFilterContract.SideEffect.ApplyFilter(
                             selectedOptions,
@@ -126,7 +157,7 @@ class PubFilterViewModel
                         }
                     }
 
-                    "region" ->
+                    "region", "business_day" ->
                         if (optionId in currentSet) {
                             emptySet()
                         } else {

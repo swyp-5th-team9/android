@@ -60,12 +60,10 @@ data class PubSearchResult(
  * @param selectedRegion    선택된 지역 이름 (null = 미선택)
  */
 data class HomeFilter(
-    val selectedTeamIds: List<Int> = emptyList(),
+    val selectedTeamIds: List<Long> = emptyList(),
     val selectedTeamNames: List<String> = emptyList(),
     val selectedRegion: String? = null,
-    /** GET /api/v1/pubs openNow 파라미터 */
     val openNow: Boolean? = null,
-    /** GET /api/v1/pubs businessDay 파라미터 */
     val businessDay: String? = null,
 ) {
     val isTeamFilterActive: Boolean get() = selectedTeamIds.isNotEmpty()

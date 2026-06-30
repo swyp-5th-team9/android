@@ -69,18 +69,19 @@ private val REGIONS = listOf(
     "구로/관악",
 )
 
+/** 백엔드 V2 시드 기준 (teamId: Long) */
 private val KBO_TEAMS = listOf(
-    0 to "KBO 전체",
-    1 to "KIA",
-    2 to "삼성",
-    3 to "LG",
-    4 to "두산",
-    5 to "KT",
-    6 to "SSG",
-    7 to "롯데",
-    8 to "한화",
-    9 to "NC",
-    10 to "키움",
+    0L to "KBO 전체",
+    1L to "LG",
+    2L to "두산",
+    3L to "KT",
+    4L to "SSG",
+    5L to "NC",
+    6L to "KIA",
+    7L to "롯데",
+    8L to "삼성",
+    9L to "한화",
+    10L to "키움",
 )
 
 /**
@@ -98,14 +99,14 @@ private val KBO_TEAMS = listOf(
 @Composable
 fun HomeFilterBottomSheet(
     initialTab: FilterBottomSheetTab,
-    userFavoriteTeamIds: List<Int>,
-    initialTeamIds: List<Int>,
+    userFavoriteTeamIds: List<Long>,
+    initialTeamIds: List<Long>,
     initialRegion: String?,
-    onApply: (teamIds: List<Int>, teamNames: List<String>, region: String?) -> Unit,
+    onApply: (teamIds: List<Long>, teamNames: List<String>, region: String?) -> Unit,
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
-    val selectedTeamIds = remember { mutableStateListOf<Int>().also { it.addAll(initialTeamIds) } }
+    val selectedTeamIds = remember { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
     var selectedRegion by remember { mutableStateOf(initialRegion) }
     var currentTab by remember { mutableStateOf(initialTab) }
 
@@ -134,15 +135,15 @@ fun HomeFilterBottomSheet(
             onTabChange = { currentTab = it },
             onToggleTeam = { teamId ->
                 when {
-                    teamId == 0 -> {
+                    teamId == 0L -> {
                         selectedTeamIds.clear()
-                        selectedTeamIds.add(0)
+                        selectedTeamIds.add(0L)
                     }
                     teamId in selectedTeamIds -> {
                         selectedTeamIds.remove(teamId)
                     }
                     else -> {
-                        selectedTeamIds.remove(0)
+                        selectedTeamIds.remove(0L)
                         selectedTeamIds.add(teamId)
                     }
                 }
@@ -164,11 +165,11 @@ fun HomeFilterBottomSheet(
 @Composable
 private fun FilterBottomSheetContent(
     currentTab: FilterBottomSheetTab,
-    userFavoriteTeamIds: List<Int>,
-    selectedTeamIds: List<Int>,
+    userFavoriteTeamIds: List<Long>,
+    selectedTeamIds: List<Long>,
     selectedRegion: String?,
     onTabChange: (FilterBottomSheetTab) -> Unit,
-    onToggleTeam: (Int) -> Unit,
+    onToggleTeam: (Long) -> Unit,
     onSelectRegion: (String) -> Unit,
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
@@ -249,9 +250,9 @@ private fun FilterBottomSheetContent(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TeamFilterContent(
-    favoriteTeamIds: List<Int>,
-    selectedTeamIds: List<Int>,
-    onToggleTeam: (Int) -> Unit,
+    favoriteTeamIds: List<Long>,
+    selectedTeamIds: List<Long>,
+    onToggleTeam: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     FlowRow(
@@ -313,8 +314,8 @@ private fun FilterSheetTeamPreview() {
         ) {
             FilterBottomSheetContent(
                 currentTab = FilterBottomSheetTab.TEAM,
-                userFavoriteTeamIds = listOf(3, 8),
-                selectedTeamIds = listOf(3),
+                userFavoriteTeamIds = listOf(3L, 8L),
+                selectedTeamIds = listOf(3L),
                 selectedRegion = null,
                 onTabChange = {},
                 onToggleTeam = {},

@@ -196,6 +196,8 @@ class PubRemoteDataSourceImpl
             neLat: Double,
             neLng: Double,
             teamId: Long?,
+            openNow: Boolean?,
+            businessDay: String?,
         ): BaseResponse<GetPubsMapResponse> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 val filtered = if (teamId != null) {
@@ -211,7 +213,7 @@ class PubRemoteDataSourceImpl
                     timestamp = "",
                 )
             }
-            return pubService.getMapPubs(swLat, swLng, neLat, neLng, teamId)
+            return pubService.getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
         }
 
         override suspend fun getPubDetail(pubId: Long): BaseResponse<PubDetailResponse> {

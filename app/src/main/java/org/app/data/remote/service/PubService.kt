@@ -33,6 +33,8 @@ interface PubService {
         @Query("neLat") neLat: Double,
         @Query("neLng") neLng: Double,
         @Query("teamId") teamId: Long? = null,
+        @Query("openNow") openNow: Boolean? = null,
+        @Query("businessDay") businessDay: String? = null,
     ): BaseResponse<GetPubsMapResponse>
 
     @GET("/api/v1/pubs/{pubId}")

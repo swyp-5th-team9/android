@@ -1,10 +1,13 @@
 package org.app.presentation.home.pubfilter
 
+import org.app.data.model.TeamItem
 import org.app.presentation.home.model.PubFilterOption
 import org.app.presentation.home.model.PubFilterSection
 
 interface PubFilterContract {
     data class State(
+        /** GET /api/v1/teams 응답 — 로드 후 team 섹션을 동적으로 구성 */
+        val teams: List<TeamItem> = emptyList(),
         val sections: List<PubFilterSection> = defaultSections(),
         /** sectionId → Set<optionId> */
         val selectedOptions: Map<String, Set<String>> = emptyMap(),
@@ -12,6 +15,19 @@ interface PubFilterContract {
     ) {
         val hasSelection: Boolean
             get() = selectedOptions.values.any { it.isNotEmpty() }
+
+        /** teams 로드 후 team 섹션 옵션을 동적으로 교체한 섹션 목록 */
+        val resolvedSections: List<PubFilterSection>
+            get() {
+                if (teams.isEmpty()) return sections
+                val teamSection = PubFilterSection(
+                    sectionId = "team",
+                    title = "응원팀",
+                    options = listOf(PubFilterOption("all", "KBO 전체")) +
+                        teams.map { PubFilterOption(it.teamId.toString(), it.shortName) },
+                )
+                return sections.map { if (it.sectionId == "team") teamSection else it }
+            }
     }
 
     sealed interface Event {
@@ -32,11 +48,15 @@ interface PubFilterContract {
 
         data class ApplyFilter(
             val selected: Map<String, Set<String>>,
-            val teamIds: List<Int>,
+            val teamIds: List<Long>,
             val teamNames: List<String>,
             val region: String?,
             val openNow: Boolean?,
             val businessDay: String?,
+        ) : SideEffect
+
+        data class ShowToast(
+            val message: String,
         ) : SideEffect
     }
 }

@@ -53,9 +53,9 @@ fun NavGraphBuilder.homeGraph(
 
             LaunchedEffect(pubFilterApplied) {
                 if (pubFilterApplied) {
-                    val ids: List<Int> =
+                    val ids: List<Long> =
                         savedStateHandle
-                            .get<ArrayList<Int>>("pub_filter_team_ids")
+                            .get<ArrayList<Long>>("pub_filter_team_ids")
                             ?.toList() ?: emptyList()
                     val names: List<String> =
                         savedStateHandle
