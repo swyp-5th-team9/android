@@ -141,7 +141,7 @@ private fun LoginScreen(
                     SpanStyle(
                         color = MoballTheme.colors.textTertiary,
                         textDecoration = TextDecoration.Underline,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                     ),
                 ) {
                     append("개인정보처리방침")

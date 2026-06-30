@@ -12,14 +12,12 @@ interface SignUpContract {
     }
 
     sealed interface Event {
-        // Nickname step
         data class OnNicknameChanged(
             val value: String,
         ) : Event
 
         data object OnNicknameNext : Event
 
-        // Team selection step
         data class OnTeamToggled(
             val teamId: Int,
         ) : Event

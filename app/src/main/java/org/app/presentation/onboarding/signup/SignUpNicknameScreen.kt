@@ -1,12 +1,21 @@
 package org.app.presentation.onboarding.signup
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Text
@@ -17,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.textfield.MoballLineTextField
@@ -71,6 +80,7 @@ fun SignUpNicknameRoute(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SignUpNicknameScreen(
     state: SignUpContract.State,
@@ -79,10 +89,15 @@ private fun SignUpNicknameScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isKeyboardVisible = WindowInsets.isImeVisible
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MoballTheme.colors.backgroundBase),
+            .background(MoballTheme.colors.backgroundBase)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding(),
     ) {
         MoballTopBar(
             state = TopBarState.Back(
@@ -105,7 +120,7 @@ private fun SignUpNicknameScreen(
                 color = MoballTheme.colors.textPrimary,
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(80.dp))
 
             MoballLineTextField(
                 state = textFieldState,
@@ -119,13 +134,21 @@ private fun SignUpNicknameScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            MoballButton(
-                text = "이걸로 할래요",
-                onClick = onNextClick,
-                enabled = state.isNicknameValid,
-            )
+            AnimatedVisibility(
+                visible = isKeyboardVisible,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Column {
+                    MoballButton(
+                        text = "이걸로 할래요",
+                        onClick = onNextClick,
+                        enabled = state.isNicknameValid,
+                    )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
         }
     }
 }

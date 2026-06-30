@@ -43,16 +43,16 @@ data class KboTeamItem(
 
 // TODO teamId는 API 구현 후 서버 명세에 맞게 수정
 val KBO_TEAM_ITEMS = listOf(
-    KboTeamItem(1, "KIA", "기아 타이거즈", "광주", R.drawable.img_kia),
-    KboTeamItem(2, "KT", "KT WIZ", "수원", R.drawable.img_kt),
-    KboTeamItem(3, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
-    KboTeamItem(4, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
-    KboTeamItem(5, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
-    KboTeamItem(6, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
+    KboTeamItem(1, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
+    KboTeamItem(2, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
+    KboTeamItem(3, "KT", "KT WIZ", "수원", R.drawable.img_kt),
+    KboTeamItem(4, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
+    KboTeamItem(5, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
+    KboTeamItem(6, "KIA", "기아 타이거즈", "광주", R.drawable.img_kia),
     KboTeamItem(7, "롯데", "롯데 자이언츠", "부산", R.drawable.img_lotte),
     KboTeamItem(8, "삼성", "삼성 라이온즈", "대구", R.drawable.img_samsung),
-    KboTeamItem(9, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
-    KboTeamItem(10, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
+    KboTeamItem(9, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
+    KboTeamItem(10, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
 )
 
 @Composable
@@ -153,7 +153,7 @@ private fun SignUpTeamSelectionScreen(
             ) {
                 items(KBO_TEAM_ITEMS, key = { it.id }) { team ->
                     OnboardingTeamItem(
-                        teamName = team.shortName,
+                        teamName = team.fullName,
                         city = team.city,
                         logoRes = team.logoRes,
                         isSelected = team.id in state.selectedTeamIds,
