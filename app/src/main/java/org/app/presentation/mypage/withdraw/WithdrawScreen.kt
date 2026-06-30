@@ -2,7 +2,6 @@ package org.app.presentation.mypage.withdraw
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,14 +29,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.withdraw.component.WithdrawReasonItem
 
 @Composable
@@ -49,6 +50,7 @@ fun WithdrawRoute(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showConfirmDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     val etcTextState = rememberTextFieldState(state.etcText)
@@ -83,11 +85,17 @@ fun WithdrawRoute(
     WithdrawScreen(
         state = state,
         etcTextState = etcTextState,
+        showConfirmDialog = showConfirmDialog,
         showSuccessDialog = showSuccessDialog,
         onBack = onBack,
         onReasonSelected = { viewModel.onEvent(WithdrawContract.Event.OnReasonSelected(it)) },
         onAgreementToggle = { viewModel.onEvent(WithdrawContract.Event.OnAgreementToggle) },
-        onWithdrawClick = { viewModel.onEvent(WithdrawContract.Event.OnWithdrawClick) },
+        onWithdrawClick = { showConfirmDialog = true },
+        onConfirmWithdraw = {
+            showConfirmDialog = false
+            viewModel.onEvent(WithdrawContract.Event.OnWithdrawClick)
+        },
+        onDismissConfirm = { showConfirmDialog = false },
         onConfirmDialog = {
             showSuccessDialog = false
             viewModel.onEvent(WithdrawContract.Event.OnWithdrawConfirm)
@@ -100,11 +108,14 @@ fun WithdrawRoute(
 private fun WithdrawScreen(
     state: WithdrawContract.State,
     etcTextState: TextFieldState,
+    showConfirmDialog: Boolean,
     showSuccessDialog: Boolean,
     onBack: () -> Unit,
     onReasonSelected: (WithdrawReason) -> Unit,
     onAgreementToggle: () -> Unit,
     onWithdrawClick: () -> Unit,
+    onConfirmWithdraw: () -> Unit,
+    onDismissConfirm: () -> Unit,
     onConfirmDialog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -125,7 +136,7 @@ private fun WithdrawScreen(
 
             Text(
                 text = "모여볼을 떠난다니\n너무 아쉬워요",
-                style = MoballTheme.typography.heading1.extrabold26,
+                style = MoballTheme.typography.heading1.bold26,
                 color = MoballTheme.colors.textPrimary,
             )
 
@@ -157,12 +168,12 @@ private fun WithdrawScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onAgreementToggle() },
+                    .noRippleClickable { onAgreementToggle() },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -182,7 +193,7 @@ private fun WithdrawScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(10.dp))
 
             MoballButton(
                 text = "탈퇴하기",
@@ -194,11 +205,21 @@ private fun WithdrawScreen(
             )
         }
     }
+    if (showConfirmDialog) {
+        MoballDialog(
+            title = "정말 탈퇴하시겠어요?",
+            subtitle = "탈퇴하면 모여볼 계정 이용이 종료돼요.",
+            onConfirm = onConfirmWithdraw,
+            onDismiss = onDismissConfirm,
+            iconRes = R.drawable.ic_withdraw_warning,
+        )
+    }
     if (showSuccessDialog) {
         MoballDialog(
-            title = "탈퇴가 완료되었어요.",
-            subtitle = "이용해 주셔서 감사합니다.",
+            title = "정상적으로 회원 탈퇴 처리가\n승인되었어요",
+            subtitle = "그동안 모여볼을 사용해주셔서 감사합니다.",
             onConfirm = onConfirmDialog,
+            iconRes = R.drawable.ic_report_check,
         )
     }
 }
@@ -213,11 +234,14 @@ private fun WithdrawScreenPreview() {
                 isAgreed = false,
             ),
             etcTextState = rememberTextFieldState(),
+            showConfirmDialog = false,
             showSuccessDialog = false,
             onBack = {},
             onReasonSelected = {},
             onAgreementToggle = {},
             onWithdrawClick = {},
+            onConfirmWithdraw = {},
+            onDismissConfirm = {},
             onConfirmDialog = {},
         )
     }

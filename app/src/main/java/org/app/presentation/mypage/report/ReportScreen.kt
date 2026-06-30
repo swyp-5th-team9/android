@@ -172,7 +172,7 @@ private fun ReportScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ReportCategory.entries.forEach { category ->
@@ -293,8 +293,6 @@ private fun ReportScreen(
                 style = MoballTheme.typography.caption.regular12,
                 color = MoballTheme.colors.textTertiary,
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
 
         MoballButton(

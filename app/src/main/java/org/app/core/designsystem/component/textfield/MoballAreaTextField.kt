@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -67,7 +67,7 @@ fun MoballAreaTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     maxLength: Int = AREA_MAX_LENGTH,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -105,7 +105,7 @@ fun MoballAreaTextField(
                 contentAlignment = Alignment.TopStart,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 80.dp)
+                    .height(110.dp)
                     .onFocusEvent { isFocused = it.isFocused },
                 onKeyboardAction = { focusManager.clearFocus() },
             )
