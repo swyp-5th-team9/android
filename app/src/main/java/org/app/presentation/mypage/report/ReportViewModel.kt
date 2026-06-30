@@ -35,8 +35,7 @@ class ReportViewModel
                     _state.update { it.copy(selectedCategory = event.category) }
 
                 is ReportContract.Event.OnDetailTextChanged -> {
-                    val trimmed = event.text.take(ReportContract.State.MAX_CONTENT_LENGTH)
-                    _state.update { it.copy(detailText = trimmed) }
+                    _state.update { it.copy(detailText = event.text) }
                 }
 
                 is ReportContract.Event.OnImagesAdded -> {

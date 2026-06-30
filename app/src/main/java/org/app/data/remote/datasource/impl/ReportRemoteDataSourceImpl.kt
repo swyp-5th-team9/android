@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.moball.app.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -40,27 +42,40 @@ class ReportRemoteDataSourceImpl
             val contentPart = content.toRequestBody("text/plain".toMediaTypeOrNull())
             val pubIdPart = pubId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
 
-            val imageParts = imageUris.mapNotNull { uri ->
-                val file = uriToTempFile(uri) ?: return@mapNotNull null
-                val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                MultipartBody.Part.createFormData("images", file.name, requestBody)
-            }
+            val tempFiles = mutableListOf<File>()
+            return try {
+                val imageParts = withContext(Dispatchers.IO) {
+                    imageUris.map { uri ->
+                        val file = requireNotNull(uriToTempFile(uri)) {
+                            "Failed to read report image: $uri"
+                        }
+                        tempFiles.add(file)
+                        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("images", file.name, requestBody)
+                    }
+                }
 
-            return reportService.postReport(
-                category = categoryPart,
-                content = contentPart,
-                pubId = pubIdPart,
-                images = imageParts,
-            )
+                reportService.postReport(
+                    category = categoryPart,
+                    content = contentPart,
+                    pubId = pubIdPart,
+                    images = imageParts,
+                )
+            } finally {
+                withContext(Dispatchers.IO) {
+                    tempFiles.forEach { it.delete() }
+                }
+            }
         }
 
         private fun uriToTempFile(uri: Uri): File? =
             runCatching {
-                val inputStream = context.contentResolver.openInputStream(uri) ?: return null
                 val mimeType = context.contentResolver.getType(uri)
                 val ext = mimeType?.substringAfterLast("/") ?: "jpg"
                 val tempFile = File.createTempFile("report_img_", ".$ext", context.cacheDir)
-                tempFile.outputStream().use { out -> inputStream.copyTo(out) }
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    tempFile.outputStream().use { out -> input.copyTo(out) }
+                } ?: return null
                 tempFile
             }.getOrNull()
     }

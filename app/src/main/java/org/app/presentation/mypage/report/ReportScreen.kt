@@ -73,9 +73,17 @@ fun ReportRoute(
     val detailTextState = rememberTextFieldState(state.detailText)
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(ReportContract.State.MAX_IMAGES),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(state.remainingImageSlots.coerceAtLeast(1)),
     ) { uris ->
         if (uris.isNotEmpty()) {
+            if (uris.size > state.remainingImageSlots) {
+                Toast
+                    .makeText(
+                        context,
+                        "최대 ${ReportContract.State.MAX_IMAGES}장까지 첨부할 수 있습니다.",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+            }
             viewModel.onEvent(ReportContract.Event.OnImagesAdded(uris))
         }
     }
@@ -195,6 +203,7 @@ private fun ReportScreen(
             MoballAreaTextField(
                 state = detailTextState,
                 placeholder = "예: 영업시간이 실제와 달라요.",
+                maxLength = ReportContract.State.MAX_CONTENT_LENGTH,
                 modifier = Modifier.fillMaxWidth(),
             )
 
