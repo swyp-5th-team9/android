@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 
@@ -31,7 +31,6 @@ private val splashBackground = Brush.verticalGradient(
 private val SLOGAN_RES_LIST = listOf(
     R.drawable.img_splash_slogan1,
     R.drawable.img_splash_slogan2,
-    R.drawable.img_splash_slogan3,
 )
 
 @Composable
