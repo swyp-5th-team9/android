@@ -25,7 +25,7 @@ interface HomeContract {
             }
 
         val regionChipLabel: String
-            get() = filter.selectedRegion ?: "지역"
+            get() = filter.regionChipLabel
     }
 
     sealed interface Event {
@@ -59,7 +59,7 @@ interface HomeContract {
         data class OnFilterApply(
             val teamIds: List<Long>,
             val teamNames: List<String>,
-            val region: String?,
+            val regions: List<String>,
             val openNow: Boolean? = null,
             val businessDay: String? = null,
         ) : Event
@@ -74,6 +74,10 @@ interface HomeContract {
 
         data class NavigateToPubDetail(
             val pubId: String,
+        ) : SideEffect
+
+        data class MoveCameraToBounds(
+            val points: List<Pair<Double, Double>>,
         ) : SideEffect
 
         data class ShowToast(

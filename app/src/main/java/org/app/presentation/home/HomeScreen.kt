@@ -37,6 +37,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.LatLngBounds
+import com.naver.maps.map.CameraAnimation
+import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
@@ -67,23 +70,14 @@ fun HomeRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
-                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
-                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(sideEffect.pubId)
-                is HomeContract.SideEffect.ShowToast -> {
-                    // TODO: Toast show logic
-                }
-            }
-        }
-    }
-
     HomeScreen(
         state = state,
+        sideEffect = viewModel.sideEffect,
         onEvent = viewModel::onEvent,
+        onNavigateToSearch = onNavigateToSearch,
+        onNavigateToPubFilter = onNavigateToPubFilter,
+        onNavigateToReport = onNavigateToReport,
+        onNavigateToPubDetail = onNavigateToPubDetail,
         modifier = modifier,
     )
 }
@@ -92,7 +86,12 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     state: HomeContract.State,
+    sideEffect: kotlinx.coroutines.flow.Flow<HomeContract.SideEffect>,
     onEvent: (HomeContract.Event) -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToPubFilter: () -> Unit,
+    onNavigateToReport: () -> Unit,
+    onNavigateToPubDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -102,6 +101,30 @@ fun HomeScreen(
         remember { FusedLocationSource(context.findActivity()!!, LOCATION_PERMISSION_REQUEST_CODE) }
 
     var naverMap by remember { mutableStateOf<NaverMap?>(null) }
+
+    LaunchedEffect(Unit) {
+        sideEffect.collect { effect ->
+            when (effect) {
+                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
+                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
+                is HomeContract.SideEffect.MoveCameraToBounds -> {
+                    val latLngs = effect.points.map { LatLng(it.first, it.second) }
+                    if (latLngs.size == 1) {
+                        naverMap?.moveCamera(CameraUpdate.scrollTo(latLngs.first()).animate(CameraAnimation.Easing))
+                    } else if (latLngs.size > 1) {
+                        val bounds = LatLngBounds.Builder().include(latLngs).build()
+                        naverMap?.moveCamera(CameraUpdate.fitBounds(bounds, 150).animate(CameraAnimation.Easing))
+                    }
+                }
+
+                is HomeContract.SideEffect.ShowToast -> {
+                    // TODO: Toast show logic
+                }
+            }
+        }
+    }
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -159,6 +182,19 @@ fun HomeScreen(
                         map.locationSource = locationSource
                         map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
                         map.locationOverlay.isVisible = true
+
+                        map.addOnCameraChangeListener { reason, animated ->
+                            val bounds = map.contentBounds
+                            onEvent(
+                                HomeContract.Event.OnMapBoundsChanged(
+                                    swLat = bounds.southWest.latitude,
+                                    swLng = bounds.southWest.longitude,
+                                    neLat = bounds.northEast.latitude,
+                                    neLng = bounds.northEast.longitude,
+                                ),
+                            )
+                        }
+
                         map.locationOverlay.setOnClickListener {
                             // TODO: 내 위치 마커 클릭 시 동작
                             false
@@ -234,13 +270,13 @@ fun HomeScreen(
                 initialTab = state.filterBottomSheetTab,
                 userFavoriteTeamIds = state.userFavoriteTeamIds,
                 initialTeamIds = state.filter.selectedTeamIds,
-                initialRegion = state.filter.selectedRegion,
-                onApply = { teamIds, teamNames, region ->
+                initialRegions = state.filter.selectedRegions,
+                onApply = { teamIds, teamNames, regions ->
                     onEvent(
                         HomeContract.Event.OnFilterApply(
                             teamIds,
                             teamNames,
-                            region,
+                            regions,
                             state.filter.openNow,
                             state.filter.businessDay,
                         ),
@@ -312,7 +348,12 @@ fun HomeScreenPreview() {
     MoballTheme {
         HomeScreen(
             state = HomeContract.State(),
+            sideEffect = kotlinx.coroutines.flow.emptyFlow(),
             onEvent = {},
+            onNavigateToSearch = {},
+            onNavigateToPubFilter = {},
+            onNavigateToReport = {},
+            onNavigateToPubDetail = {},
         )
     }
 }

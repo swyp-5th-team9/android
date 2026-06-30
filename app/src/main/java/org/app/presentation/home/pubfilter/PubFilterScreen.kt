@@ -59,7 +59,7 @@ fun PubFilterRoute(
     onApplyFilter: (
         teamIds: List<Long>,
         teamNames: List<String>,
-        region: String?,
+        regions: List<String>,
         openNow: Boolean?,
         businessDay: String?,
     ) -> Unit = { _, _, _, _, _ -> },
@@ -73,7 +73,7 @@ fun PubFilterRoute(
             when (effect) {
                 PubFilterContract.SideEffect.NavigateBack -> onBack()
                 is PubFilterContract.SideEffect.ApplyFilter -> {
-                    onApplyFilter(effect.teamIds, effect.teamNames, effect.region, effect.openNow, effect.businessDay)
+                    onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
                     onBack()
                 }
 

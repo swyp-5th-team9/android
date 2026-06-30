@@ -91,8 +91,8 @@ private val KBO_TEAMS = listOf(
  * @param initialTab          처음 표시할 탭
  * @param userFavoriteTeamIds 온보딩에서 선택한 응원 구단 ID (ic_team_favorite 표시)
  * @param initialTeamIds      현재 필터에 적용된 구단 ID
- * @param initialRegion       현재 필터에 적용된 지역
- * @param onApply             (teamIds, teamNames, region?) 콜백
+ * @param initialRegions      현재 필터에 적용된 지역 목록
+ * @param onApply             (teamIds, teamNames, regions) 콜백
  * @param onDismiss           닫기 콜백
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,13 +101,13 @@ fun HomeFilterBottomSheet(
     initialTab: FilterBottomSheetTab,
     userFavoriteTeamIds: List<Long>,
     initialTeamIds: List<Long>,
-    initialRegion: String?,
-    onApply: (teamIds: List<Long>, teamNames: List<String>, region: String?) -> Unit,
+    initialRegions: List<String>,
+    onApply: (teamIds: List<Long>, teamNames: List<String>, regions: List<String>) -> Unit,
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
     val selectedTeamIds = remember { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
-    var selectedRegion by remember { mutableStateOf(initialRegion) }
+    val selectedRegions = remember { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
     var currentTab by remember { mutableStateOf(initialTab) }
 
     ModalBottomSheet(
@@ -131,7 +131,7 @@ fun HomeFilterBottomSheet(
             currentTab = currentTab,
             userFavoriteTeamIds = userFavoriteTeamIds,
             selectedTeamIds = selectedTeamIds,
-            selectedRegion = selectedRegion,
+            selectedRegions = selectedRegions,
             onTabChange = { currentTab = it },
             onToggleTeam = { teamId ->
                 when {
@@ -148,14 +148,26 @@ fun HomeFilterBottomSheet(
                     }
                 }
             },
-            onSelectRegion = { region ->
-                selectedRegion = if (selectedRegion == region) null else region
+            onToggleRegion = { region ->
+                when {
+                    region == "서울 전체" -> {
+                        selectedRegions.clear()
+                        selectedRegions.add("서울 전체")
+                    }
+                    region in selectedRegions -> {
+                        selectedRegions.remove(region)
+                    }
+                    else -> {
+                        selectedRegions.remove("서울 전체")
+                        selectedRegions.add(region)
+                    }
+                }
             },
             onApply = {
                 val names = KBO_TEAMS
                     .filter { (id, _) -> id in selectedTeamIds }
                     .map { (_, name) -> name }
-                onApply(selectedTeamIds.toList(), names, selectedRegion)
+                onApply(selectedTeamIds.toList(), names, selectedRegions.toList())
             },
             modifier = Modifier.navigationBarsPadding(),
         )
@@ -167,10 +179,10 @@ private fun FilterBottomSheetContent(
     currentTab: FilterBottomSheetTab,
     userFavoriteTeamIds: List<Long>,
     selectedTeamIds: List<Long>,
-    selectedRegion: String?,
+    selectedRegions: List<String>,
     onTabChange: (FilterBottomSheetTab) -> Unit,
     onToggleTeam: (Long) -> Unit,
-    onSelectRegion: (String) -> Unit,
+    onToggleRegion: (String) -> Unit,
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -222,8 +234,8 @@ private fun FilterBottomSheetContent(
 
             FilterBottomSheetTab.REGION ->
                 RegionFilterContent(
-                    selectedRegion = selectedRegion,
-                    onSelectRegion = onSelectRegion,
+                    selectedRegions = selectedRegions,
+                    onToggleRegion = onToggleRegion,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
         }
@@ -285,8 +297,8 @@ private fun TeamFilterContent(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RegionFilterContent(
-    selectedRegion: String?,
-    onSelectRegion: (String) -> Unit,
+    selectedRegions: List<String>,
+    onToggleRegion: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     FlowRow(
@@ -297,8 +309,8 @@ private fun RegionFilterContent(
         REGIONS.forEach { region ->
             PubFilterSubRegionChip(
                 label = region,
-                isSelected = region == selectedRegion,
-                onClick = { onSelectRegion(region) },
+                isSelected = region in selectedRegions,
+                onClick = { onToggleRegion(region) },
             )
         }
     }
@@ -316,10 +328,10 @@ private fun FilterSheetTeamPreview() {
                 currentTab = FilterBottomSheetTab.TEAM,
                 userFavoriteTeamIds = listOf(3L, 8L),
                 selectedTeamIds = listOf(3L),
-                selectedRegion = null,
+                selectedRegions = emptyList(),
                 onTabChange = {},
                 onToggleTeam = {},
-                onSelectRegion = {},
+                onToggleRegion = {},
                 onApply = {},
             )
         }
@@ -338,10 +350,10 @@ private fun FilterSheetRegionPreview() {
                 currentTab = FilterBottomSheetTab.REGION,
                 userFavoriteTeamIds = emptyList(),
                 selectedTeamIds = emptyList(),
-                selectedRegion = "잠실/송파",
+                selectedRegions = listOf("잠실/송파"),
                 onTabChange = {},
                 onToggleTeam = {},
-                onSelectRegion = {},
+                onToggleRegion = {},
                 onApply = {},
             )
         }

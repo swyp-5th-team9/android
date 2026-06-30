@@ -61,14 +61,17 @@ fun NavGraphBuilder.homeGraph(
                         savedStateHandle
                             .get<ArrayList<String>>("pub_filter_team_names")
                             ?.toList() ?: emptyList()
-                    val region: String? = savedStateHandle["pub_filter_region"]
+                    val regions: List<String> =
+                        savedStateHandle
+                            .get<ArrayList<String>>("pub_filter_regions")
+                            ?.toList() ?: emptyList()
                     val openNow: Boolean? = savedStateHandle["pub_filter_open_now"]
                     val businessDay: String? = savedStateHandle["pub_filter_business_day"]
                     homeViewModel.onEvent(
                         HomeContract.Event.OnFilterApply(
                             teamIds = ids,
                             teamNames = names,
-                            region = region,
+                            regions = regions,
                             openNow = openNow,
                             businessDay = businessDay,
                         ),

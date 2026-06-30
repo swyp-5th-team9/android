@@ -94,13 +94,13 @@ class PubFilterViewModel
 
                     val regionSection = state.sections.find { it.sectionId == "region" }
                     val selectedRegionIds = selectedOptions["region"] ?: emptySet()
-                    val region = when {
-                        "seoul_all" in selectedRegionIds -> "서울 전체"
+                    val regions = when {
+                        "seoul_all" in selectedRegionIds -> listOf("서울 전체")
                         else ->
                             regionSection
                                 ?.options
-                                ?.firstOrNull { it.id in selectedRegionIds }
-                                ?.label
+                                ?.filter { it.id in selectedRegionIds }
+                                ?.map { it.label } ?: emptyList()
                     }
 
                     val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
@@ -125,7 +125,7 @@ class PubFilterViewModel
                             selectedOptions,
                             teamIds,
                             teamNames,
-                            region,
+                            regions,
                             openNow,
                             businessDay,
                         ),
@@ -157,12 +157,24 @@ class PubFilterViewModel
                         }
                     }
 
-                    "region", "business_day" ->
+                    "business_day" ->
                         if (optionId in currentSet) {
                             emptySet()
                         } else {
                             setOf(optionId)
                         }
+
+                    "region" -> {
+                        when {
+                            optionId == "seoul_all" ->
+                                if (currentSet == setOf("seoul_all")) emptySet() else setOf("seoul_all")
+
+                            else -> {
+                                val baseSet = currentSet - "seoul_all"
+                                if (optionId in baseSet) baseSet - optionId else baseSet + optionId
+                            }
+                        }
+                    }
 
                     else ->
                         if (optionId in currentSet) currentSet - optionId else currentSet + optionId

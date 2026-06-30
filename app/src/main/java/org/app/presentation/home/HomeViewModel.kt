@@ -151,18 +151,29 @@ class HomeViewModel
                     emit(HomeContract.SideEffect.NavigateToPubDetail(event.pubId))
 
                 is HomeContract.Event.OnFilterApply -> {
+                    val newFilter = _state.value.filter.copy(
+                        selectedTeamIds = event.teamIds,
+                        selectedTeamNames = event.teamNames,
+                        selectedRegions = event.regions,
+                        openNow = event.openNow,
+                        businessDay = event.businessDay,
+                    )
                     _state.update {
                         it.copy(
-                            filter = it.filter.copy(
-                                selectedTeamIds = event.teamIds,
-                                selectedTeamNames = event.teamNames,
-                                selectedRegion = event.region,
-                                openNow = event.openNow,
-                                businessDay = event.businessDay,
-                            ),
+                            filter = newFilter,
                             showFilterBottomSheet = false,
                         )
                     }
+
+                    // 선택된 지역들의 좌표를 모아 바운즈 이동 처리
+                    val points = event.regions.mapNotNull {
+                        org.app.presentation.home.model.RegionMapper
+                            .getLatLng(it)
+                    }
+                    if (points.isNotEmpty()) {
+                        emit(HomeContract.SideEffect.MoveCameraToBounds(points))
+                    }
+
                     loadMapPubs(
                         teamId = event.teamIds.firstOrNull(),
                         openNow = event.openNow,

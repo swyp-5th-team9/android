@@ -50,7 +50,7 @@ interface PubFilterContract {
             val selected: Map<String, Set<String>>,
             val teamIds: List<Long>,
             val teamNames: List<String>,
-            val region: String?,
+            val regions: List<String>,
             val openNow: Boolean?,
             val businessDay: String?,
         ) : SideEffect
