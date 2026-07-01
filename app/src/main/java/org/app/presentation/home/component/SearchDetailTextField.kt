@@ -82,7 +82,7 @@ fun SearchDetailTextField(
         if (isFilled) {
             Spacer(modifier = Modifier.width(6.dp))
             Icon(
-                imageVector = ImageVector.vectorResource(drawable.ic_close_circle),
+                imageVector = ImageVector.vectorResource(drawable.ic_search_close_circle),
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier.noRippleClickable

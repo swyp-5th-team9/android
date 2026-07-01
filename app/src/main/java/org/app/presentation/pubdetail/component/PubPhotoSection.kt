@@ -40,7 +40,7 @@ fun PubPhotoSection(
             style = MoballTheme.typography.heading6.bold16,
             color = MoballTheme.colors.textPrimary,
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         if (imageUrls.isEmpty()) {
             Text(
@@ -49,7 +49,7 @@ fun PubPhotoSection(
                 color = MoballTheme.colors.textTertiary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp),
+                    .padding(top = 17.dp),
                 textAlign = TextAlign.Center,
             )
         } else {

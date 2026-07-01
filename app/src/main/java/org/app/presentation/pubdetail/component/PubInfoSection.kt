@@ -1,5 +1,6 @@
 package org.app.presentation.pubdetail.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -44,6 +46,8 @@ fun PubInfoSection(
     phoneNumber: String?,
     groupSeatMaxPeople: Int?,
     status: PubStatus,
+    styleCodes: List<String>,
+    facilityCodes: List<String>,
     isHoursExpanded: Boolean,
     onHoursToggle: () -> Unit,
     onPhoneCall: () -> Unit,
@@ -135,13 +139,105 @@ fun PubInfoSection(
             Spacer(modifier = Modifier.height(12.dp))
             InfoRow(
                 icon = ImageVector.vectorResource(R.drawable.ic_chair),
-                text = "단체석 최대 ${seats}명",
+                text = "약 ${seats}석",
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (styleCodes.isNotEmpty()) {
+            FeatureSection(
+                title = "경기 상영 스타일",
+                features = styleCodes.mapNotNull { mapStyleCodeToFeature(it) },
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        if (facilityCodes.isNotEmpty()) {
+            FeatureSection(
+                title = "시설 / 서비스",
+                features = facilityCodes.mapNotNull { mapFacilityCodeToFeature(it) },
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
+
+@Composable
+private fun FeatureSection(
+    title: String,
+    features: List<PubFeature>,
+) {
+    Column {
+        Text(
+            text = title,
+            style = MoballTheme.typography.heading6.bold16,
+            color = MoballTheme.colors.textTitle,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
+                .padding(vertical = 16.dp, horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
+            features.forEach { feature ->
+                FeatureItem(feature)
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeatureItem(feature: PubFeature) {
+    Column(
+        modifier = Modifier.width(64.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = feature.iconResId),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = feature.label,
+            style = MoballTheme.typography.caption.regular12,
+            color = MoballTheme.colors.textSecondary,
+        )
+    }
+}
+
+private data class PubFeature(
+    val label: String,
+    val iconResId: Int,
+)
+
+private fun mapStyleCodeToFeature(code: String): PubFeature? =
+    when (code.lowercase()) {
+        "large_screen", "big_screen" -> PubFeature("대형 스크린", R.drawable.ic_pubdetail_screen)
+        "single_tv" -> PubFeature("단일 TV", R.drawable.ic_pubdetail_single_tv)
+        "multi_tv" -> PubFeature("멀티 TV", R.drawable.ic_pubdetail_multi_tv)
+        "broadcast_sound", "sound_system" -> PubFeature(
+            "중계 사운드",
+            R.drawable.ic_pubdetail_sound,
+        )
+
+        else -> null
+    }
+
+private fun mapFacilityCodeToFeature(code: String): PubFeature? =
+    when (code.lowercase()) {
+        "group_seat" -> PubFeature("단체석", R.drawable.ic_pubdetail_people)
+        "wide_space", "spacious_view" -> PubFeature("넓은 공간", R.drawable.ic_pubdetail_space)
+        "outdoor_seat" -> PubFeature("야외 좌석", R.drawable.ic_pubdetail_out)
+        "parking" -> PubFeature("주차", R.drawable.ic_pubdetail_park)
+        "reservation" -> PubFeature("예약가능", R.drawable.ic_pubdetail_reservation)
+        else -> null
+    }
 
 @Composable
 private fun BusinessHoursRow(
@@ -165,23 +261,20 @@ private fun BusinessHoursRow(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_clock),
                 contentDescription = null,
                 tint = Color.Unspecified,
+                modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text = status.label,
                 style = MoballTheme.typography.body.medium14,
-                color = when (status) {
-                    PubStatus.OPEN -> MoballTheme.colors.accentPrimary
-                    PubStatus.CLOSED -> MoballTheme.colors.textTertiary
-                    PubStatus.TEMP_CLOSED -> MoballTheme.colors.textSecondary
-                },
+                color = MoballTheme.colors.textPrimary,
             )
 
-            if (todayHours != null && !todayHours.isClosed) {
+            if (status == PubStatus.OPEN && todayHours?.closeTime != null) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "${todayHours.openTime} - ${todayHours.closeTime}",
+                    text = "${todayHours.closeTime} 영업 종료",
                     style = MoballTheme.typography.body.regular14,
                     color = MoballTheme.colors.textSecondary,
                 )
@@ -199,26 +292,34 @@ private fun BusinessHoursRow(
         if (isExpanded) {
             Spacer(modifier = Modifier.height(6.dp))
             hours.sortedBy { it.dayOfWeek }.forEach { hour ->
+                val isToday = hour.dayOfWeek == todayIso
                 Row(
                     modifier = Modifier.padding(start = 26.dp, top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val textColor = if (hour.isClosed) {
+                        MoballTheme.colors.textTertiary
+                    } else if (isToday) {
+                        MoballTheme.colors.textPrimary
+                    } else {
+                        MoballTheme.colors.textSecondary
+                    }
+                    val textStyle = if (isToday) {
+                        MoballTheme.typography.body.medium14
+                    } else {
+                        MoballTheme.typography.body.regular14
+                    }
+
                     Text(
                         text = hour.dayLabel,
-                        style = MoballTheme.typography.caption.regular12,
-                        color = MoballTheme.colors.textTertiary,
+                        style = textStyle,
+                        color = textColor,
                         modifier = Modifier.width(24.dp),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    val textColor =
-                        if (hour.isClosed) {
-                            MoballTheme.colors.textTertiary
-                        } else {
-                            MoballTheme.colors.textSecondary
-                        }
                     Text(
-                        text = if (hour.isClosed) "휴무" else "${hour.openTime} - ${hour.closeTime}",
-                        style = MoballTheme.typography.caption.regular12,
+                        text = if (hour.isClosed) "휴무" else "${hour.openTime} ~ ${hour.closeTime}",
+                        style = textStyle,
                         color = textColor,
                     )
                 }
@@ -279,6 +380,8 @@ fun PubInfoSectionPreview() {
             address = "서울특별시 마포구 월드컵북로 396",
             phoneNumber = "02-1234-5678",
             groupSeatMaxPeople = 30,
+            styleCodes = listOf("large_screen", "single_tv", "multi_tv", "broadcast_sound"),
+            facilityCodes = listOf("group_seat", "wide_space", "outdoor_seat", "parking", "reservation"),
             isHoursExpanded = false,
             onHoursToggle = {},
             onPhoneCall = {},

@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -83,10 +83,11 @@ private fun ScheduleCalendarDialogContent(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 20.dp, horizontal = 16.dp)
-            .widthIn(max = 360.dp)
-            .background(MoballTheme.colors.backgroundBase, RoundedCornerShape(16.dp)),
+            .width(360.dp)
+            .background(
+                MoballTheme.colors.backgroundBase,
+                RoundedCornerShape(16.dp),
+            ).padding(vertical = 16.dp, horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CalendarHeader(
@@ -122,9 +123,7 @@ private fun ScheduleCalendarDialogContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             MoballButton(

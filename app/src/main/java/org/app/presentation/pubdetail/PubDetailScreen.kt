@@ -21,11 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.pubdetail.component.PubBottomBar
-import org.app.presentation.pubdetail.component.PubFacilitySection
 import org.app.presentation.pubdetail.component.PubHeroCarousel
 import org.app.presentation.pubdetail.component.PubInfoSection
 import org.app.presentation.pubdetail.component.PubPhotoGallery
@@ -116,6 +115,8 @@ internal fun PubDetailScreen(
                     address = detail.address,
                     phoneNumber = detail.phoneNumber,
                     groupSeatMaxPeople = detail.groupSeatMaxPeople,
+                    styleCodes = detail.styleCodes,
+                    facilityCodes = detail.facilityCodes,
                     isHoursExpanded = state.isHoursExpanded,
                     onHoursToggle = { onEvent(PubDetailContract.Event.OnHoursToggle) },
                     onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
@@ -123,15 +124,6 @@ internal fun PubDetailScreen(
                     favoriteCount = detail.favoriteCount,
                     onWishToggle = { onEvent(PubDetailContract.Event.OnWishlistToggle) },
                 )
-
-                Divider()
-
-                // 편의시설 (facility + style + theme + food 전부 한 섹션)
-                val allCodes = detail.facilityCodes + detail.styleCodes + detail.themeCodes + detail.foodCodes
-                if (allCodes.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    PubFacilitySection(codes = allCodes)
-                }
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Divider()
