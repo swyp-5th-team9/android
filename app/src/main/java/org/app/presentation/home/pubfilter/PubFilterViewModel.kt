@@ -92,15 +92,12 @@ class PubFilterViewModel
                                 .map { it.shortName }
                     }
 
-                    val regionSection = state.sections.find { it.sectionId == "region" }
                     val selectedRegionIds = selectedOptions["region"] ?: emptySet()
+                    // optionId = 백엔드 enum 코드이므로 그대로 전달
+                    // SEOUL_ALL(서울 전체) 선택 시 region 파라미터 없음(null → 전체 조회)
                     val regions = when {
-                        "seoul_all" in selectedRegionIds -> listOf("서울 전체")
-                        else ->
-                            regionSection
-                                ?.options
-                                ?.filter { it.id in selectedRegionIds }
-                                ?.map { it.label } ?: emptyList()
+                        "SEOUL_ALL" in selectedRegionIds || selectedRegionIds.isEmpty() -> emptyList()
+                        else -> selectedRegionIds.toList()
                     }
 
                     val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
@@ -166,11 +163,11 @@ class PubFilterViewModel
 
                     "region" -> {
                         when {
-                            optionId == "seoul_all" ->
-                                if (currentSet == setOf("seoul_all")) emptySet() else setOf("seoul_all")
+                            optionId == "SEOUL_ALL" ->
+                                if (currentSet == setOf("SEOUL_ALL")) emptySet() else setOf("SEOUL_ALL")
 
                             else -> {
-                                val baseSet = currentSet - "seoul_all"
+                                val baseSet = currentSet - "SEOUL_ALL"
                                 if (optionId in baseSet) baseSet - optionId else baseSet + optionId
                             }
                         }

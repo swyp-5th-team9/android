@@ -333,7 +333,7 @@ private fun PubFilterScreenPreview() {
         PubFilterScreen(
             state = PubFilterContract.State(
                 selectedOptions = mapOf(
-                    "region" to setOf("seoul_gangnam", "seoul_hongdae"),
+                    "region" to setOf("GANGNAM", "HONGDAE_HAPJEONG"),
                     "business" to setOf("open"),
                 ),
             ),

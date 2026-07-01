@@ -47,26 +47,28 @@ import org.app.presentation.home.FilterBottomSheetTab
 import org.app.presentation.home.pubfilter.component.PubFilterOptionChip
 import org.app.presentation.home.pubfilter.component.PubFilterSubRegionChip
 
-private val REGIONS = listOf(
-    "서울 전체",
-    "강남/역삼",
-    "서초/방배/반포",
-    "선릉/삼성/논현",
-    "신사/압구정/청담",
-    "중량",
-    "양재/수서/도곡",
-    "잠실/송파",
-    "강동/천호",
-    "건대/성수/왕십리",
-    "종로",
-    "홍대/합정/마포",
-    "중구",
-    "영등포",
-    "여의도",
-    "마곡/강서",
-    "동작",
-    "성북/노원",
-    "구로/관악",
+/** 백엔드 region 코드 to 한글 표시 라벨 */
+private val REGIONS: List<Pair<String, String>> = listOf(
+    "SEOUL_ALL" to "서울 전체",
+    "GANGNAM" to "강남/서초",
+    "JAMSIL" to "잠실/잠실새내",
+    "SONGPA" to "송파",
+    "GANGDONG" to "강동/천호",
+    "SEONGDONG" to "성수/왕십리",
+    "JUNGNANG" to "중랑",
+    "JONGNO" to "종로",
+    "JUNGGU" to "중구",
+    "HONGDAE_HAPJEONG" to "홍대/합정",
+    "SANGAM_MANGWON" to "상암/망원",
+    "MAPO" to "마포",
+    "EUNPYEONG" to "은평/서대문",
+    "YEONGDEUNGPO" to "영등포/여의도",
+    "GANGSEO" to "마곡/강서",
+    "DONGJAK" to "동작",
+    "NOWON" to "노원/강북",
+    "DOBONG" to "도봉/성북",
+    "GURO" to "구로",
+    "GWANAK" to "관악",
 )
 
 /** 백엔드 V2 시드 기준 (teamId: Long) */
@@ -148,18 +150,18 @@ fun HomeFilterBottomSheet(
                     }
                 }
             },
-            onToggleRegion = { region ->
+            onToggleRegion = { regionCode ->
                 when {
-                    region == "서울 전체" -> {
+                    regionCode == "SEOUL_ALL" -> {
                         selectedRegions.clear()
-                        selectedRegions.add("서울 전체")
+                        selectedRegions.add("SEOUL_ALL")
                     }
-                    region in selectedRegions -> {
-                        selectedRegions.remove(region)
+                    regionCode in selectedRegions -> {
+                        selectedRegions.remove(regionCode)
                     }
                     else -> {
-                        selectedRegions.remove("서울 전체")
-                        selectedRegions.add(region)
+                        selectedRegions.remove("SEOUL_ALL")
+                        selectedRegions.add(regionCode)
                     }
                 }
             },
@@ -306,11 +308,11 @@ private fun RegionFilterContent(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        REGIONS.forEach { region ->
+        REGIONS.forEach { (code, label) ->
             PubFilterSubRegionChip(
-                label = region,
-                isSelected = region in selectedRegions,
-                onClick = { onToggleRegion(region) },
+                label = label,
+                isSelected = code in selectedRegions,
+                onClick = { onToggleRegion(code) },
             )
         }
     }
@@ -350,7 +352,7 @@ private fun FilterSheetRegionPreview() {
                 currentTab = FilterBottomSheetTab.REGION,
                 userFavoriteTeamIds = emptyList(),
                 selectedTeamIds = emptyList(),
-                selectedRegions = listOf("잠실/송파"),
+                selectedRegions = listOf("JAMSIL"),
                 onTabChange = {},
                 onToggleTeam = {},
                 onToggleRegion = {},

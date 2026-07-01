@@ -76,10 +76,13 @@ data class HomeFilter(
         }
 
     val regionChipLabel: String
-        get() = when {
-            selectedRegions.isEmpty() -> "지역"
-            selectedRegions.size == 1 -> selectedRegions.first()
-            else -> "${selectedRegions.first()} 외 ${selectedRegions.size - 1}개"
+        get() {
+            val labels = selectedRegions.mapNotNull { REGION_DISPLAY_LABELS[it] }
+            return when {
+                labels.isEmpty() -> "지역"
+                labels.size == 1 -> labels.first()
+                else -> "${labels.first()} 외 ${labels.size - 1}개"
+            }
         }
 }
 
@@ -97,29 +100,57 @@ data class PubFilterOption(
     val label: String,
 )
 
+/**
+ * 백엔드 region 코드 → 한글 표시 라벨
+ * 칩 라벨 표시 / RegionMapper 대체 키로 사용
+ */
+val REGION_DISPLAY_LABELS: Map<String, String> = mapOf(
+    "SEOUL_ALL" to "서울 전체",
+    "GANGNAM" to "강남/서초",
+    "JAMSIL" to "잠실/잠실새내",
+    "SONGPA" to "송파",
+    "GANGDONG" to "강동/천호",
+    "SEONGDONG" to "성수/왕십리",
+    "JUNGNANG" to "중랑",
+    "JONGNO" to "종로",
+    "JUNGGU" to "중구",
+    "HONGDAE_HAPJEONG" to "홍대/합정",
+    "SANGAM_MANGWON" to "상암/망원",
+    "MAPO" to "마포",
+    "EUNPYEONG" to "은평/서대문",
+    "YEONGDEUNGPO" to "영등포/여의도",
+    "GANGSEO" to "마곡/강서",
+    "DONGJAK" to "동작",
+    "NOWON" to "노원/강북",
+    "DOBONG" to "도봉/성북",
+    "GURO" to "구로",
+    "GWANAK" to "관악",
+)
+
 object RegionMapper {
-    /** 지역 이름별 대표 위경도 (지도로 이동/줌 조절용) */
+    /** 백엔드 region 코드 → 대표 위경도 (지도 카메라 이동용) */
     private val regionCoords = mapOf(
-        "서울 전체" to (37.5665 to 126.9780),
-        "강남/역삼" to (37.4981 to 127.0276),
-        "서초/방배/반포" to (37.4836 to 127.0327),
-        "선릉/삼성/논현" to (37.5045 to 127.0490),
-        "신사/압구정/청담" to (37.5241 to 127.0366),
-        "중량" to (37.6063 to 127.0931),
-        "양재/수서/도곡" to (37.4841 to 127.0437),
-        "잠실/송파" to (37.5145 to 127.1058),
-        "강동/천호" to (37.5301 to 127.1238),
-        "건대/성수/왕십리" to (37.5408 to 127.0691),
-        "종로" to (37.5730 to 126.9794),
-        "홍대/합정/마포" to (37.5567 to 126.9235),
-        "중구" to (37.5635 to 126.9975),
-        "영등포" to (37.5264 to 126.8962),
-        "여의도" to (37.5216 to 126.9242),
-        "마곡/강서" to (37.5518 to 126.8495),
-        "동작" to (37.5024 to 126.9393),
-        "성북/노원" to (37.6068 to 127.0467),
-        "구로/관악" to (37.4854 to 126.9015),
+        "SEOUL_ALL" to (37.5665 to 126.9780),
+        "GANGNAM" to (37.4981 to 127.0276),
+        "JAMSIL" to (37.5145 to 127.1058),
+        "SONGPA" to (37.5049 to 127.1154),
+        "GANGDONG" to (37.5301 to 127.1238),
+        "SEONGDONG" to (37.5408 to 127.0691),
+        "JUNGNANG" to (37.6063 to 127.0931),
+        "JONGNO" to (37.5730 to 126.9794),
+        "JUNGGU" to (37.5635 to 126.9975),
+        "HONGDAE_HAPJEONG" to (37.5567 to 126.9235),
+        "SANGAM_MANGWON" to (37.5605 to 126.9097),
+        "MAPO" to (37.5538 to 126.9510),
+        "EUNPYEONG" to (37.6027 to 126.9289),
+        "YEONGDEUNGPO" to (37.5264 to 126.8962),
+        "GANGSEO" to (37.5518 to 126.8495),
+        "DONGJAK" to (37.5024 to 126.9393),
+        "NOWON" to (37.6539 to 127.0569),
+        "DOBONG" to (37.6543 to 127.0472),
+        "GURO" to (37.4954 to 126.8874),
+        "GWANAK" to (37.4784 to 126.9516),
     )
 
-    fun getLatLng(regionName: String): Pair<Double, Double>? = regionCoords[regionName]
+    fun getLatLng(regionCode: String): Pair<Double, Double>? = regionCoords[regionCode]
 }
