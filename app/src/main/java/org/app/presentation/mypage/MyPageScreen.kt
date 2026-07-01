@@ -173,6 +173,13 @@ private fun MyPageScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    Text(
+                        text = "응원 구단",
+                        style = MoballTheme.typography.heading3.semibold20,
+                        color = MoballTheme.colors.textPrimary,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     MyPageAddSportsCard(
                         supportedTeams = state.supportedTeams,
                         onAddClick = onAddTeamClick,
