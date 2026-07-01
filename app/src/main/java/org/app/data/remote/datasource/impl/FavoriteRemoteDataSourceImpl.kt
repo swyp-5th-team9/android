@@ -36,10 +36,8 @@ class FavoriteRemoteDataSourceImpl
                     ),
                 )
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = PostFavoriteResponse(favoriteId = newId),
-                    timestamp = "",
                 )
             }
             return favoriteService.postFavorite(pubId)
@@ -48,10 +46,8 @@ class FavoriteRemoteDataSourceImpl
         override suspend fun getFavorites(): BaseResponse<GetFavoritesResponse> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = GetFavoritesResponse(favorites = mockFavorites.sortedByDescending { it.favoriteId }),
-                    timestamp = "",
                 )
             }
             return favoriteService.getFavorites()
@@ -62,7 +58,7 @@ class FavoriteRemoteDataSourceImpl
                 require(favoriteIds.isNotEmpty()) { "INVALID_REQUEST" }
                 require(mockFavorites.map { it.favoriteId }.containsAll(favoriteIds)) { "FAVORITE_NOT_FOUND" }
                 mockFavorites.removeAll { it.favoriteId in favoriteIds }
-                return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
+                return BaseResponse(success = true, data = Unit)
             }
             return favoriteService.deleteFavorites(DeleteFavoritesRequest(favoriteIds = favoriteIds))
         }
