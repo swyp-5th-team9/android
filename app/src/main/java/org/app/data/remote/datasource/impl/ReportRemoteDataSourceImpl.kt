@@ -29,10 +29,8 @@ class ReportRemoteDataSourceImpl
         ): BaseResponse<PostReportResponse> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = PostReportResponse(reportId = (1000L..9999L).random()),
-                    timestamp = "",
                 )
             }
 
