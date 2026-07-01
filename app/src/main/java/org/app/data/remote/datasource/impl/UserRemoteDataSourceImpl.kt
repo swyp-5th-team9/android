@@ -17,16 +17,16 @@ class UserRemoteDataSourceImpl
         private val userService: UserService,
     ) : UserRemoteDataSource {
         private val mockTeamNames = mapOf(
-            1L to "KIA",
-            2L to "KT",
-            3L to "LG",
-            4L to "NC",
-            5L to "SSG",
-            6L to "두산",
+            1L to "LG",
+            2L to "두산",
+            3L to "KT",
+            4L to "SSG",
+            5L to "NC",
+            6L to "KIA",
             7L to "롯데",
             8L to "삼성",
-            9L to "키움",
-            10L to "한화",
+            9L to "한화",
+            10L to "키움",
         )
 
         private var mockUser: GetUserResponse? = GetUserResponse(
@@ -53,7 +53,7 @@ class UserRemoteDataSourceImpl
                         )
                     },
                 )
-                return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
+                return BaseResponse(success = true, data = Unit)
             }
             return userService.postOnboarding(PostOnboardingRequest(nickname = nickname, teamIds = teamIds))
         }
@@ -61,10 +61,8 @@ class UserRemoteDataSourceImpl
         override suspend fun getUser(): BaseResponse<GetUserResponse> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = checkNotNull(mockUser) { "탈퇴한 사용자입니다." },
-                    timestamp = "",
                 )
             }
             return userService.getUser()
@@ -82,7 +80,7 @@ class UserRemoteDataSourceImpl
                         teamIds?.map { FavoriteTeamResponse(teamId = it, teamName = mockTeamNames[it] ?: "팀$it") }
                             ?: current.favoriteTeams,
                 )
-                return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
+                return BaseResponse(success = true, data = Unit)
             }
             return userService.patchUser(PatchUserRequest(nickname = nickname, teamIds = teamIds))
         }
@@ -93,7 +91,7 @@ class UserRemoteDataSourceImpl
         ): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 mockUser = null
-                return BaseResponse(status = "success_mock", statusCode = 200, data = Unit, timestamp = "")
+                return BaseResponse(success = true, data = Unit)
             }
             return userService.deleteUser(DeleteUserRequest(reasonCode = reasonCode, detail = detail))
         }
