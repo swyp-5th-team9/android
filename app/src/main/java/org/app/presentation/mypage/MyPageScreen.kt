@@ -12,11 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,10 +55,9 @@ import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
+import org.app.presentation.mypage.component.MyPageWishlistSection
 import org.app.presentation.mypage.wishlist.WishlistItem
-import org.app.presentation.mypage.wishlist.component.WishlistPreviewCard
 
-// TODO 찜 목록 없을 때 디자인 수정 예정
 @Composable
 fun MyPageRoute(
     navigateToLogin: () -> Unit,
@@ -159,156 +157,129 @@ private fun MyPageScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 56.dp),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 56.dp),
         ) {
             item {
-                MyPageProfileCard(
-                    nickname = state.nickname,
-                    profileImageUrl = state.profileImageUrl,
-                    onEditProfileClick = { onEvent(MyPageContract.Event.OnEditProfileClick) },
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                ) {
+                    MyPageProfileCard(
+                        nickname = state.nickname,
+                        profileImageUrl = state.profileImageUrl,
+                        onEditProfileClick = { onEvent(MyPageContract.Event.OnEditProfileClick) },
+                    )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                MyPageAddSportsCard(
-                    supportedTeams = state.supportedTeams,
-                    onAddClick = onAddTeamClick,
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (state.wishlistItems.isEmpty()) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "펍 즐겨찾기 목록",
-                            style = MoballTheme.typography.heading3.semibold20,
-                            color = MoballTheme.colors.textPrimary,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "아직 즐겨찾기에 추가한 펍이 없어요",
-                            style = MoballTheme.typography.body.regular14,
-                            color = MoballTheme.colors.textTertiary,
-                        )
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "찜 목록",
-                            style = MoballTheme.typography.heading3.semibold20,
-                            color = MoballTheme.colors.textPrimary,
-                        )
-                        Text(
-                            text = "전체보기",
-                            style = MoballTheme.typography.body.regular14,
-                            color = MoballTheme.colors.textTertiary,
-                            modifier = Modifier.clickable { onEvent(MyPageContract.Event.OnWishlistClick) },
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(state.wishlistItems.take(5)) { item ->
-                            WishlistPreviewCard(
-                                pubName = item.pubName,
-                                imageUrl = item.thumbnailImageUrl,
-                                onClick = { onEvent(MyPageContract.Event.OnPubClick(item.pubId.toString())) },
-                            )
-                        }
-                    }
+                    MyPageAddSportsCard(
+                        supportedTeams = state.supportedTeams,
+                        onAddClick = onAddTeamClick,
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                MyPageWishlistSection(
+                    wishlistItems = state.wishlistItems,
+                    onWishlistClick = { onEvent(MyPageContract.Event.OnWishlistClick) },
+                    onPubClick = { pubId -> onEvent(MyPageContract.Event.OnPubClick(pubId)) },
+                )
             }
 
             item {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "설정",
-                    style = MoballTheme.typography.heading3.semibold20,
-                    color = MoballTheme.colors.textPrimary,
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                MyPageSettingCard(
-                    items = listOf(
-                        MyPageSettingItem(
-                            iconRes = R.drawable.ic_headphones,
-                            title = "제보하기",
-                            subtitle = "잘못된 정보, 앱 오류 신고",
-                            onClick = { onEvent(MyPageContract.Event.OnReportClick) },
-                        ),
-                        MyPageSettingItem(
-                            iconRes = R.drawable.ic_lock,
-                            title = "약관 및 정책",
-                            subtitle = "이용약관 · 개인정보처리방침",
-                            onClick = { // TODO 약관 및 정책 딥링크 연결
-                            },
-                        ),
-                        MyPageSettingItem(
-                            iconRes = R.drawable.ic_logout,
-                            title = "로그아웃",
-                            onClick = { onEvent(MyPageContract.Event.OnLogoutClick) },
-                        ),
-                    ),
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "회원탈퇴",
-                    style = MoballTheme.typography.body.regular14,
-                    color = MoballTheme.colors.textTertiary,
-                    textAlign = TextAlign.End,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onCopyEmail(email) },
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(horizontal = 16.dp),
                 ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
-                        text = buildAnnotatedString {
-                            append("문의: ")
-                            withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
-                                append(email)
-                            }
-                        },
+                        text = "설정",
+                        style = MoballTheme.typography.heading3.semibold20,
+                        color = MoballTheme.colors.textPrimary,
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    MyPageSettingCard(
+                        items = listOf(
+                            MyPageSettingItem(
+                                iconRes = R.drawable.ic_sound,
+                                title = "제보하기",
+                                subtitle = "잘못된 정보, 앱 오류 신고",
+                                onClick = { onEvent(MyPageContract.Event.OnReportClick) },
+                            ),
+                            MyPageSettingItem(
+                                iconRes = R.drawable.ic_warning_info,
+                                title = "약관 및 정책",
+                                subtitle = "이용약관 · 개인정보처리방침",
+                                onClick = { // TODO 약관 및 정책 딥링크 연결
+                                },
+                            ),
+                            MyPageSettingItem(
+                                iconRes = R.drawable.ic_logout,
+                                title = "로그아웃",
+                                onClick = { onEvent(MyPageContract.Event.OnLogoutClick) },
+                            ),
+                        ),
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "회원탈퇴",
+                        style = MoballTheme.typography.body.regular14,
+                        color = MoballTheme.colors.textTertiary,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
+                        textDecoration = TextDecoration.Underline,
+                    )
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onCopyEmail(email) },
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = buildAnnotatedString {
+                                append("문의: ")
+                                withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                                    append(email)
+                                }
+                            },
+                            style = MoballTheme.typography.caption.regular12,
+                            color = MoballTheme.colors.textTertiary,
+                        )
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_copy),
+                            contentDescription = "복사",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "모여볼 v1.0.0",
                         style = MoballTheme.typography.caption.regular12,
                         color = MoballTheme.colors.textTertiary,
-                    )
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_copy),
-                        contentDescription = "복사",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(16.dp),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "모여볼 v1.0.0",
-                    style = MoballTheme.typography.caption.regular12,
-                    color = MoballTheme.colors.textTertiary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
         }
 

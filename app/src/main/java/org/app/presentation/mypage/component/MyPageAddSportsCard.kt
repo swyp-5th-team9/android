@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,58 +30,42 @@ fun MyPageAddSportsCard(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFFAFAFB),
+                shape = RoundedCornerShape(16.dp),
+            ).padding(vertical = 11.dp, horizontal = 20.dp),
     ) {
-        Text(
-            text = "Sport",
-            style = MoballTheme.typography.heading3.semibold20,
-            color = MoballTheme.colors.textPrimary,
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .align(Alignment.End)
+                .noRippleClickable(onAddClick),
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color(0xFFFAFAFB),
-                    shape = RoundedCornerShape(16.dp),
-                ),
-        ) {
+        if (supportedTeams.isNotEmpty()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 11.dp, horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .padding(bottom = 19.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    text = "응원구단",
-                    style = MoballTheme.typography.heading5.bold18,
-                    color = MoballTheme.colors.textPrimary,
-                )
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
-                    contentDescription = null,
-                    tint = MoballTheme.colors.iconPrimary,
-                    modifier = Modifier.noRippleClickable(onAddClick),
-                )
-            }
-
-            if (supportedTeams.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 19.dp),
-                    horizontalArrangement = Arrangement.spacedBy(36.dp, Alignment.CenterHorizontally),
-                ) {
-                    supportedTeams.take(3).forEach { team ->
+                supportedTeams.take(3).forEach { team ->
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         MoballBaseBallTeamBadge(teamName = team)
                     }
                 }
-            } else {
-                Spacer(modifier = Modifier.height(16.dp))
             }
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
