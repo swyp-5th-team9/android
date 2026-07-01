@@ -68,6 +68,7 @@ class HomeViewModel
             teamId: Long? = null,
             openNow: Boolean? = null,
             businessDay: String? = null,
+            showEmptyToast: Boolean = false,
         ) {
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
@@ -83,6 +84,9 @@ class HomeViewModel
                     ).onSuccess { items ->
                         _state.update {
                             it.copy(isLoading = false, pubMarkers = items.toMarkers(), pubClusters = emptyList())
+                        }
+                        if (showEmptyToast && items.isEmpty()) {
+                            emit(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
                         }
                     }.onFailure { error ->
                         Timber.e("지도 펍 로드 실패: $error")
@@ -137,6 +141,7 @@ class HomeViewModel
                         teamId = filter.selectedTeamIds.firstOrNull(),
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
+                        showEmptyToast = true,
                     )
                 }
 
@@ -178,6 +183,7 @@ class HomeViewModel
                         teamId = event.teamIds.firstOrNull(),
                         openNow = event.openNow,
                         businessDay = event.businessDay,
+                        showEmptyToast = true,
                     )
                 }
             }
