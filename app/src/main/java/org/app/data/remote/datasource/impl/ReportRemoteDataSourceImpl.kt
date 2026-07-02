@@ -2,7 +2,6 @@ package org.app.data.remote.datasource.impl
 
 import android.content.Context
 import android.net.Uri
-import com.moball.app.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,13 +28,6 @@ class ReportRemoteDataSourceImpl
             pubId: Long?,
             imageUris: List<Uri>,
         ): BaseResponse<PostReportResponse> {
-            if (BuildConfig.USE_MOCK_SERVER) {
-                return BaseResponse(
-                    success = true,
-                    data = PostReportResponse(reportId = (1000L..9999L).random()),
-                )
-            }
-
             val categoryPart = category.toRequestBody("text/plain".toMediaTypeOrNull())
             val contentPart = content.toRequestBody("text/plain".toMediaTypeOrNull())
             val pubIdPart = pubId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
