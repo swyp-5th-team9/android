@@ -74,8 +74,8 @@ fun PubDetailResponse.toPubDetail(): PubDetail =
         businessHours = businessHours.sortedBy { it.dayOfWeek }.map {
             BusinessHour(
                 dayOfWeek = it.dayOfWeek,
-                openTime = it.openTime,
-                closeTime = it.closeTime,
+                openTime = it.openTime?.take(5),
+                closeTime = it.closeTime?.take(5),
                 isClosed = it.isClosed,
             )
         },
