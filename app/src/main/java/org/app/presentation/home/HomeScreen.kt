@@ -140,6 +140,12 @@ fun HomeScreen(
         hasLocationPermission = permissions.values.all { it }
     }
 
+    LaunchedEffect(hasLocationPermission, naverMap) {
+        if (hasLocationPermission && naverMap != null) {
+            naverMap?.locationTrackingMode = LocationTrackingMode.Follow
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             permissionLauncher.launch(

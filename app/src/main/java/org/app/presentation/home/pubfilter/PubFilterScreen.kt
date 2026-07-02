@@ -263,7 +263,7 @@ internal fun PubFilterScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 40.dp),
-                    verticalArrangement = Arrangement.spacedBy(28.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     Text(
                         text = "음식 / 주류",
