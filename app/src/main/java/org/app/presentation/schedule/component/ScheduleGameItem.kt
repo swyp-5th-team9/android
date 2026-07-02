@@ -39,13 +39,13 @@ fun teamLogoRes(teamId: Long): Int =
         1 -> R.drawable.img_kia
         2 -> R.drawable.img_kt
         3 -> R.drawable.img_lg
-        4 -> R.drawable.img_nc
-        5 -> R.drawable.img_ssg
+        4 -> R.drawable.img_ssg
+        5 -> R.drawable.img_nc
         6 -> R.drawable.img_doosan
         7 -> R.drawable.img_lotte
         8 -> R.drawable.img_samsung
-        9 -> R.drawable.img_kiwoom
-        10 -> R.drawable.img_hanwha
+        9 -> R.drawable.img_hanwha
+        10 -> R.drawable.img_kiwoom
         else -> R.drawable.img_doosan
     }
 
