@@ -3,17 +3,15 @@ package org.app.presentation.schedule
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.MatchRepository
 import org.app.data.repository.api.TeamRepository
-import org.app.presentation.schedule.model.GameSchedule
-import org.app.presentation.schedule.model.GameStatus
-import java.time.LocalDate
-import java.time.LocalTime
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -22,7 +20,7 @@ class ScheduleViewModel
     @Inject
     constructor(
         private val teamRepository: TeamRepository,
-        // TODO: ScheduleRepository 주입 (API 구현 후)
+        private val matchRepository: MatchRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow(ScheduleContract.State())
         val state = _state.asStateFlow()
@@ -100,74 +98,23 @@ class ScheduleViewModel
             }
         }
 
-        private fun loadGames(yearMonth: YearMonth) {
-            viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
-                // TODO: ScheduleRepository.getGames(yearMonth) 호출
-                val mockGames = generateMockGames(yearMonth)
-                _state.update { it.copy(games = mockGames, isLoading = false) }
-            }
-        }
+        private var loadGamesJob: Job? = null
 
-        /** Mock 데이터 — API 연결 후 제거 */
-        private fun generateMockGames(yearMonth: YearMonth): List<GameSchedule> {
-            val today = LocalDate.now()
-            return listOf(
-                GameSchedule(
-                    gameId = "1",
-                    date = yearMonth.atDay(1).let { if (it.isAfter(today.minusDays(1))) it else today },
-                    startTime = LocalTime.of(18, 30),
-                    homeTeamId = 6,
-                    homeTeamName = "두산 베어스",
-                    awayTeamId = 3,
-                    awayTeamName = "LG 트윈스",
-                    stadium = "잠실야구장",
-                    status = GameStatus.SCHEDULED,
-                ),
-                GameSchedule(
-                    gameId = "2",
-                    date = today,
-                    startTime = LocalTime.of(18, 30),
-                    homeTeamId = 1,
-                    homeTeamName = "기아 타이거즈",
-                    awayTeamId = 8,
-                    awayTeamName = "삼성 라이온즈",
-                    stadium = "광주-기아 챔피언스 필드",
-                    status = GameStatus.SCHEDULED,
-                ),
-                GameSchedule(
-                    gameId = "3",
-                    date = today,
-                    startTime = LocalTime.of(18, 30),
-                    homeTeamId = 7,
-                    homeTeamName = "롯데 자이언츠",
-                    awayTeamId = 10,
-                    awayTeamName = "한화 이글스",
-                    stadium = "사직야구장",
-                    status = GameStatus.CANCELLED_RAIN,
-                ),
-                GameSchedule(
-                    gameId = "4",
-                    date = today.plusDays(2),
-                    startTime = LocalTime.of(17, 0),
-                    homeTeamId = 9,
-                    homeTeamName = "키움 히어로즈",
-                    awayTeamId = 4,
-                    awayTeamName = "NC 다이노스",
-                    stadium = "고척스카이돔",
-                    status = GameStatus.SCHEDULED,
-                ),
-                GameSchedule(
-                    gameId = "5",
-                    date = today.plusDays(5),
-                    startTime = LocalTime.of(18, 30),
-                    homeTeamId = 5,
-                    homeTeamName = "SSG 랜더스",
-                    awayTeamId = 2,
-                    awayTeamName = "KT WIZ",
-                    stadium = "인천SSG랜더스필드",
-                    status = GameStatus.SCHEDULED,
-                ),
-            ).filter { it.date.year == yearMonth.year && it.date.month == yearMonth.month }
+        private fun loadGames(yearMonth: YearMonth) {
+            loadGamesJob?.cancel()
+            loadGamesJob = viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                matchRepository
+                    .getMatches(
+                        sportType = "KBO",
+                        from = yearMonth.atDay(1).toString(),
+                        to = yearMonth.atEndOfMonth().toString(),
+                    ).onSuccess { games ->
+                        _state.update { it.copy(games = games, isLoading = false) }
+                    }.onFailure {
+                        _state.update { it.copy(isLoading = false) }
+                        emit(ScheduleContract.SideEffect.ShowToast("경기 일정을 불러오는데 실패했습니다."))
+                    }
+            }
         }
     }

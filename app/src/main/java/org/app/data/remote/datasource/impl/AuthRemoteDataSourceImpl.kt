@@ -19,15 +19,13 @@ class AuthRemoteDataSourceImpl
             // TODO: 서버 배포 후 USE_MOCK_SERVER = false 로 변경
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = PostKakaoLoginResponse(
                         accessToken = "fake_kakao_access_token",
                         refreshToken = "fake_kakao_refresh_token",
                         role = "FAN",
                         onboardingCompleted = false,
                     ),
-                    timestamp = "",
                 )
             }
             return authService.postKakaoLogin(accessToken)
@@ -37,15 +35,13 @@ class AuthRemoteDataSourceImpl
             // TODO: 서버 배포 후 USE_MOCK_SERVER = false 로 변경
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = PostNaverLoginResponse(
                         accessToken = "fake_naver_access_token",
                         refreshToken = "fake_naver_refresh_token",
                         role = "FAN",
                         onboardingCompleted = false,
                     ),
-                    timestamp = "",
                 )
             }
             return authService.postNaverLogin(accessToken)
@@ -54,13 +50,11 @@ class AuthRemoteDataSourceImpl
         override suspend fun postRefreshToken(refreshToken: String): BaseResponse<PostRefreshTokenResponse> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = PostRefreshTokenResponse(
                         accessToken = "fake_new_access_token",
                         refreshToken = "fake_new_refresh_token",
                     ),
-                    timestamp = "",
                 )
             }
             return authService.postRefreshToken(PostRefreshTokenRequest(refreshToken))
@@ -69,10 +63,8 @@ class AuthRemoteDataSourceImpl
         override suspend fun postLogout(): BaseResponse<Unit> {
             if (BuildConfig.USE_MOCK_SERVER) {
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = Unit,
-                    timestamp = "",
                 )
             }
             return authService.postLogout()

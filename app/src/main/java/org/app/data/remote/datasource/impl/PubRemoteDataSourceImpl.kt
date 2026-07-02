@@ -156,8 +156,7 @@ class PubRemoteDataSourceImpl
                     filtered = filtered.filter { it.region == region }
                 }
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = GetPubsResponse(
                         content = filtered,
                         page = page ?: 0,
@@ -165,7 +164,6 @@ class PubRemoteDataSourceImpl
                         totalElements = filtered.size,
                         totalPages = 1,
                     ),
-                    timestamp = "",
                 )
             }
             return pubService.getPubs(
@@ -202,10 +200,8 @@ class PubRemoteDataSourceImpl
                     mockMapItems
                 }
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = GetPubsMapResponse(pubs = filtered),
-                    timestamp = "",
                 )
             }
             return pubService.getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
@@ -219,10 +215,8 @@ class PubRemoteDataSourceImpl
                     mockDetail.copy(pubId = pubId, name = "펍 $pubId")
                 }
                 return BaseResponse(
-                    status = "success_mock",
-                    statusCode = 200,
+                    success = true,
                     data = detail,
-                    timestamp = "",
                 )
             }
             return pubService.getPubDetail(pubId)

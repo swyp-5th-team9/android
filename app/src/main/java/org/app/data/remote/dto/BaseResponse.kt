@@ -5,12 +5,19 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BaseResponse<T>(
-    @SerialName("status")
-    val status: String,
-    @SerialName("status_code")
-    val statusCode: Int,
+    @SerialName("success")
+    val success: Boolean,
     @SerialName("data")
-    val data: T?,
-    @SerialName("timestamp")
-    val timestamp: String,
+    val data: T? = null,
+    @SerialName("message")
+    val message: String? = null,
 )
+
+fun <T : Any> BaseResponse<T>.getDataOrThrow(): T {
+    if (!success) throw IllegalStateException(message ?: "요청이 실패했습니다.")
+    return data ?: throw IllegalStateException(message ?: "응답 데이터가 없습니다.")
+}
+
+fun BaseResponse<*>.checkSuccess() {
+    if (!success) throw IllegalStateException(message ?: "요청이 실패했습니다.")
+}
