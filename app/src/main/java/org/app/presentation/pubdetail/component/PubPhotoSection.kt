@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -63,8 +62,7 @@ fun PubPhotoSection(
                     UrlImage(
                         url = url,
                         modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
+                            .size(124.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .noRippleClickable { onPhotoClick(index) },
                         contentScale = ContentScale.Crop,
