@@ -24,8 +24,8 @@ interface MyPageContract {
 
         data object OnAddTeamClick : Event
 
-        data class OnTeamSelected(
-            val team: String,
+        data class OnApplyTeams(
+            val teams: List<String>,
         ) : Event
 
         data object OnTeamSelectDismiss : Event

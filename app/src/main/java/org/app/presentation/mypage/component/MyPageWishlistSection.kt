@@ -116,9 +116,9 @@ private fun MyPageWishlistSectionPreview() {
     MoballTheme {
         MyPageWishlistSection(
             wishlistItems = listOf(
-                WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리"),
-                WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어"),
-                WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼"),
+                WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
+                WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
+                WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
             ),
             onWishlistClick = {},
             onPubClick = {},

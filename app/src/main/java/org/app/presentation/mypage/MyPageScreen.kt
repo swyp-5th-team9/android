@@ -292,13 +292,12 @@ private fun MyPageScreen(
 
         if (isTeamSheetVisible) {
             MyPageTeamSelectBottomSheet(
-                selectedTeams = state.supportedTeams,
-                onTeamClick = { team -> onEvent(MyPageContract.Event.OnTeamSelected(team)) },
-                onApply = onDismissTeamSheet,
-                onDismiss = {
-                    onEvent(MyPageContract.Event.OnTeamSelectDismiss)
+                initialSelectedTeams = state.supportedTeams,
+                onApply = { teams ->
+                    onEvent(MyPageContract.Event.OnApplyTeams(teams))
                     onDismissTeamSheet()
                 },
+                onDismiss = onDismissTeamSheet,
             )
         }
     }
@@ -331,9 +330,9 @@ private fun MyPageScreenWithWishlistPreview() {
                 nickname = "닉네임",
                 supportedTeams = listOf("한화", "KT", "삼성"),
                 wishlistItems = listOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼"),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
                 ),
             ),
             isTeamSheetVisible = false,

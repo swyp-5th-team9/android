@@ -11,11 +11,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +46,7 @@ import org.app.core.designsystem.component.textfield.MoballLineTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.maxLength
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.editprofile.component.EditProfileNicknameCard
 
@@ -105,15 +111,22 @@ private fun EditProfileScreen(
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MoballTheme.colors.backgroundBase),
+            .background(MoballTheme.colors.backgroundBase)
+            .navigationBarsPadding()
+            .imePadding(),
     ) {
         MoballTopBar(state = TopBarState.Back(title = "내정보 수정", onBackClick = onBack))
 
         Column(
             modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -162,8 +175,10 @@ private fun EditProfileScreen(
                         placeholder = "사용할 닉네임을 적어주세요",
                         modifier = Modifier.fillMaxWidth(),
                         showCharCount = true,
+                        maxLength = 20,
                         isError = state.nicknameError != null,
                         errorMessage = state.nicknameError,
+                        inputTransformation = InputTransformation.maxLength(20),
                     )
                 } else {
                     EditProfileNicknameCard(

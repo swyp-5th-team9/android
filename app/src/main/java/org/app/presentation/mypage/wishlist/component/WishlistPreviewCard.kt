@@ -24,7 +24,7 @@ import org.app.core.extension.noRippleClickable
 
 @Composable
 fun WishlistPreviewCard(
-    pubName: String,
+    pubName: String?,
     imageUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -49,10 +49,10 @@ fun WishlistPreviewCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MoballTheme.colors.textPrimary)
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 16.dp),
         ) {
             Text(
-                text = pubName,
+                text = pubName ?: "알 수 없는 펍",
                 style = MoballTheme.typography.heading7.bold14,
                 color = MoballTheme.colors.textPrimaryInverse,
                 maxLines = 1,

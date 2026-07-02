@@ -8,5 +8,6 @@ fun FavoriteItemResponse.toFavoriteItem(): FavoriteItem =
         favoriteId = favoriteId,
         pubId = pubId,
         pubName = pubName,
+        address = address,
         thumbnailImageUrl = thumbnailImageUrl,
     )

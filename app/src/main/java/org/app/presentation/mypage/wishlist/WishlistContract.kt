@@ -42,6 +42,7 @@ interface WishlistContract {
 data class WishlistItem(
     val favoriteId: Long,
     val pubId: Long,
-    val pubName: String,
+    val pubName: String?,
+    val address: String? = null,
     val thumbnailImageUrl: String? = null,
 )

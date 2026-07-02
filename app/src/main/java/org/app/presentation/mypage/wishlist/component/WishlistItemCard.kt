@@ -51,7 +51,7 @@ fun WishlistItemCard(
         ) {
             UrlImage(
                 url = item.thumbnailImageUrl,
-                contentDescription = item.pubName,
+                contentDescription = item.pubName ?: "",
                 contentScale = ContentScale.Crop,
                 placeholderRes = R.drawable.img_wishlist_item,
                 modifier = Modifier.matchParentSize(),
@@ -61,7 +61,7 @@ fun WishlistItemCard(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .background(Color.Black.copy(alpha = if (isSelected) 0.35f else 0.12f)),
+                        .background(MoballTheme.colors.backgroundScrim.copy(alpha = if (isSelected) 0.35f else 0.12f)),
                 )
             }
 
@@ -69,7 +69,9 @@ fun WishlistItemCard(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_wish_heart_fill),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.align(Alignment.BottomEnd),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 6.dp, bottom = 6.dp),
             )
 
             if (isEditMode) {
@@ -81,7 +83,8 @@ fun WishlistItemCard(
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(6.dp),
+                        .padding(6.dp)
+                        .size(24.dp),
                 )
             }
         }
@@ -89,12 +92,22 @@ fun WishlistItemCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = item.pubName,
+            text = item.pubName ?: "알 수 없는 펍",
             style = MoballTheme.typography.heading6.bold16,
             color = MoballTheme.colors.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
+        item.address?.let {
+            Text(
+                text = it,
+                style = MoballTheme.typography.caption.medium12,
+                color = MoballTheme.colors.textSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -103,7 +116,7 @@ fun WishlistItemCard(
 private fun WishlistItemCardEditSelectedPreview() {
     MoballTheme {
         WishlistItemCard(
-            item = WishlistItem(favoriteId = 1L, pubId = 12L, pubName = "야구펍 홍대점"),
+            item = WishlistItem(favoriteId = 1L, pubId = 12L, pubName = "야구펍 홍대점", address = "홍대"),
             isEditMode = true,
             isSelected = true,
             onCardClick = {},
@@ -117,7 +130,7 @@ private fun WishlistItemCardEditSelectedPreview() {
 private fun WishlistItemCardEditUnselectedPreview() {
     MoballTheme {
         WishlistItemCard(
-            item = WishlistItem(favoriteId = 2L, pubId = 15L, pubName = "롯데 응원 맛집"),
+            item = WishlistItem(favoriteId = 2L, pubId = 15L, pubName = "롯데 응원 맛집", address = "잠실"),
             isEditMode = true,
             isSelected = false,
             onCardClick = {},

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballDialog
@@ -45,6 +49,17 @@ fun WishlistRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { effect ->
@@ -102,52 +117,73 @@ private fun WishlistScreen(
         Column {
             MoballTopBar(
                 state = TopBarState.BackWithTextMenu(
-                    title = "찜 목록",
-                    menuText = if (state.isEditMode) "완료" else "편집",
+                    title = "펍 즐겨찾기 목록",
+                    menuText = if (state.items.isEmpty()) {
+                        ""
+                    } else if (state.isEditMode) {
+                        "완료"
+                    } else {
+                        "편집"
+                    },
                     onBackClick = onBack,
                     onMenuClick = onEditClick,
                 ),
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = if (state.isEditMode) 106.dp else 20.dp,
-                ),
-            ) {
-                item {
+            if (state.items.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        text = "최대 30개까지 등록 가능합니다.",
-                        style = MoballTheme.typography.caption.medium12,
+                        text = "아직 즐겨찾기한 펍이 없습니다.",
+                        style = MoballTheme.typography.body.regular14,
                         color = MoballTheme.colors.textTertiary,
-                        modifier = Modifier.padding(bottom = 6.dp),
                     )
                 }
-
-                items(state.items.chunked(3)) { rowItems ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        rowItems.forEach { item ->
-                            WishlistItemCard(
-                                item = item,
-                                isEditMode = state.isEditMode,
-                                isSelected = item.favoriteId in state.selectedIds,
-                                onCardClick = { onCardClick(item.pubId) },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                        repeat(3 - rowItems.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(
+                        top = 8.dp,
+                        bottom = if (state.isEditMode) 106.dp else 20.dp,
+                    ),
+                ) {
+                    item {
+                        Text(
+                            text = "최대 30개까지 등록 가능합니다.",
+                            style = MoballTheme.typography.caption.medium12,
+                            color = MoballTheme.colors.textTertiary,
+                            modifier = Modifier.padding(bottom = 6.dp),
+                        )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    items(state.items.chunked(3)) { rowItems ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            rowItems.forEach { item ->
+                                WishlistItemCard(
+                                    item = item,
+                                    isEditMode = state.isEditMode,
+                                    isSelected = item.favoriteId in state.selectedIds,
+                                    onCardClick = { onCardClick(item.pubId) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            repeat(3 - rowItems.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }
@@ -165,16 +201,31 @@ private fun WishlistScreen(
 
 @Preview(showBackground = true)
 @Composable
+private fun WishlistScreenEmptyPreview() {
+    MoballTheme {
+        WishlistScreen(
+            state = WishlistContract.State(items = emptyList()),
+            onBack = {},
+            onEditClick = {},
+            onCancelEdit = {},
+            onDeleteClick = {},
+            onCardClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun WishlistScreenPreview() {
     MoballTheme {
         WishlistScreen(
             state = WishlistContract.State(
                 items = listOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3"),
-                    WishlistItem(favoriteId = 4L, pubId = 14L, pubName = "펍 이름 4"),
-                    WishlistItem(favoriteId = 5L, pubId = 15L, pubName = "펍 이름 5"),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
+                    WishlistItem(favoriteId = 4L, pubId = 14L, pubName = "펍 이름 4", address = "서초"),
+                    WishlistItem(favoriteId = 5L, pubId = 15L, pubName = "펍 이름 5", address = "이태원"),
                 ),
             ),
             onBack = {},
@@ -193,9 +244,9 @@ private fun WishlistScreenEditPreview() {
         WishlistScreen(
             state = WishlistContract.State(
                 items = listOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3"),
+                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
+                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
+                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
                 ),
                 isEditMode = true,
                 selectedIds = setOf(1L),

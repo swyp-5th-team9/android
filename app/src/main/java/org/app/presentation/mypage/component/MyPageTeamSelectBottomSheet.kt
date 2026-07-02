@@ -61,21 +61,20 @@ private val KboTeams = listOf(
 /**
  * 응원구단 선택 바텀시트
  *
- * @param selectedTeams 현재 선택된 구단 목록
- * @param onTeamClick   구단 클릭 시 콜백 (선택/해제 토글)
- * @param onApply       "적용하기" 클릭
- * @param onDismiss     닫기 클릭
+ * @param initialSelectedTeams 초기 선택된 구단 목록
+ * @param onApply               "적용하기" 클릭 시 최종 선택된 구단 목록 전달
+ * @param onDismiss             닫기 클릭 (변경 사항 무시)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageTeamSelectBottomSheet(
-    selectedTeams: List<String>,
-    onTeamClick: (String) -> Unit,
-    onApply: () -> Unit,
+    initialSelectedTeams: List<String>,
+    onApply: (List<String>) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var draftSelectedTeams by remember { mutableStateOf(initialSelectedTeams) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -88,9 +87,15 @@ fun MyPageTeamSelectBottomSheet(
         ),
     ) {
         TeamSelectBottomSheetContent(
-            selectedTeams = selectedTeams,
-            onTeamClick = onTeamClick,
-            onApply = onApply,
+            selectedTeams = draftSelectedTeams,
+            onTeamClick = { team ->
+                if (team in draftSelectedTeams) {
+                    draftSelectedTeams = draftSelectedTeams - team
+                } else if (draftSelectedTeams.size < 3) {
+                    draftSelectedTeams = draftSelectedTeams + team
+                }
+            },
+            onApply = { onApply(draftSelectedTeams) },
             onDismiss = onDismiss,
         )
     }
@@ -172,7 +177,7 @@ private fun TeamSelectBottomSheetContent(
         MoballButton(
             text = "적용하기",
             onClick = onApply,
-            enabled = selectedTeams.isNotEmpty(),
+            enabled = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),

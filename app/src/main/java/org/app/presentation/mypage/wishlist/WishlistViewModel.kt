@@ -28,10 +28,14 @@ class WishlistViewModel
             loadFavorites()
         }
 
+        fun refresh() {
+            loadFavorites()
+        }
+
         fun onEvent(event: WishlistContract.Event) {
             when (event) {
                 WishlistContract.Event.OnEditClick -> {
-                    _state.update { it.copy(isEditMode = true, selectedIds = emptySet()) }
+                    _state.update { it.copy(isEditMode = !it.isEditMode, selectedIds = emptySet()) }
                 }
 
                 WishlistContract.Event.OnCancelEdit -> {
@@ -103,6 +107,7 @@ class WishlistViewModel
                                         favoriteId = item.favoriteId,
                                         pubId = item.pubId,
                                         pubName = item.pubName,
+                                        address = item.address,
                                         thumbnailImageUrl = item.thumbnailImageUrl,
                                     )
                                 },

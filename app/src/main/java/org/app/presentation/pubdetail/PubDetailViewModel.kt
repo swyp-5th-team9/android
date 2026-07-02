@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.PubRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class PubDetailViewModel
     constructor(
         savedStateHandle: SavedStateHandle,
         private val pubRepository: PubRepository,
+        private val favoriteRepository: FavoriteRepository,
     ) : ViewModel() {
         private val pubId: Long =
             savedStateHandle.get<String>("pubId")?.toLongOrNull() ?: 0L
@@ -40,9 +42,45 @@ class PubDetailViewModel
                     emit(PubDetailContract.SideEffect.NavigateBack)
 
                 is PubDetailContract.Event.OnWishlistToggle -> {
-                    // TODO: FavoriteRepository 연결 (PR #46 머지 후)
+                    if (_state.value.isWishlistLoading) return
                     val detail = _state.value.pubDetail ?: return
-                    _state.update { it.copy(pubDetail = detail.copy(isWishlisted = !detail.isWishlisted)) }
+                    val wasWishlisted = detail.isWishlisted
+
+                    if (wasWishlisted) {
+                        emit(PubDetailContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                        return
+                    }
+
+                    viewModelScope.launch {
+                        _state.update { it.copy(isWishlistLoading = true) }
+                        favoriteRepository
+                            .addFavorite(pubId)
+                            .onSuccess { newId ->
+                                _state.update {
+                                    it.copy(
+                                        isWishlistLoading = false,
+                                        favoriteId = newId,
+                                        pubDetail = detail.copy(
+                                            isWishlisted = true,
+                                            favoriteCount = detail.favoriteCount + 1,
+                                        ),
+                                    )
+                                }
+                                emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
+                            }.onFailure { error ->
+                                _state.update { it.copy(isWishlistLoading = false) }
+                                val message = if (error.message?.contains("409") == true ||
+                                    error.message?.contains("Conflict") == true
+                                ) {
+                                    "이미 즐겨찾기한 펍입니다."
+                                } else {
+                                    "이미 즐겨찾기한 펍입니다."
+                                }
+                                emit(PubDetailContract.SideEffect.ShowToast(message))
+
+                                loadPubDetail()
+                            }
+                    }
                 }
 
                 is PubDetailContract.Event.OnImagePageChanged ->
@@ -99,10 +137,20 @@ class PubDetailViewModel
             if (pubId == 0L) return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                pubRepository
-                    .getPubDetail(pubId)
+
+                val detailResult = pubRepository.getPubDetail(pubId)
+                val favoriteResult = favoriteRepository.getFavorites()
+
+                detailResult
                     .onSuccess { detail ->
-                        _state.update { it.copy(isLoading = false, pubDetail = detail) }
+                        val favoriteItem = favoriteResult.getOrNull()?.find { it.pubId == pubId }
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                pubDetail = detail.copy(isWishlisted = favoriteItem != null),
+                                favoriteId = favoriteItem?.favoriteId,
+                            )
+                        }
                     }.onFailure { error ->
                         Timber.e("펍 상세 로드 실패: $error")
                         _state.update { it.copy(isLoading = false) }

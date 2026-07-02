@@ -64,7 +64,11 @@ fun PubDetailRoute(
                     }
                 }
 
-                is PubDetailContract.SideEffect.ShowToast -> { /* TODO: Toast */ }
+                is PubDetailContract.SideEffect.ShowToast -> {
+                    android.widget.Toast
+                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }

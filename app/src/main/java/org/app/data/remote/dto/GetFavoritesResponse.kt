@@ -16,7 +16,9 @@ data class FavoriteItemResponse(
     @SerialName("pubId")
     val pubId: Long,
     @SerialName("pubName")
-    val pubName: String,
+    val pubName: String?,
+    @SerialName("address")
+    val address: String? = null,
     @SerialName("thumbnailImageUrl")
     val thumbnailImageUrl: String?,
 )

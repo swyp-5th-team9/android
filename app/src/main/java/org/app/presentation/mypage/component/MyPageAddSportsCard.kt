@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,28 @@ fun MyPageAddSportsCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (supportedTeams.isNotEmpty()) {
+        if (supportedTeams.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .background(
+                        color = Color(0xFFFAFAFB),
+                        shape = RoundedCornerShape(16.dp),
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Text(
+                    text = "아직 응원하는 구단이 없어요",
+                    style = MoballTheme.typography.body.regular14,
+                    color = MoballTheme.colors.textTertiary,
+                )
+                Spacer(modifier = Modifier.height(77.dp))
+            }
+        } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -64,8 +86,6 @@ fun MyPageAddSportsCard(
                     }
                 }
             }
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

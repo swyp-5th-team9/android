@@ -65,6 +65,7 @@ fun MoballLineTextField(
     errorMessage: String? = null,
     maxLength: Int = 20,
     showCharCount: Boolean = true,
+    inputTransformation: InputTransformation? = InputTransformation.maxLength(maxLength),
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -95,7 +96,7 @@ fun MoballLineTextField(
                     placeholderStyle = inputStyle.getTextStyle(),
                     textColor = inputStyle.getTextColor(),
                     textStyle = inputStyle.getTextStyle(),
-                    inputTransformation = InputTransformation.maxLength(maxLength),
+                    inputTransformation = inputTransformation,
                     keyboardOptions = keyboardOptions,
                     lineLimits = TextFieldLineLimits.SingleLine,
                     isEnabled = enabled,

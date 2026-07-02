@@ -49,7 +49,12 @@ class EditProfileViewModel
         fun onEvent(event: EditProfileContract.Event) {
             when (event) {
                 is EditProfileContract.Event.OnNicknameChange -> {
-                    _state.update { it.copy(nickname = event.nickname, nicknameError = null) }
+                    val nicknameError = when {
+                        event.nickname.length >= 20 -> "20자 이내로 입력해주세요."
+                        event.nickname.isBlank() -> "닉네임을 입력해주세요."
+                        else -> null
+                    }
+                    _state.update { it.copy(nickname = event.nickname, nicknameError = nicknameError) }
                 }
 
                 is EditProfileContract.Event.OnProfileImageChange -> {
