@@ -12,3 +12,12 @@ data class BaseResponse<T>(
     @SerialName("message")
     val message: String? = null,
 )
+
+fun <T : Any> BaseResponse<T>.getDataOrThrow(): T {
+    if (!success) throw IllegalStateException(message ?: "요청이 실패했습니다.")
+    return data ?: throw IllegalStateException(message ?: "응답 데이터가 없습니다.")
+}
+
+fun BaseResponse<*>.checkSuccess() {
+    if (!success) throw IllegalStateException(message ?: "요청이 실패했습니다.")
+}

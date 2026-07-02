@@ -5,6 +5,7 @@ import org.app.core.util.suspendRunCatching
 import org.app.data.mapper.toReportResult
 import org.app.data.model.ReportResult
 import org.app.data.remote.datasource.api.ReportRemoteDataSource
+import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.ReportRepository
 import javax.inject.Inject
 
@@ -22,8 +23,7 @@ class ReportRepositoryImpl
             suspendRunCatching {
                 reportRemoteDataSource
                     .postReport(category, content, pubId, imageUris)
-                    .data
-                    ?.toReportResult()
-                    ?: error("data is null")
+                    .getDataOrThrow()
+                    .toReportResult()
             }
     }

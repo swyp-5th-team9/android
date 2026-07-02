@@ -13,7 +13,8 @@ private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 fun MatchItemResponse.toGameSchedule(): GameSchedule =
     GameSchedule(
         gameId = matchId.toString(),
-        date = LocalDate.parse(matchDate, DATE_FORMATTER),
+        date = runCatching { LocalDate.parse(matchDate, DATE_FORMATTER) }
+            .getOrElse { LocalDate.now() },
         startTime = startTime?.let {
             runCatching { LocalTime.parse(it, TIME_FORMATTER) }.getOrNull()
         },

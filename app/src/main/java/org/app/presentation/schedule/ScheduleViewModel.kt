@@ -3,6 +3,7 @@ package org.app.presentation.schedule
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -97,8 +98,11 @@ class ScheduleViewModel
             }
         }
 
+        private var loadGamesJob: Job? = null
+
         private fun loadGames(yearMonth: YearMonth) {
-            viewModelScope.launch {
+            loadGamesJob?.cancel()
+            loadGamesJob = viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 matchRepository
                     .getMatches(

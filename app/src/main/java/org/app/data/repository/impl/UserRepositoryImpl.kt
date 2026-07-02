@@ -4,6 +4,8 @@ import org.app.core.util.suspendRunCatching
 import org.app.data.mapper.toUserInfo
 import org.app.data.model.UserInfo
 import org.app.data.remote.datasource.api.UserRemoteDataSource
+import org.app.data.remote.dto.checkSuccess
+import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.UserRepository
 import javax.inject.Inject
 
@@ -17,14 +19,12 @@ class UserRepositoryImpl
             teamIds: List<Long>,
         ): Result<Unit> =
             suspendRunCatching {
-                userRemoteDataSource.postOnboarding(nickname = nickname, teamIds = teamIds).let {}
+                userRemoteDataSource.postOnboarding(nickname = nickname, teamIds = teamIds).checkSuccess()
             }
 
         override suspend fun getUser(): Result<UserInfo> =
             suspendRunCatching {
-                val response = userRemoteDataSource.getUser()
-                response.data?.toUserInfo()
-                    ?: throw IllegalStateException("user data is null")
+                userRemoteDataSource.getUser().getDataOrThrow().toUserInfo()
             }
 
         override suspend fun patchUser(
@@ -33,7 +33,7 @@ class UserRepositoryImpl
         ): Result<Unit> =
             suspendRunCatching {
                 require(nickname != null || teamIds != null) { "변경할 필드가 없습니다." }
-                userRemoteDataSource.patchUser(nickname = nickname, teamIds = teamIds).let {}
+                userRemoteDataSource.patchUser(nickname = nickname, teamIds = teamIds).checkSuccess()
             }
 
         override suspend fun deleteUser(
@@ -41,6 +41,6 @@ class UserRepositoryImpl
             detail: String?,
         ): Result<Unit> =
             suspendRunCatching {
-                userRemoteDataSource.deleteUser(reasonCode = reasonCode, detail = detail).let {}
+                userRemoteDataSource.deleteUser(reasonCode = reasonCode, detail = detail).checkSuccess()
             }
     }

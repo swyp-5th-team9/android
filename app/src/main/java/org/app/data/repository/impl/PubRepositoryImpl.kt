@@ -7,6 +7,7 @@ import org.app.data.mapper.toPubPage
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubPage
 import org.app.data.remote.datasource.api.PubRemoteDataSource
+import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.PubRepository
 import org.app.presentation.pubdetail.model.PubDetail
 import javax.inject.Inject
@@ -47,8 +48,8 @@ class PubRepositoryImpl
                         sort,
                         page,
                         size,
-                    ).data
-                    ?.toPubPage() ?: error("data is null")
+                    ).getDataOrThrow()
+                    .toPubPage()
             }
 
         override suspend fun getMapPubs(
@@ -63,15 +64,15 @@ class PubRepositoryImpl
             suspendRunCatching {
                 pubRemoteDataSource
                     .getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
-                    .data
-                    ?.toPubMapItems() ?: error("data is null")
+                    .getDataOrThrow()
+                    .toPubMapItems()
             }
 
         override suspend fun getPubDetail(pubId: Long): Result<PubDetail> =
             suspendRunCatching {
                 pubRemoteDataSource
                     .getPubDetail(pubId)
-                    .data
-                    ?.toPubDetail() ?: error("data is null")
+                    .getDataOrThrow()
+                    .toPubDetail()
             }
     }
