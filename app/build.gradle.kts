@@ -77,7 +77,7 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"${properties.getProperty("prod.base.url") ?: ""}\"")
-            buildConfigField("Boolean", "USE_MOCK_SERVER", "true")
+            buildConfigField("Boolean", "USE_MOCK_SERVER", "false")
         }
         release {
             isMinifyEnabled = true
