@@ -19,7 +19,8 @@ class AuthInterceptor
                     .request()
                     .newBuilder()
                     .apply {
-                        if (!accessToken.isNullOrBlank()) {
+                        val existingAuth = chain.request().header(AUTHORIZATION)
+                        if (existingAuth == null && !accessToken.isNullOrBlank()) {
                             addHeader(AUTHORIZATION, "$BEARER $accessToken")
                         }
                     }.build()
