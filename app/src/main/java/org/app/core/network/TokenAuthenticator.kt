@@ -26,6 +26,12 @@ class TokenAuthenticator
             route: Route?,
             response: Response,
         ): Request? {
+            // refresh-token 요청 자체가 401이면 재시도 금지 (mutex deadlock 방지)
+            if (response.request.url.pathSegments
+                    .contains("refresh-token")
+            ) {
+                return null
+            }
             if (responseCount(response) >= MAX_RESPONSE_COUNT) return null
             return runBlocking { updateToken(response) }
         }

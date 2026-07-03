@@ -12,18 +12,23 @@ class AuthInterceptor
         private val localTokenDataSource: LocalTokenDataSource,
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
-            val accessToken = runBlocking { localTokenDataSource.getAccessToken() }
+            val request = chain.request()
+            val isRefreshEndpoint = request.url.pathSegments.contains("refresh-token")
 
             val newRequest =
-                chain
-                    .request()
-                    .newBuilder()
-                    .apply {
-                        val existingAuth = chain.request().header(AUTHORIZATION)
-                        if (existingAuth == null && !accessToken.isNullOrBlank()) {
-                            addHeader(AUTHORIZATION, "$BEARER $accessToken")
-                        }
-                    }.build()
+                if (isRefreshEndpoint) {
+                    request
+                } else {
+                    val accessToken = runBlocking { localTokenDataSource.getAccessToken() }
+                    request
+                        .newBuilder()
+                        .apply {
+                            val existingAuth = request.header(AUTHORIZATION)
+                            if (existingAuth == null && !accessToken.isNullOrBlank()) {
+                                addHeader(AUTHORIZATION, "$BEARER $accessToken")
+                            }
+                        }.build()
+                }
 
             return chain.proceed(newRequest)
         }
