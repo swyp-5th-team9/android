@@ -36,12 +36,12 @@ private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 @DrawableRes
 fun teamLogoRes(teamId: Long): Int =
     when (teamId.toInt()) {
-        1 -> R.drawable.img_kia
-        2 -> R.drawable.img_kt
-        3 -> R.drawable.img_lg
+        1 -> R.drawable.img_lg
+        2 -> R.drawable.img_doosan
+        3 -> R.drawable.img_kt
         4 -> R.drawable.img_ssg
         5 -> R.drawable.img_nc
-        6 -> R.drawable.img_doosan
+        6 -> R.drawable.img_kia
         7 -> R.drawable.img_lotte
         8 -> R.drawable.img_samsung
         9 -> R.drawable.img_hanwha

@@ -2,6 +2,7 @@ package org.app.data.remote.datasource.impl
 
 import org.app.data.mapper.toGameSchedule
 import org.app.data.remote.datasource.api.MatchRemoteDataSource
+import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.remote.service.MatchService
 import org.app.presentation.schedule.model.GameSchedule
 import javax.inject.Inject
@@ -25,8 +26,7 @@ class MatchRemoteDataSourceImpl
                     from = from,
                     to = to,
                     teamId = teamId,
-                ).data
-                ?.matches
-                ?.map { it.toGameSchedule() }
-                ?: emptyList()
+                ).getDataOrThrow()
+                .matches
+                .map { it.toGameSchedule() }
     }
