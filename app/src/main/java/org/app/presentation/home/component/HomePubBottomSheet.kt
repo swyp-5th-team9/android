@@ -371,7 +371,7 @@ private fun PubDetailContent(
                         color = MoballTheme.colors.textTitle,
                     )
                     Text(
-                        text = detail.address,
+                        text = detail.address.summaryAddress(),
                         style = MoballTheme.typography.body.regular14,
                         color = MoballTheme.colors.textSecondary,
                     )
@@ -417,7 +417,7 @@ private fun PubDetailContent(
                     contentDescription = detail.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(148.dp)
+                        .size(110.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(MoballTheme.colors.borderNormal),
                 )
@@ -494,8 +494,8 @@ fun MapActionButton(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
+            .height(56.dp)
             .background(MoballTheme.colors.backgroundScrim)
-            .padding(vertical = 15.dp, horizontal = 32.dp)
             .noRippleClickable(onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -513,6 +513,12 @@ fun MapActionButton(
             modifier = Modifier.size(20.dp),
         )
     }
+}
+
+private fun String.summaryAddress(): String {
+    val parts = trim().split(" ")
+    // "서울시 강남구 청담동" 처럼 3단위까지만 추출
+    return parts.take(3).joinToString(" ")
 }
 
 @Composable
@@ -594,8 +600,8 @@ private fun HomePubListBottomSheetPreview() {
 private fun HomePubDetailBottomSheetPreview() {
     val sampleDetail = PubDetail(
         pubId = 1L,
-        name = "시그니처 펍 시그니처 펍 시그니처 펍",
-        address = "서울특별시 강남구 청담동",
+        name = "시그니처 펍",
+        address = "서울시 강남구 청담동 123-45",
         region = "강남구",
         latitude = 37.0,
         longitude = 127.0,
@@ -610,11 +616,18 @@ private fun HomePubDetailBottomSheetPreview() {
             org.app.presentation.pubdetail.model
                 .KboTeam(9L, "롯데", "롯데 자이언츠"),
         ),
-        facilityCodes = emptyList(),
+        facilityCodes = listOf("parking", "group_seat"),
         styleCodes = emptyList(),
         themeCodes = emptyList(),
         foodCodes = emptyList(),
-        businessHours = emptyList(),
+        businessHours = listOf(
+            org.app.presentation.pubdetail.model.BusinessHour(
+                LocalDate.now().dayOfWeek.value,
+                "08:00",
+                "24:00",
+                false,
+            ),
+        ),
         menus = emptyList(),
         isWishlisted = false,
     )

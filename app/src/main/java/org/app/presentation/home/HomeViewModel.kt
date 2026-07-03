@@ -43,6 +43,7 @@ class HomeViewModel
         private var currentSwLng = DEFAULT_SW_LNG
         private var currentNeLat = DEFAULT_NE_LAT
         private var currentNeLng = DEFAULT_NE_LNG
+        private var currentZoom = 14.0 // 기본 줌 레벨
 
         init {
             loadUserFavoriteTeams()
@@ -81,6 +82,9 @@ class HomeViewModel
             teamId: Long? = null,
             openNow: Boolean? = null,
             businessDay: String? = null,
+            facilityCodes: List<String>? = null,
+            themeCodes: List<String>? = null,
+            foodCodes: List<String>? = null,
             showEmptyToast: Boolean = false,
         ) {
             viewModelScope.launch {
@@ -94,14 +98,16 @@ class HomeViewModel
                         teamId = teamId,
                         openNow = openNow,
                         businessDay = businessDay,
+                        facilityCodes = facilityCodes,
+                        themeCodes = themeCodes,
+                        foodCodes = foodCodes,
                     ).onSuccess { items ->
                         _state.update {
                             it.copy(
                                 isLoading = false,
                                 pubMapItems = items,
-                                pubMarkers = items.toMarkers(),
-                                pubClusters = emptyList(),
-                                showPubListSheet = items.isNotEmpty() && !it.showPubDetailSheet,
+                                pubMarkers = if (currentZoom > 13.0) items.toMarkers() else emptyList(),
+                                pubClusters = if (currentZoom <= 13.0) items.toClusters() else emptyList(),
                             )
                         }
                         if (showEmptyToast && items.isEmpty()) {
@@ -163,6 +169,27 @@ class HomeViewModel
                 )
             }
 
+        private fun List<PubMapItem>.toClusters(): List<org.app.presentation.home.model.PubCluster> {
+            if (isEmpty()) return emptyList()
+
+            // 단순화를 위해 지역(Region)별로 그룹화하여 클러스터 생성
+            // 실제 구현 시에는 좌표 기반의 그리드 클러스터링 알고리즘이 권장되나,
+            // 현재 요구사항상 지역별 배지가 보이는 형태이므로 시(구) 단위로 묶음
+
+            // 1. 위경도 오차범위 내의 펍들을 하나로 묶음 (그리드 방식)
+            val gridSize = 0.05 // 클러스터링 범위 (줌 레벨에 따라 조정 가능)
+
+            return groupBy {
+                (it.latitude / gridSize).toInt() to (it.longitude / gridSize).toInt()
+            }.map { (_, group) ->
+                org.app.presentation.home.model.PubCluster(
+                    latitude = group.map { it.latitude }.average(),
+                    longitude = group.map { it.longitude }.average(),
+                    count = group.size,
+                )
+            }
+        }
+
         fun onEvent(event: HomeContract.Event) {
             when (event) {
                 HomeContract.Event.OnSearchBarClick ->
@@ -197,6 +224,9 @@ class HomeViewModel
                         teamId = filter.selectedTeamIds.firstOrNull(),
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
+                        facilityCodes = filter.facilityCodes,
+                        themeCodes = filter.themeCodes,
+                        foodCodes = filter.foodCodes,
                         showEmptyToast = true,
                     )
                 }
@@ -251,6 +281,15 @@ class HomeViewModel
                     currentSwLng = event.swLng
                     currentNeLat = event.neLat
                     currentNeLng = event.neLng
+                    currentZoom = event.zoom
+
+                    // 줌 레벨에 따라 마커/클러스터 실시간 전환
+                    _state.update {
+                        it.copy(
+                            pubMarkers = if (currentZoom > 13.0) it.pubMapItems.toMarkers() else emptyList(),
+                            pubClusters = if (currentZoom <= 13.0) it.pubMapItems.toClusters() else emptyList(),
+                        )
+                    }
                 }
 
                 is HomeContract.Event.OnPubMarkerClick ->
@@ -266,6 +305,9 @@ class HomeViewModel
                         selectedRegions = event.regions,
                         openNow = event.openNow,
                         businessDay = event.businessDay,
+                        facilityCodes = event.facilityCodes,
+                        themeCodes = event.themeCodes,
+                        foodCodes = event.foodCodes,
                     )
                     _state.update {
                         it.copy(
@@ -287,6 +329,9 @@ class HomeViewModel
                         teamId = event.teamIds.firstOrNull(),
                         openNow = event.openNow,
                         businessDay = event.businessDay,
+                        facilityCodes = event.facilityCodes,
+                        themeCodes = event.themeCodes,
+                        foodCodes = event.foodCodes,
                         showEmptyToast = true,
                     )
                 }
@@ -318,10 +363,53 @@ class HomeViewModel
 
                 is HomeContract.Event.OnQuickFilterClick -> {
                     val currentFilter = _state.value.filter
-                    val newFilter = when (event.filterKey) {
-                        "OPEN" -> currentFilter.copy(openNow = if (currentFilter.openNow == true) null else true)
-                        // TODO: 다른 필터 키 처리 (데이터 모델 확장에 따라)
-                        else -> currentFilter
+                    var newFilter = currentFilter
+
+                    when (event.filterKey) {
+                        "OPEN" -> {
+                            newFilter = currentFilter.copy(openNow = if (currentFilter.openNow == true) null else true)
+                        }
+                        "GROUP_SEAT" -> {
+                            val codes = if (currentFilter.facilityCodes?.contains("GROUP_SEAT") ==
+                                true
+                            ) {
+                                emptyList()
+                            } else {
+                                listOf("GROUP_SEAT")
+                            }
+                            newFilter = currentFilter.copy(facilityCodes = codes)
+                        }
+                        "PARKING" -> {
+                            val codes = if (currentFilter.facilityCodes?.contains("PARKING") ==
+                                true
+                            ) {
+                                emptyList()
+                            } else {
+                                listOf("PARKING")
+                            }
+                            newFilter = currentFilter.copy(facilityCodes = codes)
+                        }
+                        "WIDE_SPACE" -> {
+                            val codes = if (currentFilter.themeCodes?.contains("SPACIOUS_VIEW") ==
+                                true
+                            ) {
+                                emptyList()
+                            } else {
+                                listOf("SPACIOUS_VIEW")
+                            }
+                            newFilter = currentFilter.copy(themeCodes = codes)
+                        }
+                        "VARIOUS_DRINKS" -> {
+                            // 다중 선택 가능하지만 퀵필터에서는 토글 방식으로 예시 구현
+                            val codes = if (currentFilter.foodCodes?.isNotEmpty() ==
+                                true
+                            ) {
+                                emptyList()
+                            } else {
+                                listOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+                            }
+                            newFilter = currentFilter.copy(foodCodes = codes)
+                        }
                     }
 
                     _state.update { it.copy(filter = newFilter) }
@@ -329,8 +417,17 @@ class HomeViewModel
                         teamId = newFilter.selectedTeamIds.firstOrNull(),
                         openNow = newFilter.openNow,
                         businessDay = newFilter.businessDay,
+                        facilityCodes = newFilter.facilityCodes,
+                        themeCodes = newFilter.themeCodes,
+                        foodCodes = newFilter.foodCodes,
                         showEmptyToast = true,
                     )
+                }
+
+                HomeContract.Event.OnClusterClick -> {
+                    _state.update {
+                        it.copy(showPubListSheet = it.pubMapItems.isNotEmpty())
+                    }
                 }
             }
         }

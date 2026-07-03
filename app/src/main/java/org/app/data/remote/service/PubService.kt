@@ -35,6 +35,9 @@ interface PubService {
         @Query("teamId") teamId: Long? = null,
         @Query("openNow") openNow: Boolean? = null,
         @Query("businessDay") businessDay: String? = null,
+        @Query("facilityCodes") facilityCodes: List<String>? = null,
+        @Query("themeCodes") themeCodes: List<String>? = null,
+        @Query("foodCodes") foodCodes: List<String>? = null,
     ): BaseResponse<GetPubsMapResponse>
 
     @GET("/api/v1/pubs/{pubId}")

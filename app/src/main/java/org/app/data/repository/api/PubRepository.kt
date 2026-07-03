@@ -29,6 +29,9 @@ interface PubRepository {
         teamId: Long? = null,
         openNow: Boolean? = null,
         businessDay: String? = null,
+        facilityCodes: List<String>? = null,
+        themeCodes: List<String>? = null,
+        foodCodes: List<String>? = null,
     ): Result<List<PubMapItem>>
 
     suspend fun getPubDetail(pubId: Long): Result<PubDetail>

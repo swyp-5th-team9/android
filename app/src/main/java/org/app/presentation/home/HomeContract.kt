@@ -66,6 +66,7 @@ interface HomeContract {
             val swLng: Double,
             val neLat: Double,
             val neLng: Double,
+            val zoom: Double,
         ) : Event
 
         data class OnPubMarkerClick(
@@ -82,6 +83,9 @@ interface HomeContract {
             val regions: List<String>,
             val openNow: Boolean? = null,
             val businessDay: String? = null,
+            val facilityCodes: List<String>? = null,
+            val themeCodes: List<String>? = null,
+            val foodCodes: List<String>? = null,
         ) : Event
 
         data class OnKakaoMapClick(
@@ -99,6 +103,8 @@ interface HomeContract {
         data class OnQuickFilterClick(
             val filterKey: String,
         ) : Event
+
+        data object OnClusterClick : Event
     }
 
     sealed interface SideEffect {

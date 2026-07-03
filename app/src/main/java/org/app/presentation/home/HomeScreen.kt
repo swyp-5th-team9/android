@@ -2,7 +2,6 @@ package org.app.presentation.home
 
 import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -129,15 +128,17 @@ fun HomeScreen(
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
 
                 is HomeContract.SideEffect.OpenMap -> {
-                    try {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
-                    } catch (e: ActivityNotFoundException) {
-                        try {
-                            context.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(effect.webFallbackUrl)),
-                            )
-                        } catch (_: Exception) {
-                        }
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))
+                    val isAppInstalled = context.packageManager
+                        .queryIntentActivities(
+                            intent,
+                            PackageManager.MATCH_DEFAULT_ONLY,
+                        ).isNotEmpty()
+
+                    if (isAppInstalled) {
+                        context.startActivity(intent)
+                    } else {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.webFallbackUrl)))
                     }
                 }
             }
@@ -209,18 +210,19 @@ fun HomeScreen(
 
                         map.addOnCameraChangeListener { reason, animated ->
                             val bounds = map.contentBounds
+                            val zoom = map.cameraPosition.zoom
                             onEvent(
                                 HomeContract.Event.OnMapBoundsChanged(
                                     swLat = bounds.southWest.latitude,
                                     swLng = bounds.southWest.longitude,
                                     neLat = bounds.northEast.latitude,
                                     neLng = bounds.northEast.longitude,
+                                    zoom = zoom,
                                 ),
                             )
                         }
 
                         map.locationOverlay.setOnClickListener {
-                            // TODO: 내 위치 마커 클릭 시 동작
                             false
                         }
                     }
@@ -242,6 +244,9 @@ fun HomeScreen(
                         map = map,
                         clusters = state.pubClusters,
                         currentClusters = activeClusters,
+                        onClusterClick = {
+                            onEvent(HomeContract.Event.OnClusterClick)
+                        },
                     )
                 }
             },
@@ -372,6 +377,7 @@ private fun renderPubClusters(
     map: NaverMap,
     clusters: List<PubCluster>,
     currentClusters: MutableList<Marker>,
+    onClusterClick: () -> Unit,
 ) {
     currentClusters.forEach { it.map = null }
     currentClusters.clear()
@@ -381,6 +387,10 @@ private fun renderPubClusters(
             icon = clusterOverlayImage(context, cluster.count)
             anchor = PointF(0.5f, 0.5f)
             this.map = map
+            setOnClickListener {
+                onClusterClick()
+                true
+            }
         }
         currentClusters.add(marker)
     }

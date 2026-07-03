@@ -60,11 +60,24 @@ class PubRepositoryImpl
             teamId: Long?,
             openNow: Boolean?,
             businessDay: String?,
+            facilityCodes: List<String>?,
+            themeCodes: List<String>?,
+            foodCodes: List<String>?,
         ): Result<List<PubMapItem>> =
             suspendRunCatching {
                 pubRemoteDataSource
-                    .getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
-                    .getDataOrThrow()
+                    .getMapPubs(
+                        swLat,
+                        swLng,
+                        neLat,
+                        neLng,
+                        teamId,
+                        openNow,
+                        businessDay,
+                        facilityCodes,
+                        themeCodes,
+                        foodCodes,
+                    ).getDataOrThrow()
                     .toPubMapItems()
             }
 
