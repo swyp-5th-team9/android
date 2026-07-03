@@ -44,6 +44,8 @@ import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.FilterBottomSheetTab
+import org.app.presentation.home.pubfilter.CITIES
+import org.app.presentation.home.pubfilter.component.CityChip
 import org.app.presentation.home.pubfilter.component.PubFilterOptionChip
 import org.app.presentation.home.pubfilter.component.PubFilterSubRegionChip
 
@@ -303,17 +305,33 @@ private fun RegionFilterContent(
     onToggleRegion: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        REGIONS.forEach { (code, label) ->
-            PubFilterSubRegionChip(
-                label = label,
-                isSelected = code in selectedRegions,
-                onClick = { onToggleRegion(code) },
-            )
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            CITIES.forEach { city ->
+                CityChip(
+                    label = city.label,
+                    isSelected = city.id == "seoul",
+                    isEnabled = city.isEnabled,
+                    onClick = { /* MVP: 서울만 지원 */ },
+                )
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            REGIONS.forEach { (code, label) ->
+                PubFilterSubRegionChip(
+                    label = label,
+                    isSelected = code in selectedRegions,
+                    onClick = { onToggleRegion(code) },
+                )
+            }
         }
     }
 }
