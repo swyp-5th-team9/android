@@ -69,7 +69,7 @@ fun MoballFilterChip(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = if (isSelected) MoballTheme.colors.accentPrimary else Color.Unspecified,
             )
         }
 
