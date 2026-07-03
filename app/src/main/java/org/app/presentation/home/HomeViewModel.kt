@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.model.PubMapItem
+import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.PubRepository
 import org.app.data.repository.api.UserRepository
 import org.app.presentation.home.model.PubMarker
@@ -29,6 +30,7 @@ class HomeViewModel
     constructor(
         private val userRepository: UserRepository,
         private val pubRepository: PubRepository,
+        private val favoriteRepository: FavoriteRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow(HomeContract.State())
         val state = _state.asStateFlow()
@@ -45,6 +47,7 @@ class HomeViewModel
         init {
             loadUserFavoriteTeams()
             loadMapPubs()
+            loadFavoritePubIds()
         }
 
         fun refreshFavoriteTeams() = loadUserFavoriteTeams()
@@ -61,6 +64,16 @@ class HomeViewModel
                             )
                         }
                     }.onFailure { Timber.e("응원 구단 로드 실패: $it") }
+            }
+        }
+
+        private fun loadFavoritePubIds() {
+            viewModelScope.launch {
+                favoriteRepository
+                    .getFavorites()
+                    .onSuccess { items ->
+                        _state.update { it.copy(favoritePubIds = items.map { f -> f.pubId }.toSet()) }
+                    }.onFailure { Timber.e("찜 목록 로드 실패: $it") }
             }
         }
 
@@ -83,7 +96,13 @@ class HomeViewModel
                         businessDay = businessDay,
                     ).onSuccess { items ->
                         _state.update {
-                            it.copy(isLoading = false, pubMarkers = items.toMarkers(), pubClusters = emptyList())
+                            it.copy(
+                                isLoading = false,
+                                pubMapItems = items,
+                                pubMarkers = items.toMarkers(),
+                                pubClusters = emptyList(),
+                                showPubListSheet = items.isNotEmpty() && !it.showPubDetailSheet,
+                            )
                         }
                         if (showEmptyToast && items.isEmpty()) {
                             emit(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
@@ -91,6 +110,43 @@ class HomeViewModel
                     }.onFailure { error ->
                         Timber.e("지도 펍 로드 실패: $error")
                         _state.update { it.copy(isLoading = false) }
+                    }
+            }
+        }
+
+        private fun loadSelectedPubDetail(pubId: Long) {
+            viewModelScope.launch {
+                _state.update {
+                    it.copy(
+                        isPubDetailLoading = true,
+                        showPubDetailSheet = true,
+                        showPubListSheet = false,
+                    )
+                }
+
+                val detailResult = pubRepository.getPubDetail(pubId)
+                val favoriteResult = favoriteRepository.getFavorites()
+
+                detailResult
+                    .onSuccess { detail ->
+                        val favoriteItem = favoriteResult.getOrNull()?.find { it.pubId == pubId }
+                        _state.update {
+                            it.copy(
+                                isPubDetailLoading = false,
+                                selectedPubDetail = detail.copy(isWishlisted = favoriteItem != null),
+                                selectedPubFavoriteId = favoriteItem?.favoriteId,
+                            )
+                        }
+                    }.onFailure { error ->
+                        Timber.e("펍 상세 로드 실패: $error")
+                        _state.update {
+                            it.copy(
+                                isPubDetailLoading = false,
+                                showPubDetailSheet = false,
+                                showPubListSheet = it.pubMapItems.isNotEmpty(),
+                            )
+                        }
+                        emit(HomeContract.SideEffect.ShowToast("펍 정보를 불러오지 못했습니다."))
                     }
             }
         }
@@ -145,6 +201,51 @@ class HomeViewModel
                     )
                 }
 
+                HomeContract.Event.OnPubDetailSheetDismiss ->
+                    _state.update {
+                        it.copy(
+                            showPubDetailSheet = false,
+                            selectedPubDetail = null,
+                            selectedPubFavoriteId = null,
+                            isPubFavoriteLoading = false,
+                            showPubListSheet = it.pubMapItems.isNotEmpty(),
+                        )
+                    }
+
+                HomeContract.Event.OnPubListSheetDismiss ->
+                    _state.update { it.copy(showPubListSheet = false) }
+
+                HomeContract.Event.OnFavoriteClick -> {
+                    if (_state.value.isPubFavoriteLoading) return
+                    val detail = _state.value.selectedPubDetail ?: return
+                    if (detail.isWishlisted) {
+                        emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                        return
+                    }
+                    viewModelScope.launch {
+                        _state.update { it.copy(isPubFavoriteLoading = true) }
+                        favoriteRepository
+                            .addFavorite(detail.pubId)
+                            .onSuccess { newId ->
+                                _state.update {
+                                    it.copy(
+                                        isPubFavoriteLoading = false,
+                                        selectedPubFavoriteId = newId,
+                                        selectedPubDetail = detail.copy(
+                                            isWishlisted = true,
+                                            favoriteCount = detail.favoriteCount + 1,
+                                        ),
+                                        favoritePubIds = it.favoritePubIds + detail.pubId,
+                                    )
+                                }
+                                emit(HomeContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
+                            }.onFailure {
+                                _state.update { s -> s.copy(isPubFavoriteLoading = false) }
+                                emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                            }
+                    }
+                }
+
                 is HomeContract.Event.OnMapBoundsChanged -> {
                     currentSwLat = event.swLat
                     currentSwLng = event.swLng
@@ -153,7 +254,10 @@ class HomeViewModel
                 }
 
                 is HomeContract.Event.OnPubMarkerClick ->
-                    emit(HomeContract.SideEffect.NavigateToPubDetail(event.pubId))
+                    loadSelectedPubDetail(event.pubId.toLongOrNull() ?: return)
+
+                is HomeContract.Event.OnPubListItemClick ->
+                    loadSelectedPubDetail(event.pubId)
 
                 is HomeContract.Event.OnFilterApply -> {
                     val newFilter = _state.value.filter.copy(
@@ -183,6 +287,48 @@ class HomeViewModel
                         teamId = event.teamIds.firstOrNull(),
                         openNow = event.openNow,
                         businessDay = event.businessDay,
+                        showEmptyToast = true,
+                    )
+                }
+
+                is HomeContract.Event.OnKakaoMapClick -> {
+                    val kakaoFallback =
+                        "https://map.kakao.com/link/map/${event.name},${event.lat},${event.lng}"
+                    emit(
+                        HomeContract.SideEffect.OpenMap(
+                            url = "kakaomap://look?p=${event.lat},${event.lng}",
+                            appScheme = "kakaomap",
+                            webFallbackUrl = kakaoFallback,
+                        ),
+                    )
+                }
+
+                is HomeContract.Event.OnNaverMapClick -> {
+                    val naverUrl =
+                        "nmap://place?lat=${event.lat}&lng=${event.lng}" +
+                            "&name=${event.name}&appname=org.app"
+                    emit(
+                        HomeContract.SideEffect.OpenMap(
+                            url = naverUrl,
+                            appScheme = "nmap",
+                            webFallbackUrl = "https://map.naver.com/v5/search/${event.name}",
+                        ),
+                    )
+                }
+
+                is HomeContract.Event.OnQuickFilterClick -> {
+                    val currentFilter = _state.value.filter
+                    val newFilter = when (event.filterKey) {
+                        "OPEN" -> currentFilter.copy(openNow = if (currentFilter.openNow == true) null else true)
+                        // TODO: 다른 필터 키 처리 (데이터 모델 확장에 따라)
+                        else -> currentFilter
+                    }
+
+                    _state.update { it.copy(filter = newFilter) }
+                    loadMapPubs(
+                        teamId = newFilter.selectedTeamIds.firstOrNull(),
+                        openNow = newFilter.openNow,
+                        businessDay = newFilter.businessDay,
                         showEmptyToast = true,
                     )
                 }

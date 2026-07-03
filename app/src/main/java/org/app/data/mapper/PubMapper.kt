@@ -16,10 +16,6 @@ import org.app.presentation.pubdetail.model.PubDetail
 import org.app.presentation.pubdetail.model.PubMenu
 import org.app.presentation.pubdetail.model.PubStatus
 
-// ──────────────────────────────────────────────────────────────
-// 펍 목록
-// ──────────────────────────────────────────────────────────────
-
 fun GetPubsResponse.toPubPage(): PubPage =
     PubPage(
         content = content.map { it.toPubListItem() },
@@ -46,10 +42,6 @@ fun PubListItemResponse.toPubListItem(): PubListItem =
     )
 
 fun SupportedTeamResponse.toPubTeam(): PubTeam = PubTeam(teamId = teamId, shortName = shortName, name = name)
-
-// ──────────────────────────────────────────────────────────────
-// 펍 상세
-// ──────────────────────────────────────────────────────────────
 
 fun PubDetailResponse.toPubDetail(): PubDetail =
     PubDetail(
@@ -90,10 +82,6 @@ fun PubDetailResponse.toPubDetail(): PubDetail =
         },
     )
 
-// ──────────────────────────────────────────────────────────────
-// 지도 마커
-// ──────────────────────────────────────────────────────────────
-
 fun GetPubsMapResponse.toPubMapItems(): List<PubMapItem> = pubs.map { it.toPubMapItem() }
 
 fun PubMapItemResponse.toPubMapItem(): PubMapItem =
@@ -104,4 +92,11 @@ fun PubMapItemResponse.toPubMapItem(): PubMapItem =
         longitude = longitude,
         status = status,
         favoriteCount = favoriteCount,
+        imageUrls = imageUrls ?: emptyList(),
+        supportedTeams = supportedTeams ?: emptyList(),
+        facilityCodes = facilityCodes ?: emptyList(),
+        openTime = openTime,
+        closeTime = closeTime,
+        groupSeatMaxPeople = groupSeatMaxPeople,
+        capacityRange = capacityRange,
     )

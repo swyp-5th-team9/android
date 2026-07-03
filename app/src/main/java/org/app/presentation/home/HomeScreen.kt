@@ -2,10 +2,14 @@ package org.app.presentation.home
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
+import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +54,8 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
+import org.app.presentation.home.component.HomePubDetailBottomSheet
+import org.app.presentation.home.component.HomePubListBottomSheet
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
 import org.app.presentation.home.component.clusterOverlayImage
@@ -119,8 +125,20 @@ fun HomeScreen(
                     }
                 }
 
-                is HomeContract.SideEffect.ShowToast -> {
-                    // TODO: Toast show logic
+                is HomeContract.SideEffect.ShowToast ->
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+
+                is HomeContract.SideEffect.OpenMap -> {
+                    try {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
+                    } catch (e: ActivityNotFoundException) {
+                        try {
+                            context.startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(effect.webFallbackUrl)),
+                            )
+                        } catch (_: Exception) {
+                        }
+                    }
                 }
             }
         }
@@ -289,6 +307,35 @@ fun HomeScreen(
                     )
                 },
                 onDismiss = { onEvent(HomeContract.Event.OnFilterBottomSheetDismiss) },
+            )
+        }
+
+        if (state.showPubListSheet && !state.showPubDetailSheet) {
+            HomePubListBottomSheet(
+                pubItems = state.pubMapItems,
+                favoritePubIds = state.favoritePubIds,
+                onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
+                onFilterClick = { filterKey -> onEvent(HomeContract.Event.OnQuickFilterClick(filterKey)) },
+                onDismiss = { onEvent(HomeContract.Event.OnPubListSheetDismiss) },
+            )
+        }
+
+        if (state.showPubDetailSheet) {
+            HomePubDetailBottomSheet(
+                detail = state.selectedPubDetail,
+                isLoading = state.isPubDetailLoading,
+                isFavoriteLoading = state.isPubFavoriteLoading,
+                onFavoriteClick = { onEvent(HomeContract.Event.OnFavoriteClick) },
+                onKakaoMapClick = {
+                    val d = state.selectedPubDetail ?: return@HomePubDetailBottomSheet
+                    onEvent(HomeContract.Event.OnKakaoMapClick(d.latitude, d.longitude, d.name))
+                },
+                onNaverMapClick = {
+                    val d = state.selectedPubDetail ?: return@HomePubDetailBottomSheet
+                    onEvent(HomeContract.Event.OnNaverMapClick(d.latitude, d.longitude, d.name))
+                },
+                onCardClick = { pubId -> onNavigateToPubDetail(pubId.toString()) },
+                onDismiss = { onEvent(HomeContract.Event.OnPubDetailSheetDismiss) },
             )
         }
     }
