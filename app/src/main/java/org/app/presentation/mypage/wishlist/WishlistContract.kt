@@ -21,6 +21,10 @@ interface WishlistContract {
             val favoriteId: Long,
         ) : Event
 
+        data class OnHeartClick(
+            val favoriteId: Long,
+        ) : Event
+
         data class OnPubClick(
             val pubId: Long,
         ) : Event

@@ -35,6 +35,7 @@ fun WishlistItemCard(
     isEditMode: Boolean,
     isSelected: Boolean,
     onCardClick: () -> Unit,
+    onHeartClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -71,7 +72,10 @@ fun WishlistItemCard(
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 6.dp, bottom = 6.dp),
+                    .padding(end = 6.dp, bottom = 6.dp)
+                    .noRippleClickable {
+                        if (!isEditMode) onHeartClick()
+                    },
             )
 
             if (isEditMode) {
@@ -120,6 +124,7 @@ private fun WishlistItemCardEditSelectedPreview() {
             isEditMode = true,
             isSelected = true,
             onCardClick = {},
+            onHeartClick = {},
             modifier = Modifier.size(124.dp, 172.dp),
         )
     }
@@ -134,6 +139,7 @@ private fun WishlistItemCardEditUnselectedPreview() {
             isEditMode = true,
             isSelected = false,
             onCardClick = {},
+            onHeartClick = {},
             modifier = Modifier.size(124.dp, 172.dp),
         )
     }

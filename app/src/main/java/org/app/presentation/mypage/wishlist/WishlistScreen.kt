@@ -82,6 +82,7 @@ fun WishlistRoute(
         onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
         onDeleteClick = { showDeleteDialog = true },
         onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
+        onHeartClick = { favoriteId -> viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId)) },
         modifier = modifier,
     )
 
@@ -107,6 +108,7 @@ private fun WishlistScreen(
     onCancelEdit: () -> Unit,
     onDeleteClick: () -> Unit,
     onCardClick: (pubId: Long) -> Unit,
+    onHeartClick: (favoriteId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -175,6 +177,7 @@ private fun WishlistScreen(
                                     isEditMode = state.isEditMode,
                                     isSelected = item.favoriteId in state.selectedIds,
                                     onCardClick = { onCardClick(item.pubId) },
+                                    onHeartClick = { onHeartClick(item.favoriteId) },
                                     modifier = Modifier.weight(1f),
                                 )
                             }
@@ -210,6 +213,7 @@ private fun WishlistScreenEmptyPreview() {
             onCancelEdit = {},
             onDeleteClick = {},
             onCardClick = {},
+            onHeartClick = {},
         )
     }
 }
@@ -233,6 +237,7 @@ private fun WishlistScreenPreview() {
             onCancelEdit = {},
             onDeleteClick = {},
             onCardClick = {},
+            onHeartClick = {},
         )
     }
 }
@@ -256,6 +261,7 @@ private fun WishlistScreenEditPreview() {
             onCancelEdit = {},
             onDeleteClick = {},
             onCardClick = {},
+            onHeartClick = {},
         )
     }
 }

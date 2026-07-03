@@ -76,6 +76,23 @@ class WishlistViewModel
                     }
                 }
 
+                is WishlistContract.Event.OnHeartClick -> {
+                    if (_state.value.isEditMode) return
+                    viewModelScope.launch {
+                        favoriteRepository
+                            .deleteFavorites(listOf(event.favoriteId))
+                            .onSuccess {
+                                _state.update { current ->
+                                    current.copy(
+                                        items = current.items.filter { it.favoriteId != event.favoriteId },
+                                    )
+                                }
+                            }.onFailure { e ->
+                                _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
+                            }
+                    }
+                }
+
                 is WishlistContract.Event.OnPubClick -> {
                     if (_state.value.isEditMode) {
                         val favoriteId = _state.value.items
