@@ -1,14 +1,9 @@
 package org.app.presentation.mypage.withdraw
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.AuthRepository
 import org.app.data.repository.api.UserRepository
 import timber.log.Timber
@@ -20,14 +15,10 @@ class WithdrawViewModel
     constructor(
         private val authRepository: AuthRepository,
         private val userRepository: UserRepository,
-    ) : ViewModel() {
-        private val _state = MutableStateFlow(WithdrawContract.State())
-        val state = _state.asStateFlow()
-
-        private val _sideEffect = MutableSharedFlow<WithdrawContract.SideEffect>()
-        val sideEffect = _sideEffect.asSharedFlow()
-
-        fun onEvent(event: WithdrawContract.Event) {
+    ) : BaseViewModel<WithdrawContract.State, WithdrawContract.Event, WithdrawContract.SideEffect>(
+            WithdrawContract.State(),
+        ) {
+        override fun onEvent(event: WithdrawContract.Event) {
             when (event) {
                 is WithdrawContract.Event.OnReasonSelected -> selectReason(event.reason)
                 is WithdrawContract.Event.OnEtcTextChanged -> onEtcTextChange(event.text)
@@ -38,50 +29,48 @@ class WithdrawViewModel
         }
 
         private fun selectReason(reason: WithdrawReason) {
-            _state.update { it.copy(selectedReason = reason) }
+            setState { copy(selectedReason = reason) }
         }
 
         private fun onEtcTextChange(text: String) {
             val error = if (text.isBlank()) "내용을 입력해 주세요." else null
-            _state.update { it.copy(etcText = text, etcError = error) }
+            setState { copy(etcText = text, etcError = error) }
         }
 
         private fun toggleAgreement() {
-            _state.update { it.copy(isAgreed = !it.isAgreed) }
+            setState { copy(isAgreed = !isAgreed) }
         }
 
         private fun withdraw() {
-            if (_state.value.isLoading) return
-            val reason = _state.value.selectedReason ?: return
-            if (reason == WithdrawReason.ETC && _state.value.etcText.isBlank()) {
-                _state.update { it.copy(etcError = "내용을 입력해 주세요.") }
+            if (currentState.isLoading) return
+            val reason = currentState.selectedReason ?: return
+            if (reason == WithdrawReason.ETC && currentState.etcText.isBlank()) {
+                setState { copy(etcError = "내용을 입력해 주세요.") }
                 return
             }
             viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
+                setState { copy(isLoading = true) }
                 val reasonCode = reason.toApiCode()
-                val detail = if (reason == WithdrawReason.ETC) _state.value.etcText.trim() else null
+                val detail = if (reason == WithdrawReason.ETC) currentState.etcText.trim() else null
 
                 userRepository
                     .deleteUser(reasonCode = reasonCode, detail = detail)
                     .onSuccess {
                         // 소셜 플랫폼 탈퇴 처리 (로컬 토큰 제거 포함)
                         authRepository.withdraw()
-                        _state.update { it.copy(isLoading = false) }
-                        _sideEffect.emit(WithdrawContract.SideEffect.ShowSuccessDialog)
+                        setState { copy(isLoading = false) }
+                        postSideEffect(WithdrawContract.SideEffect.ShowSuccessDialog)
                         Timber.d("회원 탈퇴 성공")
                     }.onFailure { error ->
-                        _state.update { it.copy(isLoading = false) }
-                        _sideEffect.emit(WithdrawContract.SideEffect.ShowToast("탈퇴 실패: ${error.message}"))
+                        setState { copy(isLoading = false) }
+                        postSideEffect(WithdrawContract.SideEffect.ShowToast("탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요."))
                         Timber.e("회원 탈퇴 실패: $error")
                     }
             }
         }
 
         private fun onWithdrawConfirm() {
-            viewModelScope.launch {
-                _sideEffect.emit(WithdrawContract.SideEffect.NavigateToLogin)
-            }
+            postSideEffect(WithdrawContract.SideEffect.NavigateToLogin)
         }
     }
 

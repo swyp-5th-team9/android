@@ -31,10 +31,10 @@ import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
-import org.app.presentation.pubdetail.model.BusinessHour
-import org.app.presentation.pubdetail.model.KboTeam
+import org.app.data.model.BusinessHour
+import org.app.data.model.KboTeam
+import org.app.data.model.PubStatus
 import org.app.presentation.pubdetail.model.KboTeamType
-import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalDate
 import java.time.LocalTime
 

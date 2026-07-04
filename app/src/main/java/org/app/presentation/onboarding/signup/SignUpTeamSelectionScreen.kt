@@ -16,15 +16,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -65,23 +65,21 @@ fun SignUpTeamSelectionRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                SignUpContract.SideEffect.NavigateToComplete -> {
-                    navigateToComplete()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            SignUpContract.SideEffect.NavigateToComplete -> {
+                navigateToComplete()
+            }
 
-                SignUpContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+            SignUpContract.SideEffect.NavigateBack -> {
+                onBack()
+            }
 
-                is SignUpContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is SignUpContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+            }
 
-                else -> {
-                }
+            else -> {
             }
         }
     }

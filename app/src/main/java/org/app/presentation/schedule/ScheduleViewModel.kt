@@ -1,15 +1,10 @@
 package org.app.presentation.schedule
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.MatchRepository
 import org.app.data.repository.api.TeamRepository
 import java.time.YearMonth
@@ -21,66 +16,48 @@ class ScheduleViewModel
     constructor(
         private val teamRepository: TeamRepository,
         private val matchRepository: MatchRepository,
-    ) : ViewModel() {
-        private val _state = MutableStateFlow(ScheduleContract.State())
-        val state = _state.asStateFlow()
-
-        private val _sideEffect = MutableSharedFlow<ScheduleContract.SideEffect>()
-        val sideEffect = _sideEffect.asSharedFlow()
+    ) : BaseViewModel<ScheduleContract.State, ScheduleContract.Event, ScheduleContract.SideEffect>(
+            ScheduleContract.State(),
+        ) {
+        private var loadGamesJob: Job? = null
 
         init {
             loadTeams()
-            loadGames(_state.value.currentMonth)
+            loadGames(currentState.currentMonth)
         }
 
-        private fun loadTeams() {
-            viewModelScope.launch {
-                teamRepository
-                    .getTeams(sportType = "KBO")
-                    .onSuccess { teams ->
-                        _state.update { it.copy(teams = teams) }
-                    }.onFailure {
-                        emit(ScheduleContract.SideEffect.ShowToast("팀 정보를 불러오는데 실패했습니다."))
-                    }
-            }
-        }
-
-        private fun emit(effect: ScheduleContract.SideEffect) {
-            viewModelScope.launch { _sideEffect.emit(effect) }
-        }
-
-        fun onEvent(event: ScheduleContract.Event) {
+        override fun onEvent(event: ScheduleContract.Event) {
             when (event) {
                 is ScheduleContract.Event.OnDateSelected -> {
-                    val prevMonth = _state.value.currentMonth
-                    _state.update { it.copy(selectedDate = event.date) }
+                    val prevMonth = currentState.currentMonth
+                    setState { copy(selectedDate = event.date) }
                     val newMonth = YearMonth.from(event.date)
                     if (newMonth != prevMonth) loadGames(newMonth)
                 }
 
                 ScheduleContract.Event.OnPrevWeekClick -> {
-                    val prev = _state.value
+                    val prev = currentState
                     val newDate = prev.selectedDate.minusWeeks(1)
-                    _state.update { it.copy(selectedDate = newDate) }
+                    setState { copy(selectedDate = newDate) }
                     val newMonth = YearMonth.from(newDate)
                     if (newMonth != prev.currentMonth) loadGames(newMonth)
                 }
 
                 ScheduleContract.Event.OnNextWeekClick -> {
-                    val prev = _state.value
+                    val prev = currentState
                     val newDate = prev.selectedDate.plusWeeks(1)
-                    _state.update { it.copy(selectedDate = newDate) }
+                    setState { copy(selectedDate = newDate) }
                     val newMonth = YearMonth.from(newDate)
                     if (newMonth != prev.currentMonth) loadGames(newMonth)
                 }
 
                 ScheduleContract.Event.OnCalendarClick -> {
-                    _state.update { it.copy(showCalendarDialog = true) }
+                    setState { copy(showCalendarDialog = true) }
                 }
 
                 is ScheduleContract.Event.OnDatePicked -> {
-                    _state.update {
-                        it.copy(
+                    setState {
+                        copy(
                             selectedDate = event.date,
                             showCalendarDialog = false,
                         )
@@ -89,31 +66,41 @@ class ScheduleViewModel
                 }
 
                 ScheduleContract.Event.OnCalendarDismiss -> {
-                    _state.update { it.copy(showCalendarDialog = false) }
+                    setState { copy(showCalendarDialog = false) }
                 }
 
                 is ScheduleContract.Event.OnTeamSelected -> {
-                    _state.update { it.copy(selectedTeamId = event.teamId) }
+                    setState { copy(selectedTeamId = event.teamId) }
                 }
             }
         }
 
-        private var loadGamesJob: Job? = null
+        private fun loadTeams() {
+            viewModelScope.launch {
+                teamRepository
+                    .getTeams(sportType = "KBO")
+                    .onSuccess { teams ->
+                        setState { copy(teams = teams) }
+                    }.onFailure {
+                        postSideEffect(ScheduleContract.SideEffect.ShowToast("팀 정보를 불러오는데 실패했습니다."))
+                    }
+            }
+        }
 
         private fun loadGames(yearMonth: YearMonth) {
             loadGamesJob?.cancel()
             loadGamesJob = viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
+                setState { copy(isLoading = true) }
                 matchRepository
                     .getMatches(
                         sportType = "KBO",
                         from = yearMonth.atDay(1).toString(),
                         to = yearMonth.atEndOfMonth().toString(),
                     ).onSuccess { games ->
-                        _state.update { it.copy(games = games, isLoading = false) }
+                        setState { copy(games = games, isLoading = false) }
                     }.onFailure {
-                        _state.update { it.copy(isLoading = false) }
-                        emit(ScheduleContract.SideEffect.ShowToast("경기 일정을 불러오는데 실패했습니다."))
+                        setState { copy(isLoading = false) }
+                        postSideEffect(ScheduleContract.SideEffect.ShowToast("경기 일정을 불러오는데 실패했습니다."))
                     }
             }
         }

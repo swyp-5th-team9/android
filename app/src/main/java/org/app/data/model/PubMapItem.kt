@@ -1,6 +1,6 @@
 package org.app.data.model
 
-import org.app.presentation.pubdetail.model.PubStatus
+import org.app.data.model.PubStatus
 import java.time.LocalTime
 
 data class PubMapItem(

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.component.textfield.MoballLineTextField
@@ -72,16 +73,14 @@ fun EditProfileRoute(
             .collect { viewModel.onEvent(EditProfileContract.Event.OnNicknameChange(it)) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                EditProfileContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            EditProfileContract.SideEffect.NavigateBack -> {
+                onBack()
+            }
 
-                is EditProfileContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is EditProfileContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

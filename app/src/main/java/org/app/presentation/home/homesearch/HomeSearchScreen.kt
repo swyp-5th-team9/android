@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.SearchDetailTextField
 import org.app.presentation.home.component.SearchListItemTextField
@@ -45,13 +46,11 @@ fun HomeSearchRoute(
             .collect { viewModel.onEvent(HomeSearchContract.Event.OnQueryChange(it)) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                HomeSearchContract.SideEffect.NavigateBack -> onBack()
-                is HomeSearchContract.SideEffect.NavigateToPubDetail ->
-                    onNavigateToPubDetail(effect.pubId)
-            }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            HomeSearchContract.SideEffect.NavigateBack -> onBack()
+            is HomeSearchContract.SideEffect.NavigateToPubDetail ->
+                onNavigateToPubDetail(effect.pubId)
         }
     }
 

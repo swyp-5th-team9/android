@@ -110,9 +110,10 @@ fun HomeFilterBottomSheet(
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
-    val selectedTeamIds = remember { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
-    val selectedRegions = remember { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
-    var currentTab by remember { mutableStateOf(initialTab) }
+    // initial* 값이 바뀌면 편집 상태를 재초기화하도록 key를 명시한다.
+    val selectedTeamIds = remember(initialTeamIds) { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
+    val selectedRegions = remember(initialRegions) { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
+    var currentTab by remember(initialTab) { mutableStateOf(initialTab) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,

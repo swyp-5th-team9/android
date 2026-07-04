@@ -4,12 +4,12 @@ import org.app.core.util.suspendRunCatching
 import org.app.data.mapper.toPubDetail
 import org.app.data.mapper.toPubMapItems
 import org.app.data.mapper.toPubPage
+import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubPage
 import org.app.data.remote.datasource.api.PubRemoteDataSource
 import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.PubRepository
-import org.app.presentation.pubdetail.model.PubDetail
 import javax.inject.Inject
 
 class PubRepositoryImpl

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.textfield.MoballLineTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -44,23 +45,21 @@ fun SignUpNicknameRoute(
         viewModel.onEvent(SignUpContract.Event.OnNicknameChanged(textFieldState.text.toString()))
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                is SignUpContract.SideEffect.NavigateToTeamSelection -> {
-                    navigateToTeamSelection(effect.nickname)
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            is SignUpContract.SideEffect.NavigateToTeamSelection -> {
+                navigateToTeamSelection(effect.nickname)
+            }
 
-                SignUpContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+            SignUpContract.SideEffect.NavigateBack -> {
+                onBack()
+            }
 
-                is SignUpContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is SignUpContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+            }
 
-                else -> {
-                }
+            else -> {
             }
         }
     }

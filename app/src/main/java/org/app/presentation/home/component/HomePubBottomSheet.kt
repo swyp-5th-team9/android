@@ -45,13 +45,13 @@ import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
+import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
+import org.app.data.model.PubStatus
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
 import org.app.presentation.pubdetail.model.KboTeamType
-import org.app.presentation.pubdetail.model.PubDetail
-import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -609,7 +609,7 @@ private fun HomePubDetailBottomSheetPreview() {
         description = "야구와 함께하는 즐거운 시간",
         imageUrls = listOf(""),
         teams = listOf(
-            org.app.presentation.pubdetail.model
+            org.app.data.model
                 .KboTeam(9L, "롯데", "롯데 자이언츠"),
         ),
         facilityCodes = listOf("parking", "group_seat"),
@@ -617,7 +617,7 @@ private fun HomePubDetailBottomSheetPreview() {
         themeCodes = emptyList(),
         foodCodes = emptyList(),
         businessHours = listOf(
-            org.app.presentation.pubdetail.model.BusinessHour(
+            org.app.data.model.BusinessHour(
                 LocalDate.now().dayOfWeek.value,
                 LocalTime.of(8, 0),
                 LocalTime.of(0, 0),

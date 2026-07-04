@@ -1,15 +1,16 @@
 package org.app.presentation.home
 
+import org.app.data.model.PubDetail
 import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
-import org.app.presentation.pubdetail.model.PubDetail
 
 interface HomeContract {
     data class State(
         val isLoading: Boolean = false,
+        val zoom: Double = DEFAULT_ZOOM,
         val pubMarkers: List<PubMarker> = emptyList(),
         val pubClusters: List<PubCluster> = emptyList(),
         val pubMapItems: List<PubMapItem> = emptyList(),
@@ -40,6 +41,10 @@ interface HomeContract {
 
         val regionChipLabel: String
             get() = filter.regionChipLabel
+
+        companion object {
+            const val DEFAULT_ZOOM = 14.0
+        }
     }
 
     sealed interface Event {
@@ -55,8 +60,6 @@ interface HomeContract {
 
         data object OnReportClick : Event
 
-        data object OnMyLocationClick : Event
-
         data object OnRegionSearchClick : Event
 
         data object OnPubDetailSheetDismiss : Event
@@ -64,6 +67,9 @@ interface HomeContract {
         data object OnPubListSheetDismiss : Event
 
         data object OnFavoriteClick : Event
+
+        /** 화면 재진입(ON_RESUME) 시 응원 구단·찜 목록 갱신 */
+        data object OnRefresh : Event
 
         data class OnMapBoundsChanged(
             val swLat: Double,
@@ -82,6 +88,10 @@ interface HomeContract {
         ) : Event
 
         data class OnPubListFavoriteClick(
+            val pubId: Long,
+        ) : Event
+
+        data class OnPubDetailCardClick(
             val pubId: Long,
         ) : Event
 

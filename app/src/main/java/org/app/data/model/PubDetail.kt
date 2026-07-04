@@ -1,4 +1,4 @@
-package org.app.presentation.pubdetail.model
+package org.app.data.model
 
 import java.time.LocalTime
 

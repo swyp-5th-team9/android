@@ -22,15 +22,14 @@ interface MyPageContract {
 
         data object OnLogoutClick : Event
 
-        data object OnAddTeamClick : Event
-
         data class OnApplyTeams(
             val teams: List<String>,
         ) : Event
 
-        data object OnTeamSelectDismiss : Event
-
         data object OnCopyEmailClick : Event
+
+        /** 화면 재진입(ON_RESUME) 시 내 정보 갱신 */
+        data object OnRefresh : Event
 
         data class OnPubClick(
             val pubId: String,

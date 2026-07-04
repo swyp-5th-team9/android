@@ -1,8 +1,8 @@
 package org.app.data.repository.api
 
+import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubPage
-import org.app.presentation.pubdetail.model.PubDetail
 
 interface PubRepository {
     suspend fun getPubs(

@@ -47,9 +47,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.UrlImage
@@ -93,18 +94,16 @@ fun ReportRoute(
             .collect { viewModel.onEvent(ReportContract.Event.OnDetailTextChanged(it)) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                ReportContract.SideEffect.NavigateBack -> onBack()
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            ReportContract.SideEffect.NavigateBack -> onBack()
 
-                ReportContract.SideEffect.ShowSuccessDialog -> {
-                    showSuccessDialog = true
-                }
+            ReportContract.SideEffect.ShowSuccessDialog -> {
+                showSuccessDialog = true
+            }
 
-                is ReportContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is ReportContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

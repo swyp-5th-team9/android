@@ -21,7 +21,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,6 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import kotlinx.coroutines.launch
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -68,18 +68,16 @@ fun PubFilterRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                PubFilterContract.SideEffect.NavigateBack -> onBack()
-                is PubFilterContract.SideEffect.ApplyFilter -> {
-                    onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
-                    onBack()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            PubFilterContract.SideEffect.NavigateBack -> onBack()
+            is PubFilterContract.SideEffect.ApplyFilter -> {
+                onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
+                onBack()
+            }
 
-                is PubFilterContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is PubFilterContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

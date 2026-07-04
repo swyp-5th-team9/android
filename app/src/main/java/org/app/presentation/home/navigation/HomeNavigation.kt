@@ -40,8 +40,7 @@ fun NavGraphBuilder.homeGraph(
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
-                        homeViewModel.refreshFavoriteTeams()
-                        homeViewModel.refreshFavorites()
+                        homeViewModel.onEvent(HomeContract.Event.OnRefresh)
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)

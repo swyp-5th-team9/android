@@ -42,7 +42,7 @@ class KakaoLoginManager
                         continuation.resumeWithException(error)
                         return@loginWithKakaoTalk
                     } else if (token != null) {
-                        Timber.d("[Kakao] KakaoTalk SDK 액세스토큰: ${token.accessToken}")
+                        Timber.d("[Kakao] KakaoTalk SDK 로그인 성공")
                         continuation.resume(token.accessToken)
                     }
                 }
@@ -56,7 +56,7 @@ class KakaoLoginManager
                         continuation.resumeWithException(error)
                         return@loginWithKakaoAccount
                     } else if (token != null) {
-                        Timber.d("[Kakao] 카카오계정 SDK 액세스토큰: ${token.accessToken}")
+                        Timber.d("[Kakao] 카카오계정 SDK 로그인 성공")
                         continuation.resume(token.accessToken)
                     }
                 }

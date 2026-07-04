@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +45,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import kotlinx.coroutines.launch
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
@@ -79,43 +79,41 @@ fun MyPageRoute(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.refresh()
+                viewModel.onEvent(MyPageContract.Event.OnRefresh)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                MyPageContract.SideEffect.NavigateToLogin -> {
-                    navigateToLogin()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            MyPageContract.SideEffect.NavigateToLogin -> {
+                navigateToLogin()
+            }
 
-                MyPageContract.SideEffect.NavigateToEditProfile -> {
-                    navigateToEditProfile()
-                }
+            MyPageContract.SideEffect.NavigateToEditProfile -> {
+                navigateToEditProfile()
+            }
 
-                MyPageContract.SideEffect.NavigateToReport -> {
-                    navigateToReport()
-                }
+            MyPageContract.SideEffect.NavigateToReport -> {
+                navigateToReport()
+            }
 
-                MyPageContract.SideEffect.NavigateToWithdraw -> {
-                    navigateToWithdraw()
-                }
+            MyPageContract.SideEffect.NavigateToWithdraw -> {
+                navigateToWithdraw()
+            }
 
-                MyPageContract.SideEffect.NavigateToWishlist -> {
-                    navigateToWishlist()
-                }
+            MyPageContract.SideEffect.NavigateToWishlist -> {
+                navigateToWishlist()
+            }
 
-                is MyPageContract.SideEffect.NavigateToPubDetail -> {
-                    navigateToPubDetail(effect.pubId)
-                }
+            is MyPageContract.SideEffect.NavigateToPubDetail -> {
+                navigateToPubDetail(effect.pubId)
+            }
 
-                is MyPageContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is MyPageContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

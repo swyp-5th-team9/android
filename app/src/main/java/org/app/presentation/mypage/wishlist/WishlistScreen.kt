@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -54,23 +54,21 @@ fun WishlistRoute(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.refresh()
+                viewModel.onEvent(WishlistContract.Event.OnRefresh)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                WishlistContract.SideEffect.NavigateBack -> onBack()
-                is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
-                is WishlistContract.SideEffect.ShowToast -> {
-                    android.widget.Toast
-                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
-                        .show()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            WishlistContract.SideEffect.NavigateBack -> onBack()
+            is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
+            is WishlistContract.SideEffect.ShowToast -> {
+                android.widget.Toast
+                    .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

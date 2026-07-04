@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
@@ -60,24 +61,22 @@ fun WithdrawRoute(
             .collect { viewModel.onEvent(WithdrawContract.Event.OnEtcTextChanged(it)) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                WithdrawContract.SideEffect.NavigateToLogin -> {
-                    navigateToLogin()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            WithdrawContract.SideEffect.NavigateToLogin -> {
+                navigateToLogin()
+            }
 
-                WithdrawContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+            WithdrawContract.SideEffect.NavigateBack -> {
+                onBack()
+            }
 
-                WithdrawContract.SideEffect.ShowSuccessDialog -> {
-                    showSuccessDialog = true
-                }
+            WithdrawContract.SideEffect.ShowSuccessDialog -> {
+                showSuccessDialog = true
+            }
 
-                is WithdrawContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is WithdrawContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
