@@ -2,7 +2,6 @@ package org.app.presentation.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -202,7 +201,7 @@ private fun PubListItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .noRippleClickable(onClick = onClick)
             .padding(16.dp),
     ) {
         Row(
@@ -361,7 +360,7 @@ private fun PubDetailContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onCardClick(detail.pubId) }
+                    .noRippleClickable { onCardClick(detail.pubId) }
                     .padding(horizontal = 16.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {

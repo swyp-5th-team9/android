@@ -3,7 +3,6 @@ package org.app.presentation.mypage
 import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,6 +49,7 @@ import kotlinx.coroutines.launch
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.component.MyPageAddSportsCard
 import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
@@ -243,7 +243,7 @@ private fun MyPageScreen(
                         textAlign = TextAlign.End,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
+                            .noRippleClickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
                         textDecoration = TextDecoration.Underline,
                     )
 
@@ -252,7 +252,7 @@ private fun MyPageScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onCopyEmail(email) },
+                            .noRippleClickable { onCopyEmail(email) },
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {

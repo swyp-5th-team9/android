@@ -2,7 +2,6 @@ package org.app.presentation.mypage.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 
 @Composable
 fun MyPageProfileCard(
@@ -61,7 +61,7 @@ fun MyPageProfileCard(
                         width = 1.dp,
                         color = MoballTheme.colors.borderNormal,
                         shape = RoundedCornerShape(24.dp),
-                    ).clickable { onEditProfileClick() }
+                    ).noRippleClickable { onEditProfileClick() }
                     .padding(horizontal = 8.dp, vertical = 6.dp),
             ) {
                 Text(
