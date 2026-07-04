@@ -53,6 +53,8 @@ class HomeViewModel
 
         fun refreshFavoriteTeams() = loadUserFavoriteTeams()
 
+        fun refreshFavorites() = loadFavoritePubIds()
+
         private fun loadUserFavoriteTeams() {
             viewModelScope.launch {
                 userRepository
@@ -73,7 +75,21 @@ class HomeViewModel
                 favoriteRepository
                     .getFavorites()
                     .onSuccess { items ->
-                        _state.update { it.copy(favoritePubIds = items.map { f -> f.pubId }.toSet()) }
+                        val idMap = items.associate { it.pubId to it.favoriteId }
+                        _state.update {
+                            it.copy(
+                                favoritePubIds = idMap.keys,
+                                favoriteIdMap = idMap,
+                                pubMarkers = if (currentZoom >
+                                    13.0
+                                ) {
+                                    it.pubMapItems.toMarkers(idMap.keys)
+                                } else {
+                                    emptyList()
+                                },
+                                pubClusters = if (currentZoom <= 13.0) it.pubMapItems.toClusters() else emptyList(),
+                            )
+                        }
                     }.onFailure { Timber.e("찜 목록 로드 실패: $it") }
             }
         }
@@ -106,7 +122,13 @@ class HomeViewModel
                             it.copy(
                                 isLoading = false,
                                 pubMapItems = items,
-                                pubMarkers = if (currentZoom > 13.0) items.toMarkers() else emptyList(),
+                                pubMarkers = if (currentZoom >
+                                    13.0
+                                ) {
+                                    items.toMarkers(it.favoritePubIds)
+                                } else {
+                                    emptyList()
+                                },
                                 pubClusters = if (currentZoom <= 13.0) items.toClusters() else emptyList(),
                             )
                         }
@@ -131,16 +153,14 @@ class HomeViewModel
                 }
 
                 val detailResult = pubRepository.getPubDetail(pubId)
-                val favoriteResult = favoriteRepository.getFavorites()
 
                 detailResult
                     .onSuccess { detail ->
-                        val favoriteItem = favoriteResult.getOrNull()?.find { it.pubId == pubId }
+                        val isWishlisted = _state.value.favoritePubIds.contains(pubId)
                         _state.update {
                             it.copy(
                                 isPubDetailLoading = false,
-                                selectedPubDetail = detail.copy(isWishlisted = favoriteItem != null),
-                                selectedPubFavoriteId = favoriteItem?.favoriteId,
+                                selectedPubDetail = detail.copy(isWishlisted = isWishlisted),
                             )
                         }
                     }.onFailure { error ->
@@ -157,24 +177,21 @@ class HomeViewModel
             }
         }
 
-        private fun List<PubMapItem>.toMarkers(): List<PubMarker> =
+        private fun List<PubMapItem>.toMarkers(favoriteIds: Set<Long>): List<PubMarker> =
             map { item ->
+                val isFavorite = item.pubId in favoriteIds
                 PubMarker(
                     pubId = item.pubId.toString(),
                     name = item.name,
                     latitude = item.latitude,
                     longitude = item.longitude,
-                    type = PubMarkerType.MATCH,
-                    isFavorite = false,
+                    type = if (isFavorite) PubMarkerType.FAVORITE else PubMarkerType.MATCH,
+                    isFavorite = isFavorite,
                 )
             }
 
         private fun List<PubMapItem>.toClusters(): List<org.app.presentation.home.model.PubCluster> {
             if (isEmpty()) return emptyList()
-
-            // 단순화를 위해 지역(Region)별로 그룹화하여 클러스터 생성
-            // 실제 구현 시에는 좌표 기반의 그리드 클러스터링 알고리즘이 권장되나,
-            // 현재 요구사항상 지역별 배지가 보이는 형태이므로 시(구) 단위로 묶음
 
             // 1. 위경도 오차범위 내의 펍들을 하나로 묶음 (그리드 방식)
             val gridSize = 0.05 // 클러스터링 범위 (줌 레벨에 따라 조정 가능)
@@ -186,6 +203,7 @@ class HomeViewModel
                     latitude = group.map { it.latitude }.average(),
                     longitude = group.map { it.longitude }.average(),
                     count = group.size,
+                    items = group,
                 )
             }
         }
@@ -238,41 +256,131 @@ class HomeViewModel
                             selectedPubDetail = null,
                             selectedPubFavoriteId = null,
                             isPubFavoriteLoading = false,
-                            showPubListSheet = it.pubMapItems.isNotEmpty(),
                         )
                     }
 
                 HomeContract.Event.OnPubListSheetDismiss ->
-                    _state.update { it.copy(showPubListSheet = false) }
+                    _state.update { it.copy(showPubListSheet = false, selectedPubList = emptyList()) }
 
                 HomeContract.Event.OnFavoriteClick -> {
                     if (_state.value.isPubFavoriteLoading) return
                     val detail = _state.value.selectedPubDetail ?: return
-                    if (detail.isWishlisted) {
-                        emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
-                        return
-                    }
+                    val pubId = detail.pubId
+                    val isWishlisted = _state.value.favoritePubIds.contains(pubId)
+
                     viewModelScope.launch {
                         _state.update { it.copy(isPubFavoriteLoading = true) }
-                        favoriteRepository
-                            .addFavorite(detail.pubId)
-                            .onSuccess { newId ->
-                                _state.update {
-                                    it.copy(
-                                        isPubFavoriteLoading = false,
-                                        selectedPubFavoriteId = newId,
-                                        selectedPubDetail = detail.copy(
-                                            isWishlisted = true,
-                                            favoriteCount = detail.favoriteCount + 1,
-                                        ),
-                                        favoritePubIds = it.favoritePubIds + detail.pubId,
-                                    )
-                                }
-                                emit(HomeContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
-                            }.onFailure {
+                        if (isWishlisted) {
+                            val favoriteId = _state.value.favoriteIdMap[pubId]
+                            if (favoriteId != null) {
+                                favoriteRepository
+                                    .deleteFavorites(listOf(favoriteId))
+                                    .onSuccess {
+                                        _state.update {
+                                            it.copy(
+                                                isPubFavoriteLoading = false,
+                                                selectedPubDetail = detail.copy(
+                                                    isWishlisted = false,
+                                                    favoriteCount = (detail.favoriteCount - 1).coerceAtLeast(0),
+                                                ),
+                                                favoritePubIds = it.favoritePubIds - pubId,
+                                                favoriteIdMap = it.favoriteIdMap - pubId,
+                                                pubMapItems = it.pubMapItems.map { item ->
+                                                    if (item.pubId == pubId) {
+                                                        item.copy(
+                                                            favoriteCount = (item.favoriteCount - 1).coerceAtLeast(0),
+                                                        )
+                                                    } else {
+                                                        item
+                                                    }
+                                                },
+                                                pubMarkers = if (currentZoom > 13.0) {
+                                                    it.pubMapItems
+                                                        .map { item ->
+                                                            if (item.pubId == pubId) {
+                                                                item.copy(
+                                                                    favoriteCount = (item.favoriteCount - 1)
+                                                                        .coerceAtLeast(
+                                                                            0,
+                                                                        ),
+                                                                )
+                                                            } else {
+                                                                item
+                                                            }
+                                                        }.toMarkers(it.favoritePubIds - pubId)
+                                                } else {
+                                                    emptyList()
+                                                },
+                                            )
+                                        }
+                                        emit(HomeContract.SideEffect.ShowToast("즐겨찾기에서 해제되었습니다."))
+                                    }.onFailure { error ->
+                                        _state.update { s -> s.copy(isPubFavoriteLoading = false) }
+                                        val errorMsg = error.message ?: ""
+                                        if (errorMsg.contains("이미") ||
+                                            errorMsg.contains("Conflict") ||
+                                            errorMsg.contains("409")
+                                        ) {
+                                            loadFavoritePubIds()
+                                            emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                        } else {
+                                            emit(HomeContract.SideEffect.ShowToast("즐겨찾기 해제에 실패했습니다."))
+                                        }
+                                    }
+                            } else {
+                                loadFavoritePubIds()
                                 _state.update { s -> s.copy(isPubFavoriteLoading = false) }
-                                emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                emit(HomeContract.SideEffect.ShowToast("잠시 후 다시 시도해주세요."))
                             }
+                        } else {
+                            favoriteRepository
+                                .addFavorite(pubId)
+                                .onSuccess { newId ->
+                                    _state.update {
+                                        it.copy(
+                                            isPubFavoriteLoading = false,
+                                            selectedPubDetail = detail.copy(
+                                                isWishlisted = true,
+                                                favoriteCount = detail.favoriteCount + 1,
+                                            ),
+                                            favoritePubIds = it.favoritePubIds + pubId,
+                                            favoriteIdMap = it.favoriteIdMap + (pubId to newId),
+                                            pubMapItems = it.pubMapItems.map { item ->
+                                                if (item.pubId == pubId) {
+                                                    item.copy(favoriteCount = item.favoriteCount + 1)
+                                                } else {
+                                                    item
+                                                }
+                                            },
+                                            pubMarkers = if (currentZoom > 13.0) {
+                                                it.pubMapItems
+                                                    .map { item ->
+                                                        if (item.pubId == pubId) {
+                                                            item.copy(favoriteCount = item.favoriteCount + 1)
+                                                        } else {
+                                                            item
+                                                        }
+                                                    }.toMarkers(it.favoritePubIds + pubId)
+                                            } else {
+                                                emptyList()
+                                            },
+                                        )
+                                    }
+                                    emit(HomeContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
+                                }.onFailure { error ->
+                                    _state.update { s -> s.copy(isPubFavoriteLoading = false) }
+                                    val errorMsg = error.message ?: ""
+                                    if (errorMsg.contains("이미") ||
+                                        errorMsg.contains("Conflict") ||
+                                        errorMsg.contains("409")
+                                    ) {
+                                        loadFavoritePubIds()
+                                        emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                    } else {
+                                        emit(HomeContract.SideEffect.ShowToast("즐겨찾기 등록에 실패했습니다."))
+                                    }
+                                }
+                        }
                     }
                 }
 
@@ -283,10 +391,15 @@ class HomeViewModel
                     currentNeLng = event.neLng
                     currentZoom = event.zoom
 
-                    // 줌 레벨에 따라 마커/클러스터 실시간 전환
                     _state.update {
                         it.copy(
-                            pubMarkers = if (currentZoom > 13.0) it.pubMapItems.toMarkers() else emptyList(),
+                            pubMarkers = if (currentZoom >
+                                13.0
+                            ) {
+                                it.pubMapItems.toMarkers(it.favoritePubIds)
+                            } else {
+                                emptyList()
+                            },
                             pubClusters = if (currentZoom <= 13.0) it.pubMapItems.toClusters() else emptyList(),
                         )
                     }
@@ -297,6 +410,119 @@ class HomeViewModel
 
                 is HomeContract.Event.OnPubListItemClick ->
                     loadSelectedPubDetail(event.pubId)
+
+                is HomeContract.Event.OnPubListFavoriteClick -> {
+                    if (_state.value.isPubFavoriteLoading) return
+                    val pubId = event.pubId
+                    val isWishlisted = _state.value.favoritePubIds.contains(pubId)
+
+                    viewModelScope.launch {
+                        _state.update { it.copy(isPubFavoriteLoading = true) }
+                        if (isWishlisted) {
+                            val favoriteId = _state.value.favoriteIdMap[pubId]
+                            if (favoriteId != null) {
+                                favoriteRepository
+                                    .deleteFavorites(listOf(favoriteId))
+                                    .onSuccess {
+                                        _state.update {
+                                            it.copy(
+                                                isPubFavoriteLoading = false,
+                                                favoritePubIds = it.favoritePubIds - pubId,
+                                                favoriteIdMap = it.favoriteIdMap - pubId,
+                                                pubMapItems = it.pubMapItems.map { item ->
+                                                    if (item.pubId == pubId) {
+                                                        item.copy(
+                                                            favoriteCount = (item.favoriteCount - 1).coerceAtLeast(0),
+                                                        )
+                                                    } else {
+                                                        item
+                                                    }
+                                                },
+                                                pubMarkers = if (currentZoom > 13.0) {
+                                                    it.pubMapItems
+                                                        .map { item ->
+                                                            if (item.pubId == pubId) {
+                                                                item.copy(
+                                                                    favoriteCount = (item.favoriteCount - 1)
+                                                                        .coerceAtLeast(
+                                                                            0,
+                                                                        ),
+                                                                )
+                                                            } else {
+                                                                item
+                                                            }
+                                                        }.toMarkers(it.favoritePubIds - pubId)
+                                                } else {
+                                                    emptyList()
+                                                },
+                                            )
+                                        }
+                                        emit(HomeContract.SideEffect.ShowToast("즐겨찾기에서 해제되었습니다."))
+                                    }.onFailure { error ->
+                                        _state.update { it.copy(isPubFavoriteLoading = false) }
+                                        val errorMsg = error.message ?: ""
+                                        if (errorMsg.contains("이미") ||
+                                            errorMsg.contains("Conflict") ||
+                                            errorMsg.contains("409")
+                                        ) {
+                                            loadFavoritePubIds()
+                                            emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                        } else {
+                                            emit(HomeContract.SideEffect.ShowToast("즐겨찾기 해제에 실패했습니다."))
+                                        }
+                                    }
+                            } else {
+                                loadFavoritePubIds()
+                                _state.update { it.copy(isPubFavoriteLoading = false) }
+                                emit(HomeContract.SideEffect.ShowToast("잠시 후 다시 시도해주세요."))
+                            }
+                        } else {
+                            favoriteRepository
+                                .addFavorite(pubId)
+                                .onSuccess { newId ->
+                                    _state.update {
+                                        it.copy(
+                                            isPubFavoriteLoading = false,
+                                            favoritePubIds = it.favoritePubIds + pubId,
+                                            favoriteIdMap = it.favoriteIdMap + (pubId to newId),
+                                            pubMapItems = it.pubMapItems.map { item ->
+                                                if (item.pubId == pubId) {
+                                                    item.copy(favoriteCount = item.favoriteCount + 1)
+                                                } else {
+                                                    item
+                                                }
+                                            },
+                                            pubMarkers = if (currentZoom > 13.0) {
+                                                it.pubMapItems
+                                                    .map { item ->
+                                                        if (item.pubId == pubId) {
+                                                            item.copy(favoriteCount = item.favoriteCount + 1)
+                                                        } else {
+                                                            item
+                                                        }
+                                                    }.toMarkers(it.favoritePubIds + pubId)
+                                            } else {
+                                                emptyList()
+                                            },
+                                        )
+                                    }
+                                    emit(HomeContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
+                                }.onFailure { error ->
+                                    _state.update { it.copy(isPubFavoriteLoading = false) }
+                                    val errorMsg = error.message ?: ""
+                                    if (errorMsg.contains("이미") ||
+                                        errorMsg.contains("Conflict") ||
+                                        errorMsg.contains("409")
+                                    ) {
+                                        loadFavoritePubIds()
+                                        emit(HomeContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                    } else {
+                                        emit(HomeContract.SideEffect.ShowToast("즐겨찾기 등록에 실패했습니다."))
+                                    }
+                                }
+                        }
+                    }
+                }
 
                 is HomeContract.Event.OnFilterApply -> {
                     val newFilter = _state.value.filter.copy(
@@ -325,8 +551,11 @@ class HomeViewModel
                         emit(HomeContract.SideEffect.MoveCameraToBounds(points))
                     }
 
+                    // "all" (KBO 전체) 이 포함된 경우 teamId를 null로 전달하여 전체 조회
+                    val teamId = if (event.teamIds.contains(0L)) null else event.teamIds.firstOrNull()
+
                     loadMapPubs(
-                        teamId = event.teamIds.firstOrNull(),
+                        teamId = teamId,
                         openNow = event.openNow,
                         businessDay = event.businessDay,
                         facilityCodes = event.facilityCodes,
@@ -400,7 +629,6 @@ class HomeViewModel
                             newFilter = currentFilter.copy(themeCodes = codes)
                         }
                         "VARIOUS_DRINKS" -> {
-                            // 다중 선택 가능하지만 퀵필터에서는 토글 방식으로 예시 구현
                             val codes = if (currentFilter.foodCodes?.isNotEmpty() ==
                                 true
                             ) {
@@ -413,8 +641,18 @@ class HomeViewModel
                     }
 
                     _state.update { it.copy(filter = newFilter) }
+
+                    val teamId = if (newFilter.selectedTeamIds.contains(
+                            0L,
+                        )
+                    ) {
+                        null
+                    } else {
+                        newFilter.selectedTeamIds.firstOrNull()
+                    }
+
                     loadMapPubs(
-                        teamId = newFilter.selectedTeamIds.firstOrNull(),
+                        teamId = teamId,
                         openNow = newFilter.openNow,
                         businessDay = newFilter.businessDay,
                         facilityCodes = newFilter.facilityCodes,
@@ -424,9 +662,12 @@ class HomeViewModel
                     )
                 }
 
-                HomeContract.Event.OnClusterClick -> {
+                is HomeContract.Event.OnClusterClick -> {
                     _state.update {
-                        it.copy(showPubListSheet = it.pubMapItems.isNotEmpty())
+                        it.copy(
+                            showPubListSheet = event.cluster.items.isNotEmpty(),
+                            selectedPubList = event.cluster.items,
+                        )
                     }
                 }
             }

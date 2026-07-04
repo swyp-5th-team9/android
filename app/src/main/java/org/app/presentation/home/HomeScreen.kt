@@ -7,7 +7,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -128,7 +128,7 @@ fun HomeScreen(
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
 
                 is HomeContract.SideEffect.OpenMap -> {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))
+                    val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
                     val isAppInstalled = context.packageManager
                         .queryIntentActivities(
                             intent,
@@ -138,7 +138,7 @@ fun HomeScreen(
                     if (isAppInstalled) {
                         context.startActivity(intent)
                     } else {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.webFallbackUrl)))
+                        context.startActivity(Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri()))
                     }
                 }
             }
@@ -244,8 +244,8 @@ fun HomeScreen(
                         map = map,
                         clusters = state.pubClusters,
                         currentClusters = activeClusters,
-                        onClusterClick = {
-                            onEvent(HomeContract.Event.OnClusterClick)
+                        onClusterClick = { cluster ->
+                            onEvent(HomeContract.Event.OnClusterClick(cluster))
                         },
                     )
                 }
@@ -317,9 +317,10 @@ fun HomeScreen(
 
         if (state.showPubListSheet && !state.showPubDetailSheet) {
             HomePubListBottomSheet(
-                pubItems = state.pubMapItems,
+                pubItems = if (state.selectedPubList.isNotEmpty()) state.selectedPubList else state.pubMapItems,
                 favoritePubIds = state.favoritePubIds,
                 onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
+                onFavoriteClick = { pubId -> onEvent(HomeContract.Event.OnPubListFavoriteClick(pubId)) },
                 onFilterClick = { filterKey -> onEvent(HomeContract.Event.OnQuickFilterClick(filterKey)) },
                 onDismiss = { onEvent(HomeContract.Event.OnPubListSheetDismiss) },
             )
@@ -377,7 +378,7 @@ private fun renderPubClusters(
     map: NaverMap,
     clusters: List<PubCluster>,
     currentClusters: MutableList<Marker>,
-    onClusterClick: () -> Unit,
+    onClusterClick: (PubCluster) -> Unit,
 ) {
     currentClusters.forEach { it.map = null }
     currentClusters.clear()
@@ -388,7 +389,7 @@ private fun renderPubClusters(
             anchor = PointF(0.5f, 0.5f)
             this.map = map
             setOnClickListener {
-                onClusterClick()
+                onClusterClick(cluster)
                 true
             }
         }

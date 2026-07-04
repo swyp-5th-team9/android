@@ -1,5 +1,7 @@
 package org.app.presentation.pubdetail.model
 
+import java.time.LocalTime
+
 /**
  * 펍 상세 도메인 모델 — 서버 명세 V3 기준.
  */
@@ -35,10 +37,11 @@ enum class PubStatus(
     OPEN("영업중"),
     CLOSED("영업종료"),
     TEMP_CLOSED("임시휴업"),
+    MATCHING("상영중"),
     ;
 
     companion object {
-        fun from(value: String): PubStatus = entries.firstOrNull { it.name == value } ?: CLOSED
+        fun from(value: String): PubStatus = entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: CLOSED
     }
 }
 
@@ -51,8 +54,8 @@ data class KboTeam(
 /** ISO-8601 기준 요일별 영업시간 (1=월, 7=일) */
 data class BusinessHour(
     val dayOfWeek: Int,
-    val openTime: String?,
-    val closeTime: String?,
+    val openTime: LocalTime?,
+    val closeTime: LocalTime?,
     val isClosed: Boolean,
 ) {
     val dayLabel: String

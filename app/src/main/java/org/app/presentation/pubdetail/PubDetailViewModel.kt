@@ -46,40 +46,92 @@ class PubDetailViewModel
                     val detail = _state.value.pubDetail ?: return
                     val wasWishlisted = detail.isWishlisted
 
-                    if (wasWishlisted) {
-                        emit(PubDetailContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
-                        return
-                    }
-
                     viewModelScope.launch {
                         _state.update { it.copy(isWishlistLoading = true) }
-                        favoriteRepository
-                            .addFavorite(pubId)
-                            .onSuccess { newId ->
-                                _state.update {
-                                    it.copy(
-                                        isWishlistLoading = false,
-                                        favoriteId = newId,
-                                        pubDetail = detail.copy(
-                                            isWishlisted = true,
-                                            favoriteCount = detail.favoriteCount + 1,
-                                        ),
-                                    )
-                                }
-                                emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
-                            }.onFailure { error ->
-                                _state.update { it.copy(isWishlistLoading = false) }
-                                val message = if (error.message?.contains("409") == true ||
-                                    error.message?.contains("Conflict") == true
-                                ) {
-                                    "이미 즐겨찾기한 펍입니다."
-                                } else {
-                                    "이미 즐겨찾기한 펍입니다."
-                                }
-                                emit(PubDetailContract.SideEffect.ShowToast(message))
-
-                                loadPubDetail()
+                        if (wasWishlisted) {
+                            val favoriteId = _state.value.favoriteId
+                            if (favoriteId != null) {
+                                favoriteRepository
+                                    .deleteFavorites(listOf(favoriteId))
+                                    .onSuccess {
+                                        _state.update {
+                                            it.copy(
+                                                isWishlistLoading = false,
+                                                favoriteId = null,
+                                                pubDetail = detail.copy(
+                                                    isWishlisted = false,
+                                                    favoriteCount = (detail.favoriteCount - 1).coerceAtLeast(0),
+                                                ),
+                                            )
+                                        }
+                                        emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에서 해제되었습니다."))
+                                    }.onFailure {
+                                        _state.update { it.copy(isWishlistLoading = false) }
+                                        emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기 해제에 실패했습니다."))
+                                    }
+                            } else {
+                                // ID가 없는 경우 전체 목록 재조회 후 삭제 시도
+                                favoriteRepository
+                                    .getFavorites()
+                                    .onSuccess { items ->
+                                        val newId = items.find { it.pubId == pubId }?.favoriteId
+                                        if (newId != null) {
+                                            favoriteRepository
+                                                .deleteFavorites(listOf(newId))
+                                                .onSuccess {
+                                                    _state.update {
+                                                        it.copy(
+                                                            isWishlistLoading = false,
+                                                            favoriteId = null,
+                                                            pubDetail = detail.copy(
+                                                                isWishlisted = false,
+                                                                favoriteCount = (detail.favoriteCount - 1)
+                                                                    .coerceAtLeast(
+                                                                        0,
+                                                                    ),
+                                                            ),
+                                                        )
+                                                    }
+                                                    emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에서 해제되었습니다."))
+                                                }.onFailure {
+                                                    _state.update { it.copy(isWishlistLoading = false) }
+                                                    emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기 해제에 실패했습니다."))
+                                                }
+                                        } else {
+                                            _state.update { it.copy(isWishlistLoading = false) }
+                                            loadPubDetail() // 상태 강제 동기화
+                                        }
+                                    }.onFailure {
+                                        _state.update { it.copy(isWishlistLoading = false) }
+                                    }
                             }
+                        } else {
+                            favoriteRepository
+                                .addFavorite(pubId)
+                                .onSuccess { newId ->
+                                    _state.update {
+                                        it.copy(
+                                            isWishlistLoading = false,
+                                            favoriteId = newId,
+                                            pubDetail = detail.copy(
+                                                isWishlisted = true,
+                                                favoriteCount = detail.favoriteCount + 1,
+                                            ),
+                                        )
+                                    }
+                                    emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
+                                }.onFailure { error ->
+                                    _state.update { it.copy(isWishlistLoading = false) }
+                                    if (error.message?.contains("409") == true ||
+                                        error.message?.contains("Conflict") == true
+                                    ) {
+                                        loadPubDetail() // 이미 등록된 경우 상태 동기화
+                                        emit(PubDetailContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
+                                    } else {
+                                        emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기 등록에 실패했습니다."))
+                                    }
+                                }
+                        }
                     }
                 }
 

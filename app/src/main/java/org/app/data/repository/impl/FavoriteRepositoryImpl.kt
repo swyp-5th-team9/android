@@ -16,7 +16,7 @@ class FavoriteRepositoryImpl
     ) : FavoriteRepository {
         override suspend fun addFavorite(pubId: Long): Result<Long> =
             suspendRunCatching {
-                favoriteRemoteDataSource.postFavorite(pubId).getDataOrThrow().favoriteId
+                favoriteRemoteDataSource.postFavorite(pubId).getDataOrThrow()
             }
 
         override suspend fun getFavorites(): Result<List<FavoriteItem>> =

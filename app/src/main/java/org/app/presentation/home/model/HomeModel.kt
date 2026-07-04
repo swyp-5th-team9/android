@@ -1,5 +1,7 @@
 package org.app.presentation.home.model
 
+import org.app.data.model.PubMapItem
+
 /**
  * 지도에 표시되는 펍 마커
  * @param pubId     펍 고유 ID
@@ -34,11 +36,13 @@ enum class PubMarkerType {
  * @param latitude  클러스터 중심 위도
  * @param longitude 클러스터 중심 경도
  * @param count     클러스터 내 펍 수
+ * @param items     클러스터 내 포함된 펍 리스트
  */
 data class PubCluster(
     val latitude: Double,
     val longitude: Double,
     val count: Int,
+    val items: List<PubMapItem> = emptyList(),
 )
 
 /**

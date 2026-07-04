@@ -1,5 +1,6 @@
 package org.app.data.mapper
 
+import org.app.core.util.TimeUtils
 import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubPage
@@ -66,8 +67,8 @@ fun PubDetailResponse.toPubDetail(): PubDetail =
         businessHours = businessHours.sortedBy { it.dayOfWeek }.map {
             BusinessHour(
                 dayOfWeek = it.dayOfWeek,
-                openTime = it.openTime?.take(5),
-                closeTime = it.closeTime?.take(5),
+                openTime = TimeUtils.parseUtcToKst(it.openTime),
+                closeTime = TimeUtils.parseUtcToKst(it.closeTime),
                 isClosed = it.isClosed,
             )
         },
@@ -90,13 +91,13 @@ fun PubMapItemResponse.toPubMapItem(): PubMapItem =
         name = name,
         latitude = latitude,
         longitude = longitude,
-        status = status,
+        status = PubStatus.from(status),
         favoriteCount = favoriteCount,
         imageUrls = imageUrls ?: emptyList(),
         supportedTeams = supportedTeams ?: emptyList(),
         facilityCodes = facilityCodes ?: emptyList(),
-        openTime = openTime,
-        closeTime = closeTime,
+        openTime = TimeUtils.parseUtcToKst(openTime),
+        closeTime = TimeUtils.parseUtcToKst(closeTime),
         groupSeatMaxPeople = groupSeatMaxPeople,
         capacityRange = capacityRange,
     )

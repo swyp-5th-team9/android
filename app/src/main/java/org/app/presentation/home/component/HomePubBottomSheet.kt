@@ -48,6 +48,7 @@ import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
+import org.app.core.util.TimeUtils
 import org.app.data.model.PubMapItem
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
@@ -55,6 +56,7 @@ import org.app.presentation.pubdetail.model.KboTeamType
 import org.app.presentation.pubdetail.model.PubDetail
 import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 private fun DragHandle() {
@@ -74,6 +76,7 @@ fun HomePubListBottomSheet(
     pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
     onItemClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
@@ -90,6 +93,7 @@ fun HomePubListBottomSheet(
             pubItems = pubItems,
             favoritePubIds = favoritePubIds,
             onItemClick = onItemClick,
+            onFavoriteClick = onFavoriteClick,
             onFilterClick = onFilterClick,
             modifier = Modifier.navigationBarsPadding(),
         )
@@ -101,6 +105,7 @@ private fun PubListContent(
     pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
     onItemClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -180,6 +185,7 @@ private fun PubListContent(
                     item = item,
                     isFavorite = item.pubId in favoritePubIds,
                     onClick = { onItemClick(item.pubId) },
+                    onFavoriteClick = { onFavoriteClick(item.pubId) },
                 )
             }
         }
@@ -191,6 +197,7 @@ private fun PubListItem(
     item: PubMapItem,
     isFavorite: Boolean,
     onClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -216,7 +223,9 @@ private fun PubListItem(
                 ),
                 contentDescription = null,
                 tint = if (isFavorite) MoballTheme.colors.iconPrimary else MoballTheme.colors.textTertiary,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onFavoriteClick),
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -254,9 +263,9 @@ private fun PubListItem(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                val statusLabel = PubStatus.from(item.status).label
+                val statusLabel = item.status.label
                 val timeRange = if (item.openTime != null && item.closeTime != null) {
-                    " ${item.openTime} - ${item.closeTime}"
+                    " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
                 } else {
                     ""
                 }
@@ -388,7 +397,9 @@ private fun PubDetailContent(
                         val timeText = if (todayHours?.isClosed == true) {
                             "휴무"
                         } else if (todayHours?.openTime != null && todayHours.closeTime != null) {
-                            "${todayHours.openTime} - ${todayHours.closeTime}"
+                            "${TimeUtils.formatTime(
+                                todayHours.openTime,
+                            )} - ${TimeUtils.formatTime(todayHours.closeTime)}"
                         } else {
                             ""
                         }
@@ -518,7 +529,7 @@ fun MapActionButton(
 private fun String.summaryAddress(): String {
     val parts = trim().split(" ")
     // "서울시 강남구 청담동" 처럼 3단위까지만 추출
-    return parts.take(3).joinToString(" ")
+    return parts.take(2).joinToString(" ")
 }
 
 @Composable
@@ -559,13 +570,13 @@ private fun HomePubListBottomSheetPreview() {
             name = "모볼 펍 강남점",
             latitude = 37.0,
             longitude = 127.0,
-            status = "OPEN",
+            status = PubStatus.OPEN,
             favoriteCount = 128,
             imageUrls = listOf("https://sample.com/1.jpg"),
             supportedTeams = listOf("한화"),
             facilityCodes = listOf("group_seat"),
-            openTime = "08:00",
-            closeTime = "24:00",
+            openTime = LocalTime.of(8, 0),
+            closeTime = LocalTime.of(0, 0),
             groupSeatMaxPeople = 100,
         ),
         PubMapItem(
@@ -573,13 +584,13 @@ private fun HomePubListBottomSheetPreview() {
             name = "야구보는 술집 홍대",
             latitude = 37.1,
             longitude = 127.1,
-            status = "CLOSED",
+            status = PubStatus.CLOSED,
             favoriteCount = 56,
             imageUrls = emptyList(),
             supportedTeams = listOf("LG"),
             facilityCodes = listOf("parking"),
-            openTime = "17:00",
-            closeTime = "02:00",
+            openTime = LocalTime.of(17, 0),
+            closeTime = LocalTime.of(2, 0),
             groupSeatMaxPeople = 50,
         ),
     )
@@ -589,6 +600,7 @@ private fun HomePubListBottomSheetPreview() {
             pubItems = samplePubs,
             favoritePubIds = setOf(1L),
             onItemClick = {},
+            onFavoriteClick = {},
             onFilterClick = {},
         )
     }
@@ -623,8 +635,8 @@ private fun HomePubDetailBottomSheetPreview() {
         businessHours = listOf(
             org.app.presentation.pubdetail.model.BusinessHour(
                 LocalDate.now().dayOfWeek.value,
-                "08:00",
-                "24:00",
+                LocalTime.of(8, 0),
+                LocalTime.of(0, 0),
                 false,
             ),
         ),

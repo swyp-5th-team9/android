@@ -33,6 +33,7 @@ import org.app.presentation.pubdetail.model.BusinessHour
 import org.app.presentation.pubdetail.model.KboTeam
 import org.app.presentation.pubdetail.model.PubDetail
 import org.app.presentation.pubdetail.model.PubStatus
+import java.time.LocalTime
 
 @Composable
 fun PubDetailRoute(
@@ -199,12 +200,12 @@ private fun PubDetailScreenPreview() {
                     themeCodes = emptyList(),
                     foodCodes = listOf("CHICKEN", "BEER"),
                     businessHours = listOf(
-                        BusinessHour(1, "17:00", "02:00", false),
-                        BusinessHour(2, "17:00", "02:00", false),
-                        BusinessHour(3, "17:00", "02:00", false),
-                        BusinessHour(4, "17:00", "02:00", false),
-                        BusinessHour(5, "17:00", "03:00", false),
-                        BusinessHour(6, "15:00", "03:00", false),
+                        BusinessHour(1, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(2, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(3, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(4, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(5, LocalTime.parse("17:00"), LocalTime.parse("03:00"), false),
+                        BusinessHour(6, LocalTime.parse("15:00"), LocalTime.parse("03:00"), false),
                         BusinessHour(7, null, null, true),
                     ),
                     menus = emptyList(),

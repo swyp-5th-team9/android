@@ -30,11 +30,13 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
+import org.app.core.util.TimeUtils
 import org.app.presentation.pubdetail.model.BusinessHour
 import org.app.presentation.pubdetail.model.KboTeam
 import org.app.presentation.pubdetail.model.KboTeamType
 import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalDate
+import java.time.LocalTime
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -274,7 +276,7 @@ private fun BusinessHoursRow(
             if (status == PubStatus.OPEN && todayHours?.closeTime != null) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "${todayHours.closeTime} 영업 종료",
+                    text = "${TimeUtils.formatTime(todayHours.closeTime)} 영업 종료",
                     style = MoballTheme.typography.body.regular14,
                     color = MoballTheme.colors.textSecondary,
                 )
@@ -318,7 +320,13 @@ private fun BusinessHoursRow(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = if (hour.isClosed) "휴무" else "${hour.openTime} ~ ${hour.closeTime}",
+                        text = if (hour.isClosed) {
+                            "휴무"
+                        } else {
+                            "${TimeUtils.formatTime(
+                                hour.openTime,
+                            )} ~ ${TimeUtils.formatTime(hour.closeTime)}"
+                        },
                         style = textStyle,
                         color = textColor,
                     )
@@ -368,12 +376,12 @@ fun PubInfoSectionPreview() {
                 KboTeam(teamId = 6L, shortName = "두산", name = "두산 베어스"),
             ),
             businessHours = listOf(
-                BusinessHour(1, "17:00", "02:00", false),
-                BusinessHour(2, "17:00", "02:00", false),
-                BusinessHour(3, "17:00", "02:00", false),
-                BusinessHour(4, "17:00", "02:00", false),
-                BusinessHour(5, "17:00", "03:00", false),
-                BusinessHour(6, "15:00", "03:00", false),
+                BusinessHour(1, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                BusinessHour(2, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                BusinessHour(3, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                BusinessHour(4, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                BusinessHour(5, LocalTime.parse("17:00"), LocalTime.parse("03:00"), false),
+                BusinessHour(6, LocalTime.parse("15:00"), LocalTime.parse("03:00"), false),
                 BusinessHour(7, null, null, true),
             ),
             status = PubStatus.OPEN,

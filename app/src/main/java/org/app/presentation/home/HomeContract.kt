@@ -12,10 +12,12 @@ interface HomeContract {
         val pubMarkers: List<PubMarker> = emptyList(),
         val pubClusters: List<PubCluster> = emptyList(),
         val pubMapItems: List<PubMapItem> = emptyList(),
+        val selectedPubList: List<PubMapItem> = emptyList(),
         val filter: HomeFilter = HomeFilter(),
         val userFavoriteTeamIds: List<Long> = emptyList(),
         val userFavoriteTeamNames: List<String> = emptyList(),
         val favoritePubIds: Set<Long> = emptySet(),
+        val favoriteIdMap: Map<Long, Long> = emptyMap(), // pubId -> favoriteId
         val showFilterBottomSheet: Boolean = false,
         val filterBottomSheetTab: FilterBottomSheetTab = FilterBottomSheetTab.TEAM,
         val showPubListSheet: Boolean = false,
@@ -77,6 +79,10 @@ interface HomeContract {
             val pubId: Long,
         ) : Event
 
+        data class OnPubListFavoriteClick(
+            val pubId: Long,
+        ) : Event
+
         data class OnFilterApply(
             val teamIds: List<Long>,
             val teamNames: List<String>,
@@ -104,7 +110,9 @@ interface HomeContract {
             val filterKey: String,
         ) : Event
 
-        data object OnClusterClick : Event
+        data class OnClusterClick(
+            val cluster: PubCluster,
+        ) : Event
     }
 
     sealed interface SideEffect {

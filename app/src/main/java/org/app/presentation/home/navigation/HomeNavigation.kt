@@ -41,6 +41,7 @@ fun NavGraphBuilder.homeGraph(
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
                         homeViewModel.refreshFavoriteTeams()
+                        homeViewModel.refreshFavorites()
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)
