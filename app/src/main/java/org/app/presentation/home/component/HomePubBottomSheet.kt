@@ -29,10 +29,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +45,8 @@ import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
-import org.app.data.model.PubListItem
+import org.app.data.model.PubMapItem
+import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
 import org.app.presentation.pubdetail.model.KboTeamType
@@ -72,8 +70,9 @@ private fun DragHandle() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePubListBottomSheet(
-    pubItems: List<PubListItem>,
+    pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
+    filter: HomeFilter,
     onItemClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
@@ -91,6 +90,7 @@ fun HomePubListBottomSheet(
         PubListContent(
             pubItems = pubItems,
             favoritePubIds = favoritePubIds,
+            filter = filter,
             onItemClick = onItemClick,
             onFavoriteClick = onFavoriteClick,
             onFilterClick = onFilterClick,
@@ -101,15 +101,14 @@ fun HomePubListBottomSheet(
 
 @Composable
 private fun PubListContent(
-    pubItems: List<PubListItem>,
+    pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
+    filter: HomeFilter,
     onItemClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedFilter by remember { mutableStateOf<String?>(null) }
-
     Column(modifier = modifier) {
         LazyRow(
             modifier = Modifier
@@ -121,56 +120,36 @@ private fun PubListContent(
             item {
                 HomePubFilterChip(
                     label = "영업중",
-                    isSelected = selectedFilter == "OPEN",
-                    onClick = {
-                        val newValue = if (selectedFilter == "OPEN") null else "OPEN"
-                        selectedFilter = newValue
-                        onFilterClick(newValue ?: "")
-                    },
+                    isSelected = filter.openNow == true,
+                    onClick = { onFilterClick("OPEN") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "단체석",
-                    isSelected = selectedFilter == "GROUP_SEAT",
-                    onClick = {
-                        val newValue = if (selectedFilter == "GROUP_SEAT") null else "GROUP_SEAT"
-                        selectedFilter = newValue
-                        onFilterClick(newValue ?: "")
-                    },
+                    isSelected = filter.facilityCodes?.contains("GROUP_SEAT") == true,
+                    onClick = { onFilterClick("GROUP_SEAT") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "주차",
-                    isSelected = selectedFilter == "PARKING",
-                    onClick = {
-                        val newValue = if (selectedFilter == "PARKING") null else "PARKING"
-                        selectedFilter = newValue
-                        onFilterClick(newValue ?: "")
-                    },
+                    isSelected = filter.facilityCodes?.contains("PARKING") == true,
+                    onClick = { onFilterClick("PARKING") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "넓은",
-                    isSelected = selectedFilter == "WIDE_SPACE",
-                    onClick = {
-                        val newValue = if (selectedFilter == "WIDE_SPACE") null else "WIDE_SPACE"
-                        selectedFilter = newValue
-                        onFilterClick(newValue ?: "")
-                    },
+                    isSelected = filter.facilityCodes?.contains("SPACIOUS_AREA") == true,
+                    onClick = { onFilterClick("WIDE_SPACE") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "다양한 술",
-                    isSelected = selectedFilter == "VARIOUS_DRINKS",
-                    onClick = {
-                        val newValue = if (selectedFilter == "VARIOUS_DRINKS") null else "VARIOUS_DRINKS"
-                        selectedFilter = newValue
-                        onFilterClick(newValue ?: "")
-                    },
+                    isSelected = filter.foodCodes?.isNotEmpty() == true,
+                    onClick = { onFilterClick("VARIOUS_DRINKS") },
                 )
             }
         }
@@ -193,7 +172,7 @@ private fun PubListContent(
 
 @Composable
 private fun PubListItem(
-    item: PubListItem,
+    item: PubMapItem,
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
@@ -229,16 +208,23 @@ private fun PubListItem(
         }
         Spacer(Modifier.height(12.dp))
 
-        // 썸네일
-        UrlImage(
-            url = item.thumbnailUrl,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MoballTheme.colors.borderNormal),
-            contentScale = ContentScale.Crop,
-        )
+        // 썸네일 리스트 (지도 명세의 imageUrls 4개 노출)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            repeat(4) { index ->
+                UrlImage(
+                    url = item.imageUrls.getOrNull(index),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(92.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MoballTheme.colors.borderNormal),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
         Spacer(Modifier.height(16.dp))
 
         // 정보 박스
@@ -256,8 +242,14 @@ private fun PubListItem(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
+                val statusLabel = item.status.label
+                val timeRange = if (item.openTime != null && item.closeTime != null) {
+                    " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
+                } else {
+                    ""
+                }
                 Text(
-                    text = item.businessStatus,
+                    text = "$statusLabel$timeRange",
                     style = MoballTheme.typography.heading6.semibold16,
                     color = MoballTheme.colors.textPrimary,
                 )
@@ -265,13 +257,16 @@ private fun PubListItem(
             Spacer(Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                item.supportedTeams.firstOrNull()?.let { team ->
-                    TeamListBadge(text = team.shortName)
+                item.supportedTeams.firstOrNull()?.let { teamName ->
+                    TeamListBadge(text = teamName)
                 }
                 item.facilityCodes.firstOrNull()?.let { code ->
                     mapFacilityCodeToLabel(code)?.let { label ->
                         TeamListBadge(text = label)
                     }
+                }
+                item.groupSeatMaxPeople?.let { count ->
+                    TeamListBadge(text = "${count}명 수용가능")
                 }
             }
         }
@@ -386,9 +381,11 @@ private fun PubDetailContent(
                             val timeText = if (todayHours?.isClosed == true) {
                                 "휴무"
                             } else if (todayHours?.openTime != null && todayHours.closeTime != null) {
-                                "${TimeUtils.formatTime(
-                                    todayHours.openTime,
-                                )} - ${TimeUtils.formatTime(todayHours.closeTime)}"
+                                "${
+                                    TimeUtils.formatTime(
+                                        todayHours.openTime,
+                                    )
+                                } - ${TimeUtils.formatTime(todayHours.closeTime)}"
                             } else {
                                 ""
                             }
@@ -561,22 +558,20 @@ private fun HomePubFilterChip(
 @Composable
 private fun HomePubListBottomSheetPreview() {
     val samplePubs = listOf(
-        PubListItem(
+        PubMapItem(
             pubId = 1L,
             name = "모볼 펍 강남점",
-            region = "강남구",
-            address = "서울시 강남구",
-            thumbnailUrl = "https://sample.com/1.jpg",
+            latitude = 37.0,
+            longitude = 127.0,
+            status = PubStatus.OPEN,
             favoriteCount = 128,
-            businessStatus = "영업중",
-            supportedTeams = listOf(
-                org.app.data.model
-                    .PubTeam(1L, "한화", "한화 이글스"),
-            ),
+            imageUrls = listOf("https://sample.com/1.jpg"),
+            supportedTeams = listOf("한화"),
             facilityCodes = listOf("group_seat"),
-            styleCodes = emptyList(),
-            themeCodes = emptyList(),
-            foodCodes = emptyList(),
+            openTime = LocalTime.of(8, 0),
+            closeTime = LocalTime.of(0, 0),
+            groupSeatMaxPeople = 100,
+            capacityRange = "20-30",
         ),
     )
 
@@ -584,6 +579,8 @@ private fun HomePubListBottomSheetPreview() {
         PubListContent(
             pubItems = samplePubs,
             favoritePubIds = setOf(1L),
+            filter = org.app.presentation.home.model
+                .HomeFilter(),
             onItemClick = {},
             onFavoriteClick = {},
             onFilterClick = {},

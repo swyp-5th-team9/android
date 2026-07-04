@@ -421,18 +421,18 @@ class HomeViewModel
                     currentNeLng = event.neLng
                     currentZoom = event.zoom
 
-                    _state.update {
-                        it.copy(
-                            pubMarkers = if (currentZoom >
-                                13.0
-                            ) {
-                                it.pubMapItems.toMarkers(it.favoritePubIds)
-                            } else {
-                                emptyList()
-                            },
-                            pubClusters = if (currentZoom <= 13.0) it.pubMapItems.toClusters() else emptyList(),
-                        )
-                    }
+                    // 현재 적용된 필터 정보를 가져와서 지도 API 호출 시 함께 전달
+                    val filter = _state.value.filter
+                    val teamId = if (filter.selectedTeamIds.contains(0L)) null else filter.selectedTeamIds.firstOrNull()
+
+                    loadMapPubs(
+                        teamId = teamId,
+                        openNow = filter.openNow,
+                        businessDay = filter.businessDay,
+                        facilityCodes = filter.facilityCodes,
+                        themeCodes = filter.themeCodes,
+                        foodCodes = filter.foodCodes,
+                    )
                 }
 
                 is HomeContract.Event.OnPubMarkerClick ->
@@ -660,14 +660,14 @@ class HomeViewModel
                         }
 
                         "WIDE_SPACE" -> {
-                            val codes = if (currentFilter.themeCodes?.contains("SPACIOUS_VIEW") ==
+                            val codes = if (currentFilter.facilityCodes?.contains("SPACIOUS_AREA") ==
                                 true
                             ) {
                                 emptyList()
                             } else {
-                                listOf("SPACIOUS_VIEW")
+                                listOf("SPACIOUS_AREA")
                             }
-                            newFilter = currentFilter.copy(themeCodes = codes)
+                            newFilter = currentFilter.copy(facilityCodes = codes)
                         }
 
                         "VARIOUS_DRINKS" -> {
@@ -714,9 +714,10 @@ class HomeViewModel
 
                 is HomeContract.Event.OnClusterClick -> {
                     _state.update {
+                        val clusterItems = event.cluster.items
                         it.copy(
-                            showPubListSheet = event.cluster.items.isNotEmpty(),
-                            selectedPubList = event.cluster.items,
+                            showPubListSheet = clusterItems.isNotEmpty(),
+                            selectedPubList = clusterItems,
                         )
                     }
                 }
