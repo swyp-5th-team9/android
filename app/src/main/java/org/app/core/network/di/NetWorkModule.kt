@@ -27,6 +27,14 @@ import javax.inject.Singleton
 @Retention(AnnotationRetention.BINARY)
 annotation class LoggingInterceptor
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RefreshClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RefreshRetrofit
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -94,6 +102,33 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(
         client: OkHttpClient,
+        factory: Converter.Factory,
+    ): Retrofit =
+        Retrofit
+            .Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(factory)
+            .build()
+
+    // refresh-token 전용 클라이언트: authenticator/authInterceptor 없이 구성해
+    // 토큰 갱신 요청이 본 클라이언트의 Dispatcher 큐에 갇히는 데드락을 방지한다.
+    @Provides
+    @Singleton
+    @RefreshClient
+    fun provideRefreshOkHttpClient(
+        @LoggingInterceptor loggingInterceptor: Interceptor,
+    ): OkHttpClient =
+        OkHttpClient
+            .Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+    @Provides
+    @Singleton
+    @RefreshRetrofit
+    fun provideRefreshRetrofit(
+        @RefreshClient client: OkHttpClient,
         factory: Converter.Factory,
     ): Retrofit =
         Retrofit

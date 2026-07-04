@@ -68,13 +68,19 @@ class AuthRepositoryImpl
 
         override suspend fun logout(): Result<Unit> =
             suspendRunCatching {
-                authRemoteDataSource.postLogout().checkSuccess()
-                when (localTokenDataSource.getLoginType()) {
-                    LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
-                    LOGIN_TYPE_NAVER -> naverAuthRemoteDataSource.logoutNaver().getOrThrow()
-                    else -> throw IllegalStateException("Unsupported login type: $localTokenDataSource.getLoginType()")
+                try {
+                    authRemoteDataSource.postLogout().checkSuccess()
+                    when (localTokenDataSource.getLoginType()) {
+                        LOGIN_TYPE_KAKAO -> kakaoAuthRemoteDataSource.logoutKakao().getOrThrow()
+                        LOGIN_TYPE_NAVER -> naverAuthRemoteDataSource.logoutNaver().getOrThrow()
+                        else -> throw IllegalStateException(
+                            "Unsupported login type: ${localTokenDataSource.getLoginType()}",
+                        )
+                    }
+                } finally {
+                    // 서버/소셜 로그아웃 실패 여부와 무관하게 로컬 토큰은 반드시 삭제
+                    localTokenDataSource.clearTokens()
                 }
-                localTokenDataSource.clearTokens()
             }
 
         override suspend fun withdraw(): Result<Unit> =
