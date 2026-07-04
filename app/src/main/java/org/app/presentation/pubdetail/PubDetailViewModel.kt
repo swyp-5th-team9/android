@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.PubRepository
+import retrofit2.HttpException
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -122,9 +123,7 @@ class PubDetailViewModel
                                     emit(PubDetailContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
                                 }.onFailure { error ->
                                     _state.update { it.copy(isWishlistLoading = false) }
-                                    if (error.message?.contains("409") == true ||
-                                        error.message?.contains("Conflict") == true
-                                    ) {
+                                    if (error is HttpException && error.code() == 409) {
                                         loadPubDetail() // 이미 등록된 경우 상태 동기화
                                         emit(PubDetailContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
                                     } else {

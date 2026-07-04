@@ -42,7 +42,8 @@ class WithdrawViewModel
         }
 
         private fun onEtcTextChange(text: String) {
-            _state.update { it.copy(etcText = text, etcError = null) }
+            val error = if (text.isBlank()) "내용을 입력해 주세요." else null
+            _state.update { it.copy(etcText = text, etcError = error) }
         }
 
         private fun toggleAgreement() {
@@ -52,6 +53,10 @@ class WithdrawViewModel
         private fun withdraw() {
             if (_state.value.isLoading) return
             val reason = _state.value.selectedReason ?: return
+            if (reason == WithdrawReason.ETC && _state.value.etcText.isBlank()) {
+                _state.update { it.copy(etcError = "내용을 입력해 주세요.") }
+                return
+            }
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
                 val reasonCode = reason.toApiCode()

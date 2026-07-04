@@ -9,8 +9,8 @@ import java.time.format.DateTimeFormatter
 
 private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-fun MatchItemResponse.toGameSchedule(): GameSchedule {
-    val finalDate = LocalDate.parse(matchDate, DATE_FORMATTER)
+fun MatchItemResponse.toGameSchedule(): GameSchedule? {
+    val finalDate = runCatching { LocalDate.parse(matchDate, DATE_FORMATTER) }.getOrNull() ?: return null
     val finalTime = TimeUtils.parseUtcToKst(startTime)
 
     return GameSchedule(

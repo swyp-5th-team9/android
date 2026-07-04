@@ -55,6 +55,8 @@ import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalDate
 import java.time.LocalTime
 
+private val DRINK_CODES = setOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+
 @Composable
 private fun DragHandle() {
     Box(
@@ -148,7 +150,7 @@ private fun PubListContent(
             item {
                 HomePubFilterChip(
                     label = "다양한 술",
-                    isSelected = filter.foodCodes?.isNotEmpty() == true,
+                    isSelected = filter.foodCodes?.any { it in DRINK_CODES } == true,
                     onClick = { onFilterClick("VARIOUS_DRINKS") },
                 )
             }

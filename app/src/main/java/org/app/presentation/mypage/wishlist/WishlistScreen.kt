@@ -118,18 +118,16 @@ private fun WishlistScreen(
     ) {
         Column {
             MoballTopBar(
-                state = TopBarState.BackWithTextMenu(
-                    title = "펍 즐겨찾기 목록",
-                    menuText = if (state.items.isEmpty()) {
-                        ""
-                    } else if (state.isEditMode) {
-                        "완료"
-                    } else {
-                        "편집"
-                    },
-                    onBackClick = onBack,
-                    onMenuClick = onEditClick,
-                ),
+                state = if (state.items.isEmpty()) {
+                    TopBarState.Back(title = "펍 즐겨찾기 목록", onBackClick = onBack)
+                } else {
+                    TopBarState.BackWithTextMenu(
+                        title = "펍 즐겨찾기 목록",
+                        menuText = if (state.isEditMode) "완료" else "편집",
+                        onBackClick = onBack,
+                        onMenuClick = onEditClick,
+                    )
+                },
             )
 
             if (state.items.isEmpty()) {

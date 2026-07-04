@@ -50,15 +50,19 @@ class MyPageViewModel
                 userResult
                     .onSuccess { user ->
                         val favorites =
-                            favoriteResult.getOrNull()?.map {
-                                WishlistItem(
-                                    favoriteId = it.favoriteId,
-                                    pubId = it.pubId,
-                                    pubName = it.pubName,
-                                    address = it.address,
-                                    thumbnailImageUrl = it.thumbnailImageUrl,
-                                )
-                            } ?: emptyList()
+                            favoriteResult
+                                .getOrElse { error ->
+                                    Timber.w("즐겨찾기 조회 실패: $error")
+                                    emptyList()
+                                }.map {
+                                    WishlistItem(
+                                        favoriteId = it.favoriteId,
+                                        pubId = it.pubId,
+                                        pubName = it.pubName,
+                                        address = it.address,
+                                        thumbnailImageUrl = it.thumbnailImageUrl,
+                                    )
+                                } ?: emptyList()
 
                         _state.update {
                             it.copy(

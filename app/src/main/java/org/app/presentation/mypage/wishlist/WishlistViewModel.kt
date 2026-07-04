@@ -24,11 +24,18 @@ class WishlistViewModel
         private val _sideEffect = MutableSharedFlow<WishlistContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
+        private val pendingHeartIds = mutableSetOf<Long>()
+        private var firstResumePending = true
+
         init {
             loadFavorites()
         }
 
         fun refresh() {
+            if (firstResumePending) {
+                firstResumePending = false
+                return
+            }
             loadFavorites()
         }
 
@@ -78,18 +85,23 @@ class WishlistViewModel
 
                 is WishlistContract.Event.OnHeartClick -> {
                     if (_state.value.isEditMode) return
+                    if (!pendingHeartIds.add(event.favoriteId)) return
                     viewModelScope.launch {
-                        favoriteRepository
-                            .deleteFavorites(listOf(event.favoriteId))
-                            .onSuccess {
-                                _state.update { current ->
-                                    current.copy(
-                                        items = current.items.filter { it.favoriteId != event.favoriteId },
-                                    )
+                        try {
+                            favoriteRepository
+                                .deleteFavorites(listOf(event.favoriteId))
+                                .onSuccess {
+                                    _state.update { current ->
+                                        current.copy(
+                                            items = current.items.filter { it.favoriteId != event.favoriteId },
+                                        )
+                                    }
+                                }.onFailure { e ->
+                                    _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
                                 }
-                            }.onFailure { e ->
-                                _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
-                            }
+                        } finally {
+                            pendingHeartIds.remove(event.favoriteId)
+                        }
                     }
                 }
 

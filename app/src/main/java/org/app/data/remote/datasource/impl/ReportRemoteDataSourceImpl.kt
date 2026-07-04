@@ -65,7 +65,10 @@ class ReportRemoteDataSourceImpl
                 val tempFile = File.createTempFile("report_img_", ".$ext", context.cacheDir)
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     tempFile.outputStream().use { out -> input.copyTo(out) }
-                } ?: return null
+                } ?: run {
+                    tempFile.delete()
+                    return null
+                }
                 tempFile
             }.getOrNull()
     }

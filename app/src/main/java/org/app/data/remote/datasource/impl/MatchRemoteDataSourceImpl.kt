@@ -28,5 +28,5 @@ class MatchRemoteDataSourceImpl
                     teamId = teamId,
                 ).getDataOrThrow()
                 .matches
-                .map { it.toGameSchedule() }
+                .mapNotNull { it.toGameSchedule() }
     }

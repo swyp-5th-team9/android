@@ -35,7 +35,14 @@ class ReportViewModel
                     _state.update { it.copy(selectedCategory = event.category) }
 
                 is ReportContract.Event.OnDetailTextChanged -> {
-                    _state.update { it.copy(detailText = event.text, detailError = null) }
+                    _state.update {
+                        val error = if (event.text.length > ReportContract.State.MAX_CONTENT_LENGTH) {
+                            "최대 ${ReportContract.State.MAX_CONTENT_LENGTH}자까지 입력 가능합니다."
+                        } else {
+                            null
+                        }
+                        it.copy(detailText = event.text, detailError = error)
+                    }
                 }
 
                 is ReportContract.Event.OnImagesAdded -> {
@@ -52,8 +59,7 @@ class ReportViewModel
 
                 ReportContract.Event.OnSubmit -> submit()
 
-                ReportContract.Event.OnBack ->
-                    emit(ReportContract.SideEffect.NavigateBack)
+                ReportContract.Event.OnBack -> emit(ReportContract.SideEffect.NavigateBack)
             }
         }
 

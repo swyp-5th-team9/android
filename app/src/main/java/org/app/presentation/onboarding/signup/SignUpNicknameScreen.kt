@@ -1,18 +1,12 @@
 package org.app.presentation.onboarding.signup
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -80,7 +74,6 @@ fun SignUpNicknameRoute(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SignUpNicknameScreen(
     state: SignUpContract.State,
@@ -89,8 +82,6 @@ private fun SignUpNicknameScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isKeyboardVisible = WindowInsets.isImeVisible
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -134,21 +125,13 @@ private fun SignUpNicknameScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            AnimatedVisibility(
-                visible = isKeyboardVisible,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Column {
-                    MoballButton(
-                        text = "이걸로 할래요",
-                        onClick = onNextClick,
-                        enabled = state.isNicknameValid,
-                    )
+            MoballButton(
+                text = "이걸로 할래요",
+                onClick = onNextClick,
+                enabled = state.isNicknameValid,
+            )
 
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

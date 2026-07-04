@@ -320,12 +320,11 @@ private fun BusinessHoursRow(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = if (hour.isClosed) {
-                            "휴무"
-                        } else {
-                            "${TimeUtils.formatTime(
-                                hour.openTime,
-                            )} ~ ${TimeUtils.formatTime(hour.closeTime)}"
+                        text = when {
+                            hour.isClosed -> "휴무"
+                            hour.openTime != null && hour.closeTime != null ->
+                                "${TimeUtils.formatTime(hour.openTime)} ~ ${TimeUtils.formatTime(hour.closeTime)}"
+                            else -> "시간 미정"
                         },
                         style = textStyle,
                         color = textColor,

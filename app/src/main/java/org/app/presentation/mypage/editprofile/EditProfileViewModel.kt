@@ -50,7 +50,7 @@ class EditProfileViewModel
             when (event) {
                 is EditProfileContract.Event.OnNicknameChange -> {
                     val nicknameError = when {
-                        event.nickname.length >= 20 -> "20자 이내로 입력해주세요."
+                        event.nickname.length > 20 -> "20자 이내로 입력해주세요."
                         event.nickname.isBlank() -> "닉네임을 입력해주세요."
                         else -> null
                     }
