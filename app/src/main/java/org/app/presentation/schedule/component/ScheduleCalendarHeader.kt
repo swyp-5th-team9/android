@@ -1,8 +1,6 @@
 package org.app.presentation.schedule.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -71,7 +70,7 @@ fun ScheduleCalendarHeader(
             onCalendarClick = onCalendarClick,
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         DateStrip(
             weekDates = weekDates,
@@ -91,44 +90,47 @@ private fun MonthNavigationRow(
     onCalendarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Row(
         modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(24.dp)
-                    .noRippleClickable(onClick = onPrevWeek),
-            )
-            Text(
-                text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
-                style = MoballTheme.typography.heading5.bold18,
-                color = MoballTheme.colors.textPrimary,
-            )
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right),
-                contentDescription = "다음 주",
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(24.dp)
-                    .noRippleClickable(onClick = onNextWeek),
-            )
-        }
+        Spacer(Modifier.width(87.dp))
+
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left_md),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .size(24.dp)
+                .noRippleClickable(onClick = onPrevWeek),
+        )
+
+        Spacer(Modifier.width(40.dp))
+
+        Text(
+            text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
+            style = MoballTheme.typography.heading5.bold18,
+            color = MoballTheme.colors.textPrimary,
+        )
+
+        Spacer(Modifier.width(36.dp))
+
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right_md),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .size(24.dp)
+                .noRippleClickable(onClick = onNextWeek),
+        )
+
+        Spacer(Modifier.width(34.dp))
 
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_calender),
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .noRippleClickable(onClick = onCalendarClick),
+            modifier = Modifier.noRippleClickable(onClick = onCalendarClick),
         )
     }
 }
@@ -173,7 +175,6 @@ private fun DateItem(
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 오늘 상단 점
         if (isToday) {
             Box(
                 modifier = Modifier
@@ -204,13 +205,6 @@ private fun DateItem(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(MoballTheme.colors.textPrimary),
-                )
-
-                isToday -> Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, MoballTheme.colors.accentPrimary, CircleShape),
                 )
             }
 

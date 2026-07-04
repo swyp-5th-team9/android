@@ -64,7 +64,7 @@ private fun SignUpCompleteScreen(
 
         Text(
             text = buildAnnotatedString {
-                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.ExtraBold)) {
+                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
                     append("$nickname 님,")
                 }
             },
@@ -108,7 +108,7 @@ private fun SignUpCompleteScreen(
             onClick = onStartClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 48.dp),
+                .padding(bottom = 25.dp),
         )
     }
 }

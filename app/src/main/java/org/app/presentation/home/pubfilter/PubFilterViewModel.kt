@@ -13,7 +13,6 @@ import org.app.data.repository.api.TeamRepository
 import org.app.presentation.home.model.PubFilterOption
 import org.app.presentation.home.model.PubFilterSection
 import javax.inject.Inject
-import kotlin.collections.emptySet
 
 @HiltViewModel
 class PubFilterViewModel
@@ -81,8 +80,6 @@ class PubFilterViewModel
                         emit(PubFilterContract.SideEffect.ShowToast("팀 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요."))
                         return
                     }
-
-                    // teamId = optionId(Long 문자열) 직접 파싱 — 하드코딩 맵 불필요
                     val teamIds: List<Long> = when {
                         "all" in selectedTeamOptionIds -> emptyList()
                         else -> selectedTeamOptionIds.mapNotNull { it.toLongOrNull() }
@@ -95,15 +92,12 @@ class PubFilterViewModel
                                 .map { it.shortName }
                     }
 
-                    val regionSection = state.sections.find { it.sectionId == "region" }
                     val selectedRegionIds = selectedOptions["region"] ?: emptySet()
-                    val region = when {
-                        "seoul_all" in selectedRegionIds -> "서울 전체"
-                        else ->
-                            regionSection
-                                ?.options
-                                ?.firstOrNull { it.id in selectedRegionIds }
-                                ?.label
+                    // optionId = 백엔드 enum 코드이므로 그대로 전달
+                    // SEOUL_ALL(서울 전체) 선택 시 region 파라미터 없음(null → 전체 조회)
+                    val regions = when {
+                        "SEOUL_ALL" in selectedRegionIds || selectedRegionIds.isEmpty() -> emptyList()
+                        else -> selectedRegionIds.toList()
                     }
 
                     val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
@@ -128,7 +122,7 @@ class PubFilterViewModel
                             selectedOptions,
                             teamIds,
                             teamNames,
-                            region,
+                            regions,
                             openNow,
                             businessDay,
                         ),
@@ -160,12 +154,24 @@ class PubFilterViewModel
                         }
                     }
 
-                    "region", "business_day" ->
+                    "business_day" ->
                         if (optionId in currentSet) {
                             emptySet()
                         } else {
                             setOf(optionId)
                         }
+
+                    "region" -> {
+                        when {
+                            optionId == "SEOUL_ALL" ->
+                                if (currentSet == setOf("SEOUL_ALL")) emptySet() else setOf("SEOUL_ALL")
+
+                            else -> {
+                                val baseSet = currentSet - "SEOUL_ALL"
+                                if (optionId in baseSet) baseSet - optionId else baseSet + optionId
+                            }
+                        }
+                    }
 
                     else ->
                         if (optionId in currentSet) currentSet - optionId else currentSet + optionId

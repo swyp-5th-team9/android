@@ -13,6 +13,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.app.core.network.AuthInterceptor
+import org.app.core.network.TokenAuthenticator
 import org.app.core.network.isJsonArray
 import org.app.core.network.isJsonObject
 import org.json.JSONObject
@@ -80,11 +81,13 @@ object NetworkModule {
     fun provideOkHttpClient(
         @LoggingInterceptor loggingInterceptor: Interceptor,
         authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator,
     ): OkHttpClient =
         OkHttpClient
             .Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(tokenAuthenticator)
             .build()
 
     @Provides

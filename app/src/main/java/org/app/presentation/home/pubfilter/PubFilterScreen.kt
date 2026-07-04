@@ -59,7 +59,7 @@ fun PubFilterRoute(
     onApplyFilter: (
         teamIds: List<Long>,
         teamNames: List<String>,
-        region: String?,
+        regions: List<String>,
         openNow: Boolean?,
         businessDay: String?,
     ) -> Unit = { _, _, _, _, _ -> },
@@ -73,7 +73,7 @@ fun PubFilterRoute(
             when (effect) {
                 PubFilterContract.SideEffect.NavigateBack -> onBack()
                 is PubFilterContract.SideEffect.ApplyFilter -> {
-                    onApplyFilter(effect.teamIds, effect.teamNames, effect.region, effect.openNow, effect.businessDay)
+                    onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
                     onBack()
                 }
 
@@ -263,7 +263,7 @@ internal fun PubFilterScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 40.dp),
-                    verticalArrangement = Arrangement.spacedBy(28.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     Text(
                         text = "음식 / 주류",
@@ -333,7 +333,7 @@ private fun PubFilterScreenPreview() {
         PubFilterScreen(
             state = PubFilterContract.State(
                 selectedOptions = mapOf(
-                    "region" to setOf("seoul_gangnam", "seoul_hongdae"),
+                    "region" to setOf("GANGNAM", "HONGDAE_HAPJEONG"),
                     "business" to setOf("open"),
                 ),
             ),

@@ -4,8 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -37,6 +40,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.LatLngBounds
+import com.naver.maps.map.CameraAnimation
+import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
@@ -47,6 +53,8 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
+import org.app.presentation.home.component.HomePubDetailBottomSheet
+import org.app.presentation.home.component.HomePubListBottomSheet
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
 import org.app.presentation.home.component.clusterOverlayImage
@@ -67,23 +75,14 @@ fun HomeRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
-                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
-                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(sideEffect.pubId)
-                is HomeContract.SideEffect.ShowToast -> {
-                    // TODO: Toast show logic
-                }
-            }
-        }
-    }
-
     HomeScreen(
         state = state,
+        sideEffect = viewModel.sideEffect,
         onEvent = viewModel::onEvent,
+        onNavigateToSearch = onNavigateToSearch,
+        onNavigateToPubFilter = onNavigateToPubFilter,
+        onNavigateToReport = onNavigateToReport,
+        onNavigateToPubDetail = onNavigateToPubDetail,
         modifier = modifier,
     )
 }
@@ -92,7 +91,12 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     state: HomeContract.State,
+    sideEffect: kotlinx.coroutines.flow.Flow<HomeContract.SideEffect>,
     onEvent: (HomeContract.Event) -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToPubFilter: () -> Unit,
+    onNavigateToReport: () -> Unit,
+    onNavigateToPubDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -102,6 +106,44 @@ fun HomeScreen(
         remember { FusedLocationSource(context.findActivity()!!, LOCATION_PERMISSION_REQUEST_CODE) }
 
     var naverMap by remember { mutableStateOf<NaverMap?>(null) }
+
+    LaunchedEffect(Unit) {
+        sideEffect.collect { effect ->
+            when (effect) {
+                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
+                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
+                is HomeContract.SideEffect.MoveCameraToBounds -> {
+                    val latLngs = effect.points.map { LatLng(it.first, it.second) }
+                    if (latLngs.size == 1) {
+                        naverMap?.moveCamera(CameraUpdate.scrollTo(latLngs.first()).animate(CameraAnimation.Easing))
+                    } else if (latLngs.size > 1) {
+                        val bounds = LatLngBounds.Builder().include(latLngs).build()
+                        naverMap?.moveCamera(CameraUpdate.fitBounds(bounds, 150).animate(CameraAnimation.Easing))
+                    }
+                }
+
+                is HomeContract.SideEffect.ShowToast ->
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+
+                is HomeContract.SideEffect.OpenMap -> {
+                    val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
+                    val isAppInstalled = context.packageManager
+                        .queryIntentActivities(
+                            intent,
+                            PackageManager.MATCH_DEFAULT_ONLY,
+                        ).isNotEmpty()
+
+                    if (isAppInstalled) {
+                        context.startActivity(intent)
+                    } else {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri()))
+                    }
+                }
+            }
+        }
+    }
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -115,6 +157,12 @@ fun HomeScreen(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
         hasLocationPermission = permissions.values.all { it }
+    }
+
+    LaunchedEffect(hasLocationPermission, naverMap) {
+        if (hasLocationPermission && naverMap != null) {
+            naverMap?.locationTrackingMode = LocationTrackingMode.Follow
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -159,8 +207,22 @@ fun HomeScreen(
                         map.locationSource = locationSource
                         map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
                         map.locationOverlay.isVisible = true
+
+                        map.addOnCameraChangeListener { reason, animated ->
+                            val bounds = map.contentBounds
+                            val zoom = map.cameraPosition.zoom
+                            onEvent(
+                                HomeContract.Event.OnMapBoundsChanged(
+                                    swLat = bounds.southWest.latitude,
+                                    swLng = bounds.southWest.longitude,
+                                    neLat = bounds.northEast.latitude,
+                                    neLng = bounds.northEast.longitude,
+                                    zoom = zoom,
+                                ),
+                            )
+                        }
+
                         map.locationOverlay.setOnClickListener {
-                            // TODO: 내 위치 마커 클릭 시 동작
                             false
                         }
                     }
@@ -182,6 +244,9 @@ fun HomeScreen(
                         map = map,
                         clusters = state.pubClusters,
                         currentClusters = activeClusters,
+                        onClusterClick = { cluster ->
+                            onEvent(HomeContract.Event.OnClusterClick(cluster))
+                        },
                     )
                 }
             },
@@ -234,19 +299,60 @@ fun HomeScreen(
                 initialTab = state.filterBottomSheetTab,
                 userFavoriteTeamIds = state.userFavoriteTeamIds,
                 initialTeamIds = state.filter.selectedTeamIds,
-                initialRegion = state.filter.selectedRegion,
-                onApply = { teamIds, teamNames, region ->
+                initialRegions = state.filter.selectedRegions,
+                onApply = { teamIds, teamNames, regions ->
                     onEvent(
                         HomeContract.Event.OnFilterApply(
                             teamIds,
                             teamNames,
-                            region,
+                            regions,
                             state.filter.openNow,
                             state.filter.businessDay,
                         ),
                     )
                 },
                 onDismiss = { onEvent(HomeContract.Event.OnFilterBottomSheetDismiss) },
+            )
+        }
+
+        if (state.showPubListSheet && !state.showPubDetailSheet) {
+            val displayItems = remember(state.selectedPubList, state.pubMapItems) {
+                if (state.selectedPubList.isNotEmpty()) {
+                    state.selectedPubList.mapNotNull { selected ->
+                        state.pubMapItems.find { it.pubId == selected.pubId }
+                    }
+                } else {
+                    state.pubMapItems
+                }
+            }
+
+            HomePubListBottomSheet(
+                pubItems = displayItems,
+                favoritePubIds = state.favoritePubIds,
+                filter = state.filter,
+                onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
+                onFavoriteClick = { pubId -> onEvent(HomeContract.Event.OnPubListFavoriteClick(pubId)) },
+                onFilterClick = { filterKey -> onEvent(HomeContract.Event.OnQuickFilterClick(filterKey)) },
+                onDismiss = { onEvent(HomeContract.Event.OnPubListSheetDismiss) },
+            )
+        }
+
+        if (state.showPubDetailSheet) {
+            HomePubDetailBottomSheet(
+                detail = state.selectedPubDetail,
+                isLoading = state.isPubDetailLoading,
+                isFavoriteLoading = state.isPubFavoriteLoading,
+                onFavoriteClick = { onEvent(HomeContract.Event.OnFavoriteClick) },
+                onKakaoMapClick = {
+                    val d = state.selectedPubDetail ?: return@HomePubDetailBottomSheet
+                    onEvent(HomeContract.Event.OnKakaoMapClick(d.latitude, d.longitude, d.name))
+                },
+                onNaverMapClick = {
+                    val d = state.selectedPubDetail ?: return@HomePubDetailBottomSheet
+                    onEvent(HomeContract.Event.OnNaverMapClick(d.latitude, d.longitude, d.name))
+                },
+                onCardClick = { pubId -> onNavigateToPubDetail(pubId.toString()) },
+                onDismiss = { onEvent(HomeContract.Event.OnPubDetailSheetDismiss) },
             )
         }
     }
@@ -283,6 +389,7 @@ private fun renderPubClusters(
     map: NaverMap,
     clusters: List<PubCluster>,
     currentClusters: MutableList<Marker>,
+    onClusterClick: (PubCluster) -> Unit,
 ) {
     currentClusters.forEach { it.map = null }
     currentClusters.clear()
@@ -292,6 +399,10 @@ private fun renderPubClusters(
             icon = clusterOverlayImage(context, cluster.count)
             anchor = PointF(0.5f, 0.5f)
             this.map = map
+            setOnClickListener {
+                onClusterClick(cluster)
+                true
+            }
         }
         currentClusters.add(marker)
     }
@@ -312,7 +423,12 @@ fun HomeScreenPreview() {
     MoballTheme {
         HomeScreen(
             state = HomeContract.State(),
+            sideEffect = kotlinx.coroutines.flow.emptyFlow(),
             onEvent = {},
+            onNavigateToSearch = {},
+            onNavigateToPubFilter = {},
+            onNavigateToReport = {},
+            onNavigateToPubDetail = {},
         )
     }
 }

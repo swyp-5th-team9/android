@@ -24,14 +24,25 @@ class WishlistViewModel
         private val _sideEffect = MutableSharedFlow<WishlistContract.SideEffect>()
         val sideEffect = _sideEffect.asSharedFlow()
 
+        private val pendingHeartIds = mutableSetOf<Long>()
+        private var firstResumePending = true
+
         init {
+            loadFavorites()
+        }
+
+        fun refresh() {
+            if (firstResumePending) {
+                firstResumePending = false
+                return
+            }
             loadFavorites()
         }
 
         fun onEvent(event: WishlistContract.Event) {
             when (event) {
                 WishlistContract.Event.OnEditClick -> {
-                    _state.update { it.copy(isEditMode = true, selectedIds = emptySet()) }
+                    _state.update { it.copy(isEditMode = !it.isEditMode, selectedIds = emptySet()) }
                 }
 
                 WishlistContract.Event.OnCancelEdit -> {
@@ -72,6 +83,28 @@ class WishlistViewModel
                     }
                 }
 
+                is WishlistContract.Event.OnHeartClick -> {
+                    if (_state.value.isEditMode) return
+                    if (!pendingHeartIds.add(event.favoriteId)) return
+                    viewModelScope.launch {
+                        try {
+                            favoriteRepository
+                                .deleteFavorites(listOf(event.favoriteId))
+                                .onSuccess {
+                                    _state.update { current ->
+                                        current.copy(
+                                            items = current.items.filter { it.favoriteId != event.favoriteId },
+                                        )
+                                    }
+                                }.onFailure { e ->
+                                    _sideEffect.emit(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
+                                }
+                        } finally {
+                            pendingHeartIds.remove(event.favoriteId)
+                        }
+                    }
+                }
+
                 is WishlistContract.Event.OnPubClick -> {
                     if (_state.value.isEditMode) {
                         val favoriteId = _state.value.items
@@ -103,6 +136,7 @@ class WishlistViewModel
                                         favoriteId = item.favoriteId,
                                         pubId = item.pubId,
                                         pubName = item.pubName,
+                                        address = item.address,
                                         thumbnailImageUrl = item.thumbnailImageUrl,
                                     )
                                 },

@@ -55,6 +55,7 @@ fun MoballTopBar(
             }
 
             if (onBackClick != null) {
+                Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left),
                     contentDescription = null,

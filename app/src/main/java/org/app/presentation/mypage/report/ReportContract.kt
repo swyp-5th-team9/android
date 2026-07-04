@@ -9,8 +9,10 @@ interface ReportContract {
         val detailText: String = "",
         val imageUris: List<Uri> = emptyList(),
         val isSubmitting: Boolean = false,
+        val detailError: String? = null,
     ) {
-        val canSubmit: Boolean get() = detailText.isNotBlank() && !isSubmitting
+        val canSubmit: Boolean
+            get() = detailText.isNotBlank() && !isSubmitting && detailError == null
         val remainingImageSlots: Int get() = MAX_IMAGES - imageUris.size
 
         companion object {

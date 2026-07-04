@@ -1,0 +1,642 @@
+package org.app.presentation.home.component
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.moball.app.R
+import org.app.core.designsystem.component.UrlImage
+import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
+import org.app.core.util.TimeUtils
+import org.app.data.model.PubMapItem
+import org.app.presentation.home.model.HomeFilter
+import org.app.presentation.pubdetail.component.TeamBadge
+import org.app.presentation.pubdetail.component.TeamListBadge
+import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.presentation.pubdetail.model.PubDetail
+import org.app.presentation.pubdetail.model.PubStatus
+import java.time.LocalDate
+import java.time.LocalTime
+
+private val DRINK_CODES = setOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+
+@Composable
+private fun DragHandle() {
+    Box(
+        modifier = Modifier
+            .padding(top = 12.dp, bottom = 8.dp)
+            .width(40.dp)
+            .height(4.dp)
+            .clip(CircleShape)
+            .background(MoballTheme.colors.borderNormal),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomePubListBottomSheet(
+    pubItems: List<PubMapItem>,
+    favoritePubIds: Set<Long>,
+    filter: HomeFilter,
+    onItemClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit,
+    onFilterClick: (String) -> Unit,
+    onDismiss: () -> Unit,
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        contentWindowInsets = { WindowInsets(0) },
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        dragHandle = { DragHandle() },
+    ) {
+        PubListContent(
+            pubItems = pubItems,
+            favoritePubIds = favoritePubIds,
+            filter = filter,
+            onItemClick = onItemClick,
+            onFavoriteClick = onFavoriteClick,
+            onFilterClick = onFilterClick,
+            modifier = Modifier.navigationBarsPadding(),
+        )
+    }
+}
+
+@Composable
+private fun PubListContent(
+    pubItems: List<PubMapItem>,
+    favoritePubIds: Set<Long>,
+    filter: HomeFilter,
+    onItemClick: (Long) -> Unit,
+    onFavoriteClick: (Long) -> Unit,
+    onFilterClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item {
+                HomePubFilterChip(
+                    label = "영업중",
+                    isSelected = filter.openNow == true,
+                    onClick = { onFilterClick("OPEN") },
+                )
+            }
+            item {
+                HomePubFilterChip(
+                    label = "단체석",
+                    isSelected = filter.facilityCodes?.contains("GROUP_SEAT") == true,
+                    onClick = { onFilterClick("GROUP_SEAT") },
+                )
+            }
+            item {
+                HomePubFilterChip(
+                    label = "주차",
+                    isSelected = filter.facilityCodes?.contains("PARKING") == true,
+                    onClick = { onFilterClick("PARKING") },
+                )
+            }
+            item {
+                HomePubFilterChip(
+                    label = "넓은",
+                    isSelected = filter.facilityCodes?.contains("SPACIOUS_AREA") == true,
+                    onClick = { onFilterClick("WIDE_SPACE") },
+                )
+            }
+            item {
+                HomePubFilterChip(
+                    label = "다양한 술",
+                    isSelected = filter.foodCodes?.any { it in DRINK_CODES } == true,
+                    onClick = { onFilterClick("VARIOUS_DRINKS") },
+                )
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 16.dp),
+        ) {
+            items(pubItems, key = { it.pubId }) { item ->
+                PubListItem(
+                    item = item,
+                    isFavorite = item.pubId in favoritePubIds,
+                    onClick = { onItemClick(item.pubId) },
+                    onFavoriteClick = { onFavoriteClick(item.pubId) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PubListItem(
+    item: PubMapItem,
+    isFavorite: Boolean,
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .noRippleClickable(onClick = onClick)
+            .padding(16.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = item.name,
+                style = MoballTheme.typography.heading6.bold16,
+                color = MoballTheme.colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Icon(
+                imageVector = ImageVector.vectorResource(
+                    if (isFavorite) R.drawable.ic_heart_fill else R.drawable.ic_heart,
+                ),
+                contentDescription = null,
+                tint = if (isFavorite) MoballTheme.colors.iconPrimary else MoballTheme.colors.textTertiary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onFavoriteClick),
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+
+        // 썸네일 리스트 (지도 명세의 imageUrls 4개 노출)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            repeat(4) { index ->
+                UrlImage(
+                    url = item.imageUrls.getOrNull(index),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(92.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MoballTheme.colors.borderNormal),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+
+        // 정보 박스
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(8.dp))
+                .padding(12.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_clock),
+                    contentDescription = null,
+                    tint = MoballTheme.colors.textPrimary,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                val statusLabel = item.status.label
+                val timeRange = if (item.openTime != null && item.closeTime != null) {
+                    " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
+                } else {
+                    ""
+                }
+                Text(
+                    text = "$statusLabel$timeRange",
+                    style = MoballTheme.typography.heading6.semibold16,
+                    color = MoballTheme.colors.textPrimary,
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                item.supportedTeams.firstOrNull()?.let { teamName ->
+                    TeamListBadge(text = teamName)
+                }
+                item.facilityCodes.firstOrNull()?.let { code ->
+                    mapFacilityCodeToLabel(code)?.let { label ->
+                        TeamListBadge(text = label)
+                    }
+                }
+                item.groupSeatMaxPeople?.let { count ->
+                    TeamListBadge(text = "${count}명 수용가능")
+                }
+            }
+        }
+    }
+}
+
+private fun mapFacilityCodeToLabel(code: String): String? =
+    when (code.lowercase()) {
+        "group_seat" -> "단체석"
+        "wide_space", "spacious_view" -> "넓은 공간"
+        "outdoor_seat" -> "야외 좌석"
+        "parking" -> "주차"
+        "reservation" -> "예약가능"
+        else -> null
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomePubDetailBottomSheet(
+    detail: PubDetail?,
+    isLoading: Boolean,
+    isFavoriteLoading: Boolean,
+    onFavoriteClick: () -> Unit,
+    onKakaoMapClick: () -> Unit,
+    onNaverMapClick: () -> Unit,
+    onCardClick: (Long) -> Unit,
+    onDismiss: () -> Unit,
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        contentWindowInsets = { WindowInsets(0) },
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        dragHandle = { DragHandle() },
+    ) {
+        PubDetailContent(
+            detail = detail,
+            isLoading = isLoading,
+            isFavoriteLoading = isFavoriteLoading,
+            onFavoriteClick = onFavoriteClick,
+            onKakaoMapClick = onKakaoMapClick,
+            onNaverMapClick = onNaverMapClick,
+            onCardClick = onCardClick,
+        )
+    }
+}
+
+@Composable
+private fun PubDetailContent(
+    detail: PubDetail?,
+    isLoading: Boolean,
+    isFavoriteLoading: Boolean,
+    onFavoriteClick: () -> Unit,
+    onKakaoMapClick: () -> Unit,
+    onNaverMapClick: () -> Unit,
+    onCardClick: (Long) -> Unit,
+) {
+    Column(modifier = Modifier.navigationBarsPadding()) {
+        if (detail == null && isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = MoballTheme.colors.accentPrimary)
+            }
+        } else if (detail != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .noRippleClickable { onCardClick(detail.pubId) }
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val firstTeam = detail.teams.firstOrNull()
+                    if (firstTeam != null) {
+                        TeamBadge(teamType = KboTeamType.fromId(firstTeam.teamId.toInt()))
+                    }
+
+                    Text(
+                        text = detail.name,
+                        style = MoballTheme.typography.heading3.bold20,
+                        color = MoballTheme.colors.textTitle,
+                    )
+
+                    if (detail.address.isNotEmpty()) {
+                        Text(
+                            text = detail.address.summaryAddress(),
+                            style = MoballTheme.typography.body.regular14,
+                            color = MoballTheme.colors.textSecondary,
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = detail.status.label,
+                            style = MoballTheme.typography.body.medium14,
+                            color = MoballTheme.colors.textPrimary,
+                        )
+                        Spacer(Modifier.width(6.dp))
+
+                        if (detail.businessHours.isNotEmpty()) {
+                            val todayIso = remember { LocalDate.now().dayOfWeek.value }
+                            val todayHours = detail.businessHours.find { it.dayOfWeek == todayIso }
+                            val timeText = if (todayHours?.isClosed == true) {
+                                "휴무"
+                            } else if (todayHours?.openTime != null && todayHours.closeTime != null) {
+                                "${
+                                    TimeUtils.formatTime(
+                                        todayHours.openTime,
+                                    )
+                                } - ${TimeUtils.formatTime(todayHours.closeTime)}"
+                            } else {
+                                ""
+                            }
+                            if (timeText.isNotEmpty()) {
+                                Text(
+                                    text = timeText,
+                                    style = MoballTheme.typography.body.regular14,
+                                    color = MoballTheme.colors.textSecondary,
+                                )
+                            }
+                        } else if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(12.dp),
+                                strokeWidth = 2.dp,
+                                color = MoballTheme.colors.accentPrimary,
+                            )
+                        }
+                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        detail.facilityCodes.take(2).forEach { code ->
+                            mapFacilityCodeToLabel(code)?.let { label ->
+                                TeamListBadge(text = label)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                UrlImage(
+                    url = detail.imageUrls.firstOrNull(),
+                    contentDescription = detail.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(110.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MoballTheme.colors.borderNormal),
+                )
+            }
+        }
+
+        HorizontalDivider(color = MoballTheme.colors.borderNormal)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
+                    .then(
+                        if (!isFavoriteLoading) {
+                            Modifier.noRippleClickable(onFavoriteClick)
+                        } else {
+                            Modifier
+                        },
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(
+                        if (detail?.isWishlisted == true) {
+                            R.drawable.ic_heart_fill
+                        } else {
+                            R.drawable.ic_heart
+                        },
+                    ),
+                    contentDescription = "찜",
+                    tint = if (detail?.isWishlisted == true) {
+                        MoballTheme.colors.iconPrimary
+                    } else {
+                        MoballTheme.colors.textSecondary
+                    },
+                    modifier = Modifier.size(24.dp),
+                )
+                Text(
+                    text = (detail?.favoriteCount ?: 0).toString(),
+                    style = MoballTheme.typography.caption.regular12,
+                    color = MoballTheme.colors.textSecondary,
+                )
+            }
+
+            MapActionButton(
+                text = "카카오맵",
+                onClick = onKakaoMapClick,
+                modifier = Modifier.weight(1f),
+            )
+            MapActionButton(
+                text = "네이버지도",
+                onClick = onNaverMapClick,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+fun MapActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .height(56.dp)
+            .background(MoballTheme.colors.backgroundScrim)
+            .noRippleClickable(onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = text,
+            style = MoballTheme.typography.heading6.bold16,
+            color = MoballTheme.colors.staticWhite,
+        )
+        Spacer(Modifier.width(8.dp))
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_up_right_md),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+}
+
+private fun String.summaryAddress(): String {
+    val parts = trim().split(" ")
+    // "서울시 강남구 청담동" 처럼 3단위까지만 추출
+    return parts.take(2).joinToString(" ")
+}
+
+@Composable
+private fun HomePubFilterChip(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(
+                color = if (isSelected) MoballTheme.colors.borderActive else MoballTheme.colors.backgroundBase,
+            ).border(
+                width = 1.dp,
+                color = if (isSelected) Color.Transparent else MoballTheme.colors.borderStrong,
+                shape = CircleShape,
+            ).noRippleClickable(onClick)
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = MoballTheme.typography.heading7.semibold14,
+            color = if (isSelected) MoballTheme.colors.textPrimary else MoballTheme.colors.textTertiary,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+private fun HomePubListBottomSheetPreview() {
+    val samplePubs = listOf(
+        PubMapItem(
+            pubId = 1L,
+            name = "모볼 펍 강남점",
+            latitude = 37.0,
+            longitude = 127.0,
+            status = PubStatus.OPEN,
+            favoriteCount = 128,
+            imageUrls = listOf("https://sample.com/1.jpg"),
+            supportedTeams = listOf("한화"),
+            facilityCodes = listOf("group_seat"),
+            openTime = LocalTime.of(8, 0),
+            closeTime = LocalTime.of(0, 0),
+            groupSeatMaxPeople = 100,
+            capacityRange = "20-30",
+        ),
+    )
+
+    MoballTheme {
+        PubListContent(
+            pubItems = samplePubs,
+            favoritePubIds = setOf(1L),
+            filter = org.app.presentation.home.model
+                .HomeFilter(),
+            onItemClick = {},
+            onFavoriteClick = {},
+            onFilterClick = {},
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+private fun HomePubDetailBottomSheetPreview() {
+    val sampleDetail = PubDetail(
+        pubId = 1L,
+        name = "시그니처 펍",
+        address = "서울시 강남구 청담동 123-45",
+        region = "강남구",
+        latitude = 37.0,
+        longitude = 127.0,
+        phoneNumber = "02-123-4567",
+        status = PubStatus.OPEN,
+        capacityRange = "20-30",
+        groupSeatMaxPeople = 10,
+        favoriteCount = 237,
+        description = "야구와 함께하는 즐거운 시간",
+        imageUrls = listOf(""),
+        teams = listOf(
+            org.app.presentation.pubdetail.model
+                .KboTeam(9L, "롯데", "롯데 자이언츠"),
+        ),
+        facilityCodes = listOf("parking", "group_seat"),
+        styleCodes = emptyList(),
+        themeCodes = emptyList(),
+        foodCodes = emptyList(),
+        businessHours = listOf(
+            org.app.presentation.pubdetail.model.BusinessHour(
+                LocalDate.now().dayOfWeek.value,
+                LocalTime.of(8, 0),
+                LocalTime.of(0, 0),
+                false,
+            ),
+        ),
+        menus = emptyList(),
+        isWishlisted = false,
+    )
+
+    MoballTheme {
+        PubDetailContent(
+            detail = sampleDetail,
+            isLoading = false,
+            isFavoriteLoading = false,
+            onFavoriteClick = {},
+            onKakaoMapClick = {},
+            onNaverMapClick = {},
+            onCardClick = {},
+        )
+    }
+}

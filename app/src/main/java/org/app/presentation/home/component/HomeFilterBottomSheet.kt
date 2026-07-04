@@ -44,29 +44,33 @@ import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.FilterBottomSheetTab
+import org.app.presentation.home.pubfilter.CITIES
+import org.app.presentation.home.pubfilter.component.CityChip
 import org.app.presentation.home.pubfilter.component.PubFilterOptionChip
 import org.app.presentation.home.pubfilter.component.PubFilterSubRegionChip
 
-private val REGIONS = listOf(
-    "서울 전체",
-    "강남/역삼",
-    "서초/방배/반포",
-    "선릉/삼성/논현",
-    "신사/압구정/청담",
-    "중량",
-    "양재/수서/도곡",
-    "잠실/송파",
-    "강동/천호",
-    "건대/성수/왕십리",
-    "종로",
-    "홍대/합정/마포",
-    "중구",
-    "영등포",
-    "여의도",
-    "마곡/강서",
-    "동작",
-    "성북/노원",
-    "구로/관악",
+/** 백엔드 region 코드 to 한글 표시 라벨 */
+private val REGIONS: List<Pair<String, String>> = listOf(
+    "SEOUL_ALL" to "서울 전체",
+    "GANGNAM" to "강남/서초",
+    "JAMSIL" to "잠실/잠실새내",
+    "SONGPA" to "송파",
+    "GANGDONG" to "강동/천호",
+    "SEONGDONG" to "성수/왕십리",
+    "JUNGNANG" to "중랑",
+    "JONGNO" to "종로",
+    "JUNGGU" to "중구",
+    "HONGDAE_HAPJEONG" to "홍대/합정",
+    "SANGAM_MANGWON" to "상암/망원",
+    "MAPO" to "마포",
+    "EUNPYEONG" to "은평/서대문",
+    "YEONGDEUNGPO" to "영등포/여의도",
+    "GANGSEO" to "마곡/강서",
+    "DONGJAK" to "동작",
+    "NOWON" to "노원/강북",
+    "DOBONG" to "도봉/성북",
+    "GURO" to "구로",
+    "GWANAK" to "관악",
 )
 
 /** 백엔드 V2 시드 기준 (teamId: Long) */
@@ -91,8 +95,8 @@ private val KBO_TEAMS = listOf(
  * @param initialTab          처음 표시할 탭
  * @param userFavoriteTeamIds 온보딩에서 선택한 응원 구단 ID (ic_team_favorite 표시)
  * @param initialTeamIds      현재 필터에 적용된 구단 ID
- * @param initialRegion       현재 필터에 적용된 지역
- * @param onApply             (teamIds, teamNames, region?) 콜백
+ * @param initialRegions      현재 필터에 적용된 지역 목록
+ * @param onApply             (teamIds, teamNames, regions) 콜백
  * @param onDismiss           닫기 콜백
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,13 +105,13 @@ fun HomeFilterBottomSheet(
     initialTab: FilterBottomSheetTab,
     userFavoriteTeamIds: List<Long>,
     initialTeamIds: List<Long>,
-    initialRegion: String?,
-    onApply: (teamIds: List<Long>, teamNames: List<String>, region: String?) -> Unit,
+    initialRegions: List<String>,
+    onApply: (teamIds: List<Long>, teamNames: List<String>, regions: List<String>) -> Unit,
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
     val selectedTeamIds = remember { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
-    var selectedRegion by remember { mutableStateOf(initialRegion) }
+    val selectedRegions = remember { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
     var currentTab by remember { mutableStateOf(initialTab) }
 
     ModalBottomSheet(
@@ -131,7 +135,7 @@ fun HomeFilterBottomSheet(
             currentTab = currentTab,
             userFavoriteTeamIds = userFavoriteTeamIds,
             selectedTeamIds = selectedTeamIds,
-            selectedRegion = selectedRegion,
+            selectedRegions = selectedRegions,
             onTabChange = { currentTab = it },
             onToggleTeam = { teamId ->
                 when {
@@ -148,14 +152,26 @@ fun HomeFilterBottomSheet(
                     }
                 }
             },
-            onSelectRegion = { region ->
-                selectedRegion = if (selectedRegion == region) null else region
+            onToggleRegion = { regionCode ->
+                when {
+                    regionCode == "SEOUL_ALL" -> {
+                        selectedRegions.clear()
+                        selectedRegions.add("SEOUL_ALL")
+                    }
+                    regionCode in selectedRegions -> {
+                        selectedRegions.remove(regionCode)
+                    }
+                    else -> {
+                        selectedRegions.remove("SEOUL_ALL")
+                        selectedRegions.add(regionCode)
+                    }
+                }
             },
             onApply = {
                 val names = KBO_TEAMS
                     .filter { (id, _) -> id in selectedTeamIds }
                     .map { (_, name) -> name }
-                onApply(selectedTeamIds.toList(), names, selectedRegion)
+                onApply(selectedTeamIds.toList(), names, selectedRegions.toList())
             },
             modifier = Modifier.navigationBarsPadding(),
         )
@@ -167,10 +183,10 @@ private fun FilterBottomSheetContent(
     currentTab: FilterBottomSheetTab,
     userFavoriteTeamIds: List<Long>,
     selectedTeamIds: List<Long>,
-    selectedRegion: String?,
+    selectedRegions: List<String>,
     onTabChange: (FilterBottomSheetTab) -> Unit,
     onToggleTeam: (Long) -> Unit,
-    onSelectRegion: (String) -> Unit,
+    onToggleRegion: (String) -> Unit,
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -222,8 +238,8 @@ private fun FilterBottomSheetContent(
 
             FilterBottomSheetTab.REGION ->
                 RegionFilterContent(
-                    selectedRegion = selectedRegion,
-                    onSelectRegion = onSelectRegion,
+                    selectedRegions = selectedRegions,
+                    onToggleRegion = onToggleRegion,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
         }
@@ -285,21 +301,37 @@ private fun TeamFilterContent(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RegionFilterContent(
-    selectedRegion: String?,
-    onSelectRegion: (String) -> Unit,
+    selectedRegions: List<String>,
+    onToggleRegion: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        REGIONS.forEach { region ->
-            PubFilterSubRegionChip(
-                label = region,
-                isSelected = region == selectedRegion,
-                onClick = { onSelectRegion(region) },
-            )
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            CITIES.forEach { city ->
+                CityChip(
+                    label = city.label,
+                    isSelected = city.id == "seoul",
+                    isEnabled = city.isEnabled,
+                    onClick = { /* MVP: 서울만 지원 */ },
+                )
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            REGIONS.forEach { (code, label) ->
+                PubFilterSubRegionChip(
+                    label = label,
+                    isSelected = code in selectedRegions,
+                    onClick = { onToggleRegion(code) },
+                )
+            }
         }
     }
 }
@@ -316,10 +348,10 @@ private fun FilterSheetTeamPreview() {
                 currentTab = FilterBottomSheetTab.TEAM,
                 userFavoriteTeamIds = listOf(3L, 8L),
                 selectedTeamIds = listOf(3L),
-                selectedRegion = null,
+                selectedRegions = emptyList(),
                 onTabChange = {},
                 onToggleTeam = {},
-                onSelectRegion = {},
+                onToggleRegion = {},
                 onApply = {},
             )
         }
@@ -338,10 +370,10 @@ private fun FilterSheetRegionPreview() {
                 currentTab = FilterBottomSheetTab.REGION,
                 userFavoriteTeamIds = emptyList(),
                 selectedTeamIds = emptyList(),
-                selectedRegion = "잠실/송파",
+                selectedRegions = listOf("JAMSIL"),
                 onTabChange = {},
                 onToggleTeam = {},
-                onSelectRegion = {},
+                onToggleRegion = {},
                 onApply = {},
             )
         }

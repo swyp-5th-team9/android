@@ -31,7 +31,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
                 navigateToWishlist = { navController.navigateToWishlist() },
-                navigateToPubDetail = { pubId -> navController.navigateToPubDetail(pubId) },
+                navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
             )
         }
         editProfileScreen(onBack = { navController.popBackStack() })
@@ -42,7 +42,7 @@ fun NavGraphBuilder.myPageGraph(
         )
         wishlistScreen(
             onBack = { navController.popBackStack() },
-            navigateToPubDetail = { pubId -> navController.navigateToPubDetail(pubId) },
+            navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
         )
     }
 }

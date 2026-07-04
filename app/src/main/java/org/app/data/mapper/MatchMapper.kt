@@ -1,23 +1,22 @@
 package org.app.data.mapper
 
+import org.app.core.util.TimeUtils
 import org.app.data.remote.dto.MatchItemResponse
 import org.app.presentation.schedule.model.GameSchedule
 import org.app.presentation.schedule.model.GameStatus
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
-fun MatchItemResponse.toGameSchedule(): GameSchedule =
-    GameSchedule(
+fun MatchItemResponse.toGameSchedule(): GameSchedule? {
+    val finalDate = runCatching { LocalDate.parse(matchDate, DATE_FORMATTER) }.getOrNull() ?: return null
+    val finalTime = TimeUtils.parseUtcToKst(startTime)
+
+    return GameSchedule(
         gameId = matchId.toString(),
-        date = runCatching { LocalDate.parse(matchDate, DATE_FORMATTER) }
-            .getOrElse { LocalDate.now() },
-        startTime = startTime?.let {
-            runCatching { LocalTime.parse(it, TIME_FORMATTER) }.getOrNull()
-        },
+        date = finalDate,
+        startTime = finalTime,
         homeTeamId = homeTeam.teamId,
         homeTeamName = homeTeam.name,
         awayTeamId = awayTeam.teamId,
@@ -34,3 +33,4 @@ fun MatchItemResponse.toGameSchedule(): GameSchedule =
         homeScore = homeScore,
         awayScore = awayScore,
     )
+}

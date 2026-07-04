@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Text
@@ -17,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.textfield.MoballLineTextField
@@ -82,7 +85,10 @@ private fun SignUpNicknameScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MoballTheme.colors.backgroundBase),
+            .background(MoballTheme.colors.backgroundBase)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding(),
     ) {
         MoballTopBar(
             state = TopBarState.Back(
@@ -105,7 +111,7 @@ private fun SignUpNicknameScreen(
                 color = MoballTheme.colors.textPrimary,
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(80.dp))
 
             MoballLineTextField(
                 state = textFieldState,

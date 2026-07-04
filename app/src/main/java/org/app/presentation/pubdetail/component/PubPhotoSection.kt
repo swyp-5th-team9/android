@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +40,7 @@ fun PubPhotoSection(
             style = MoballTheme.typography.heading6.bold16,
             color = MoballTheme.colors.textPrimary,
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         if (imageUrls.isEmpty()) {
             Text(
@@ -49,7 +49,7 @@ fun PubPhotoSection(
                 color = MoballTheme.colors.textTertiary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp),
+                    .padding(top = 17.dp),
                 textAlign = TextAlign.Center,
             )
         } else {
@@ -63,8 +63,7 @@ fun PubPhotoSection(
                     UrlImage(
                         url = url,
                         modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
+                            .size(124.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .noRippleClickable { onPhotoClick(index) },
                         contentScale = ContentScale.Crop,

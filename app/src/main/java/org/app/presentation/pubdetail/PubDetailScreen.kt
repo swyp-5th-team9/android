@@ -21,11 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.pubdetail.component.PubBottomBar
-import org.app.presentation.pubdetail.component.PubFacilitySection
 import org.app.presentation.pubdetail.component.PubHeroCarousel
 import org.app.presentation.pubdetail.component.PubInfoSection
 import org.app.presentation.pubdetail.component.PubPhotoGallery
@@ -34,6 +33,7 @@ import org.app.presentation.pubdetail.model.BusinessHour
 import org.app.presentation.pubdetail.model.KboTeam
 import org.app.presentation.pubdetail.model.PubDetail
 import org.app.presentation.pubdetail.model.PubStatus
+import java.time.LocalTime
 
 @Composable
 fun PubDetailRoute(
@@ -65,7 +65,11 @@ fun PubDetailRoute(
                     }
                 }
 
-                is PubDetailContract.SideEffect.ShowToast -> { /* TODO: Toast */ }
+                is PubDetailContract.SideEffect.ShowToast -> {
+                    android.widget.Toast
+                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }
@@ -116,6 +120,8 @@ internal fun PubDetailScreen(
                     address = detail.address,
                     phoneNumber = detail.phoneNumber,
                     groupSeatMaxPeople = detail.groupSeatMaxPeople,
+                    styleCodes = detail.styleCodes,
+                    facilityCodes = detail.facilityCodes,
                     isHoursExpanded = state.isHoursExpanded,
                     onHoursToggle = { onEvent(PubDetailContract.Event.OnHoursToggle) },
                     onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
@@ -123,15 +129,6 @@ internal fun PubDetailScreen(
                     favoriteCount = detail.favoriteCount,
                     onWishToggle = { onEvent(PubDetailContract.Event.OnWishlistToggle) },
                 )
-
-                Divider()
-
-                // 편의시설 (facility + style + theme + food 전부 한 섹션)
-                val allCodes = detail.facilityCodes + detail.styleCodes + detail.themeCodes + detail.foodCodes
-                if (allCodes.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    PubFacilitySection(codes = allCodes)
-                }
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Divider()
@@ -203,12 +200,12 @@ private fun PubDetailScreenPreview() {
                     themeCodes = emptyList(),
                     foodCodes = listOf("CHICKEN", "BEER"),
                     businessHours = listOf(
-                        BusinessHour(1, "17:00", "02:00", false),
-                        BusinessHour(2, "17:00", "02:00", false),
-                        BusinessHour(3, "17:00", "02:00", false),
-                        BusinessHour(4, "17:00", "02:00", false),
-                        BusinessHour(5, "17:00", "03:00", false),
-                        BusinessHour(6, "15:00", "03:00", false),
+                        BusinessHour(1, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(2, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(3, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(4, LocalTime.parse("17:00"), LocalTime.parse("02:00"), false),
+                        BusinessHour(5, LocalTime.parse("17:00"), LocalTime.parse("03:00"), false),
+                        BusinessHour(6, LocalTime.parse("15:00"), LocalTime.parse("03:00"), false),
                         BusinessHour(7, null, null, true),
                     ),
                     menus = emptyList(),

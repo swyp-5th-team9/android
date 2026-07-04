@@ -16,4 +16,11 @@ data class PubMapItemResponse(
     @SerialName("longitude") val longitude: Double,
     @SerialName("status") val status: String,
     @SerialName("favoriteCount") val favoriteCount: Int,
+    @SerialName("imageUrls") val imageUrls: List<String>? = null,
+    @SerialName("supportedTeams") val supportedTeams: List<String>? = null,
+    @SerialName("facilityCodes") val facilityCodes: List<String>? = null,
+    @SerialName("openTime") val openTime: String? = null,
+    @SerialName("closeTime") val closeTime: String? = null,
+    @SerialName("groupSeatMaxPeople") val groupSeatMaxPeople: Int? = null,
+    @SerialName("capacityRange") val capacityRange: String? = null,
 )

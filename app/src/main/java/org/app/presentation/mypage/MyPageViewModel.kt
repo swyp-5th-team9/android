@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
+import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.UserRepository
+import org.app.presentation.mypage.wishlist.WishlistItem
+import org.app.presentation.pubdetail.model.KboTeamType
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -20,6 +23,7 @@ class MyPageViewModel
     constructor(
         private val authRepository: AuthRepository,
         private val userRepository: UserRepository,
+        private val favoriteRepository: FavoriteRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow(MyPageContract.State())
         val state = _state.asStateFlow()
@@ -39,14 +43,33 @@ class MyPageViewModel
             if (_state.value.isLoading) return
             viewModelScope.launch {
                 _state.update { it.copy(isLoading = true) }
-                userRepository
-                    .getUser()
+
+                val userResult = userRepository.getUser()
+                val favoriteResult = favoriteRepository.getFavorites()
+
+                userResult
                     .onSuccess { user ->
+                        val favorites =
+                            favoriteResult
+                                .getOrElse { error ->
+                                    Timber.w("즐겨찾기 조회 실패: $error")
+                                    emptyList()
+                                }.map {
+                                    WishlistItem(
+                                        favoriteId = it.favoriteId,
+                                        pubId = it.pubId,
+                                        pubName = it.pubName,
+                                        address = it.address,
+                                        thumbnailImageUrl = it.thumbnailImageUrl,
+                                    )
+                                } ?: emptyList()
+
                         _state.update {
                             it.copy(
                                 isLoading = false,
                                 nickname = user.nickname,
                                 supportedTeams = user.favoriteTeams.map { team -> team.teamName },
+                                wishlistItems = favorites,
                             )
                         }
                     }.onFailure { error ->
@@ -83,14 +106,21 @@ class MyPageViewModel
                     // bottom sheet open은 UI 레이어에서 처리
                 }
 
-                is MyPageContract.Event.OnTeamSelected -> {
-                    val currentTeams = _state.value.supportedTeams
-                    if (event.team in currentTeams) {
-                        _state.update { it.copy(supportedTeams = it.supportedTeams - event.team) }
-                    } else if (currentTeams.size < 3) {
-                        _state.update { it.copy(supportedTeams = it.supportedTeams + event.team) }
-                    } else {
-                        emit(MyPageContract.SideEffect.ShowToast("응원 구단은 최대 3개까지 선택 가능합니다."))
+                is MyPageContract.Event.OnApplyTeams -> {
+                    val teamIds = event.teams.map { shortName ->
+                        KboTeamType.fromShortName(shortName).id.toLong()
+                    }
+                    viewModelScope.launch {
+                        _state.update { it.copy(isLoading = true) }
+                        userRepository
+                            .patchUser(teamIds = teamIds)
+                            .onSuccess {
+                                _state.update { it.copy(isLoading = false, supportedTeams = event.teams) }
+                            }.onFailure { error ->
+                                _state.update { it.copy(isLoading = false) }
+                                emit(MyPageContract.SideEffect.ShowToast("정보 수정에 실패했습니다."))
+                                Timber.e("내 정보 수정 실패: $error")
+                            }
                     }
                 }
 

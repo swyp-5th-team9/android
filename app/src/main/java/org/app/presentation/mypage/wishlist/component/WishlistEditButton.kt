@@ -1,6 +1,7 @@
 package org.app.presentation.mypage.wishlist.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,36 +28,39 @@ fun WishlistEditButton(
         modifier = modifier
             .fillMaxWidth()
             .background(MoballTheme.colors.backgroundBase)
-            .padding(vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.Top,
     ) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .background(MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
-                .noRippleClickable(onClick = onCancel),
+                .background(MoballTheme.colors.backgroundBase, RoundedCornerShape(12.dp))
+                .border(
+                    width = 1.dp,
+                    color = MoballTheme.colors.borderNormal,
+                    shape = RoundedCornerShape(12.dp),
+                ).noRippleClickable(onClick = onCancel)
+                .padding(vertical = 15.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = "취소",
                 style = MoballTheme.typography.heading5.semibold18,
                 color = MoballTheme.colors.textPrimary,
-                modifier = Modifier.padding(horizontal = 80.dp, vertical = 15.dp),
             )
         }
 
         val deleteContainerColor =
-            if (hasSelection) MoballTheme.colors.backgroundScrim else MoballTheme.colors.borderNormal
+            if (hasSelection) MoballTheme.colors.accentPrimary else MoballTheme.colors.backgroundSurface
         val deleteContentColor =
-            if (hasSelection) MoballTheme.colors.textPrimaryInverse else MoballTheme.colors.textQuaternary
+            if (hasSelection) MoballTheme.colors.textPrimary else MoballTheme.colors.textQuaternary
 
         Box(
             modifier = Modifier
-                .weight(1f)
+                .weight(3f)
                 .background(deleteContainerColor, RoundedCornerShape(12.dp))
                 .noRippleClickable { if (hasSelection) onDelete() }
-                .padding(vertical = 16.dp),
+                .padding(vertical = 15.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(

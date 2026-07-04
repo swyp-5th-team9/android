@@ -21,6 +21,10 @@ interface WishlistContract {
             val favoriteId: Long,
         ) : Event
 
+        data class OnHeartClick(
+            val favoriteId: Long,
+        ) : Event
+
         data class OnPubClick(
             val pubId: Long,
         ) : Event
@@ -42,6 +46,7 @@ interface WishlistContract {
 data class WishlistItem(
     val favoriteId: Long,
     val pubId: Long,
-    val pubName: String,
+    val pubName: String?,
+    val address: String? = null,
     val thumbnailImageUrl: String? = null,
 )

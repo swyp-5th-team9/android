@@ -74,7 +74,7 @@ fun PubFilterRegionSectionContent(
 }
 
 @Composable
-private fun CityChip(
+fun CityChip(
     label: String,
     isSelected: Boolean,
     isEnabled: Boolean,

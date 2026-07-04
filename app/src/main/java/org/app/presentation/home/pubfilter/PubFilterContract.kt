@@ -50,7 +50,7 @@ interface PubFilterContract {
             val selected: Map<String, Set<String>>,
             val teamIds: List<Long>,
             val teamNames: List<String>,
-            val region: String?,
+            val regions: List<String>,
             val openNow: Boolean?,
             val businessDay: String?,
         ) : SideEffect
@@ -61,26 +61,33 @@ interface PubFilterContract {
     }
 }
 
+/**
+ * 백엔드 region/sub_region enum 코드를 optionId로 사용.
+ * SEOUL_ALL → API region = null (전체)
+ * 그 외 → API region = optionId 그대로 전달
+ * sub-region (JAMSIL / HONGDAE_HAPJEONG / SANGAM_MANGWON) 은 서버에서 교집합 필터 적용
+ */
 internal val SEOUL_SUB_REGIONS: List<PubFilterOption> = listOf(
-    PubFilterOption("seoul_all", "서울 전체"),
-    PubFilterOption("seoul_gangnam", "강남/역삼"),
-    PubFilterOption("seoul_seocho", "서초/방배/반포"),
-    PubFilterOption("seoul_seolleung", "선릉/삼성/논현"),
-    PubFilterOption("seoul_sinsa", "신사/압구정/청담"),
-    PubFilterOption("seoul_jungnang", "중량"),
-    PubFilterOption("seoul_yangjae", "양재/수서/도곡"),
-    PubFilterOption("seoul_jamsil", "잠실/송파"),
-    PubFilterOption("seoul_gangdong", "강동/천호"),
-    PubFilterOption("seoul_kondae", "건대/성수/왕십리"),
-    PubFilterOption("seoul_jongno", "종로"),
-    PubFilterOption("seoul_hongdae", "홍대/합정/마포"),
-    PubFilterOption("seoul_junggu", "중구"),
-    PubFilterOption("seoul_yeongdeungpo", "영등포"),
-    PubFilterOption("seoul_yeouido", "여의도"),
-    PubFilterOption("seoul_magok", "마곡/강서"),
-    PubFilterOption("seoul_dongjak", "동작"),
-    PubFilterOption("seoul_seongbuk", "성북/노원"),
-    PubFilterOption("seoul_guro", "구로/관악"),
+    PubFilterOption("SEOUL_ALL", "서울 전체"),
+    PubFilterOption("GANGNAM", "강남/서초"),
+    PubFilterOption("JAMSIL", "잠실/잠실새내"), // sub-region (송파)
+    PubFilterOption("SONGPA", "송파"),
+    PubFilterOption("GANGDONG", "강동/천호"),
+    PubFilterOption("SEONGDONG", "성수/왕십리"),
+    PubFilterOption("JUNGNANG", "중랑"),
+    PubFilterOption("JONGNO", "종로"),
+    PubFilterOption("JUNGGU", "중구"),
+    PubFilterOption("HONGDAE_HAPJEONG", "홍대/합정"), // sub-region (마포)
+    PubFilterOption("SANGAM_MANGWON", "상암/망원"), // sub-region (마포) — 신규
+    PubFilterOption("MAPO", "마포"),
+    PubFilterOption("EUNPYEONG", "은평/서대문"), // 은평+서대문 커버
+    PubFilterOption("YEONGDEUNGPO", "영등포/여의도"),
+    PubFilterOption("GANGSEO", "마곡/강서"), // 강서+양천 커버
+    PubFilterOption("DONGJAK", "동작"),
+    PubFilterOption("NOWON", "노원/강북"), // 노원+강북 커버
+    PubFilterOption("DOBONG", "도봉/성북"), // 도봉+성북 커버
+    PubFilterOption("GURO", "구로"),
+    PubFilterOption("GWANAK", "관악"),
 )
 
 internal data class CityOption(

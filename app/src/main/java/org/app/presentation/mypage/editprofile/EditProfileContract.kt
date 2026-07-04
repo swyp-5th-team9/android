@@ -8,10 +8,14 @@ interface EditProfileContract {
         val profileImageUrl: String? = null,
         val isEditingNickname: Boolean = false,
         val isLoading: Boolean = false,
+        val nicknameError: String? = null,
     ) {
         val hasChanged: Boolean
-            get() = (nickname != originalNickname && nickname.isNotBlank()) ||
-                (profileImageUrl != originalProfileImageUrl)
+            get() = (
+                (nickname != originalNickname && nickname.isNotBlank()) ||
+                    (profileImageUrl != originalProfileImageUrl)
+            ) &&
+                nicknameError == null
     }
 
     sealed interface Event {

@@ -20,15 +20,15 @@ class PubRepositoryImpl
         override suspend fun getPubs(
             keyword: String?,
             teamId: Long?,
+            teamIds: List<Long>?,
             region: String?,
             facilityCodes: List<String>?,
             styleCodes: List<String>?,
             themeCodes: List<String>?,
             foodCodes: List<String>?,
             capacityRange: String?,
-            businessStatus: String?,
-            businessDays: List<Int>?,
-            sort: String?,
+            openNow: Boolean?,
+            businessDay: String?,
             page: Int?,
             size: Int?,
         ): Result<PubPage> =
@@ -37,15 +37,15 @@ class PubRepositoryImpl
                     .getPubs(
                         keyword,
                         teamId,
+                        teamIds,
                         region,
                         facilityCodes,
                         styleCodes,
                         themeCodes,
                         foodCodes,
                         capacityRange,
-                        businessStatus,
-                        businessDays,
-                        sort,
+                        openNow,
+                        businessDay,
                         page,
                         size,
                     ).getDataOrThrow()
@@ -60,11 +60,24 @@ class PubRepositoryImpl
             teamId: Long?,
             openNow: Boolean?,
             businessDay: String?,
+            facilityCodes: List<String>?,
+            themeCodes: List<String>?,
+            foodCodes: List<String>?,
         ): Result<List<PubMapItem>> =
             suspendRunCatching {
                 pubRemoteDataSource
-                    .getMapPubs(swLat, swLng, neLat, neLng, teamId, openNow, businessDay)
-                    .getDataOrThrow()
+                    .getMapPubs(
+                        swLat,
+                        swLng,
+                        neLat,
+                        neLng,
+                        teamId,
+                        openNow,
+                        businessDay,
+                        facilityCodes,
+                        themeCodes,
+                        foodCodes,
+                    ).getDataOrThrow()
                     .toPubMapItems()
             }
 

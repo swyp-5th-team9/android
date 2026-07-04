@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -61,21 +61,20 @@ private val KboTeams = listOf(
 /**
  * 응원구단 선택 바텀시트
  *
- * @param selectedTeams 현재 선택된 구단 목록
- * @param onTeamClick   구단 클릭 시 콜백 (선택/해제 토글)
- * @param onApply       "적용하기" 클릭
- * @param onDismiss     닫기 클릭
+ * @param initialSelectedTeams 초기 선택된 구단 목록
+ * @param onApply               "적용하기" 클릭 시 최종 선택된 구단 목록 전달
+ * @param onDismiss             닫기 클릭 (변경 사항 무시)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageTeamSelectBottomSheet(
-    selectedTeams: List<String>,
-    onTeamClick: (String) -> Unit,
-    onApply: () -> Unit,
+    initialSelectedTeams: List<String>,
+    onApply: (List<String>) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var draftSelectedTeams by remember { mutableStateOf(initialSelectedTeams) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -88,17 +87,20 @@ fun MyPageTeamSelectBottomSheet(
         ),
     ) {
         TeamSelectBottomSheetContent(
-            selectedTeams = selectedTeams,
-            onTeamClick = onTeamClick,
-            onApply = onApply,
+            selectedTeams = draftSelectedTeams,
+            onTeamClick = { team ->
+                if (team in draftSelectedTeams) {
+                    draftSelectedTeams = draftSelectedTeams - team
+                } else if (draftSelectedTeams.size < 3) {
+                    draftSelectedTeams = draftSelectedTeams + team
+                }
+            },
+            onApply = { onApply(draftSelectedTeams) },
             onDismiss = onDismiss,
         )
     }
 }
 
-/**
- * 응원구단 선택 바텀시트 내부 콘텐츠
- */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TeamSelectBottomSheetContent(
@@ -114,10 +116,10 @@ private fun TeamSelectBottomSheetContent(
             .padding(horizontal = 16.dp),
     ) {
         Row(
-            modifier = Modifier.padding(top = 17.dp, bottom = 13.dp),
+            modifier = Modifier.padding(bottom = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(24.dp))
 
             Text(
                 text = "응원구단",
@@ -175,6 +177,7 @@ private fun TeamSelectBottomSheetContent(
         MoballButton(
             text = "적용하기",
             onClick = onApply,
+            enabled = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -220,42 +223,29 @@ fun TeamSelectItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 private fun TeamSelectBottomSheetPreview() {
     MoballTheme {
-        var isBottomSheetShow by remember { mutableStateOf(true) }
-
         var selectedTeams by remember { mutableStateOf(listOf("LG", "KT")) }
 
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MoballTheme.colors.backgroundBase),
         ) {
-            Button(
-                onClick = { isBottomSheetShow = true },
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Text(
-                    text = "응원구단 선택 열기\n현재 선택: ${selectedTeams.joinToString(", ")}",
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            if (isBottomSheetShow) {
-                MyPageTeamSelectBottomSheet(
-                    selectedTeams = selectedTeams,
-                    onTeamClick = { team ->
-                        if (team in selectedTeams) {
-                            selectedTeams = selectedTeams - team
-                        } else if (selectedTeams.size < 3) {
-                            selectedTeams = selectedTeams + team
-                        }
-                    },
-                    onApply = { isBottomSheetShow = false },
-                    onDismiss = { isBottomSheetShow = false },
-                )
-            }
+            TeamSelectBottomSheetContent(
+                selectedTeams = selectedTeams,
+                onTeamClick = { team ->
+                    if (team in selectedTeams) {
+                        selectedTeams = selectedTeams - team
+                    } else if (selectedTeams.size < 3) {
+                        selectedTeams = selectedTeams + team
+                    }
+                },
+                onApply = { },
+                onDismiss = { },
+            )
         }
     }
 }

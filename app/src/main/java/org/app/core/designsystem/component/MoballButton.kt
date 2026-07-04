@@ -28,7 +28,7 @@ fun MoballButton(
     enabled: Boolean = true,
     backgroundColor: Color = colors.accentPrimary,
     textColor: Color = colors.textPrimary,
-    disabledBackgroundColor: Color = colors.accentDisabled,
+    disabledBackgroundColor: Color = colors.iconDisabled,
     disabledTextColor: Color = colors.textQuaternary,
 ) {
     val resolvedBackgroundColor = if (enabled) backgroundColor else disabledBackgroundColor

@@ -6,9 +6,13 @@ interface WithdrawContract {
         val etcText: String = "",
         val isAgreed: Boolean = false,
         val isLoading: Boolean = false,
+        val etcError: String? = null,
     ) {
         val canWithdraw: Boolean
-            get() = selectedReason != null && isAgreed
+            get() = selectedReason != null &&
+                isAgreed &&
+                etcError == null &&
+                (selectedReason != WithdrawReason.ETC || etcText.isNotBlank())
     }
 
     sealed interface Event {
