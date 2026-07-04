@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.data.mapper.toPartialDetail
 import org.app.data.model.PubMapItem
 import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.PubRepository
@@ -18,7 +19,6 @@ import org.app.presentation.home.model.PubMarkerType
 import timber.log.Timber
 import javax.inject.Inject
 
-// 서울 전체를 커버하는 기본 BBox
 private const val DEFAULT_SW_LAT = 37.413294
 private const val DEFAULT_SW_LNG = 126.734086
 private const val DEFAULT_NE_LAT = 37.715133
@@ -48,12 +48,37 @@ class HomeViewModel
         init {
             loadUserFavoriteTeams()
             loadMapPubs()
+            loadPubList()
             loadFavoritePubIds()
         }
 
         fun refreshFavoriteTeams() = loadUserFavoriteTeams()
 
         fun refreshFavorites() = loadFavoritePubIds()
+
+        private fun loadPubList(
+            teamId: Long? = null,
+            openNow: Boolean? = null,
+            businessDay: String? = null,
+            facilityCodes: List<String>? = null,
+            themeCodes: List<String>? = null,
+            foodCodes: List<String>? = null,
+        ) {
+            viewModelScope.launch {
+                pubRepository
+                    .getPubs(
+                        teamId = teamId,
+                        openNow = openNow,
+                        businessDay = businessDay,
+                        facilityCodes = facilityCodes,
+                        themeCodes = themeCodes,
+                        foodCodes = foodCodes,
+                        size = 50,
+                    ).onSuccess { page ->
+                        _state.update { it.copy(pubListItems = page.content) }
+                    }.onFailure { Timber.e("펍 목록 로드 실패: $it") }
+            }
+        }
 
         private fun loadUserFavoriteTeams() {
             viewModelScope.launch {
@@ -144,11 +169,15 @@ class HomeViewModel
 
         private fun loadSelectedPubDetail(pubId: Long) {
             viewModelScope.launch {
+                val existingItem = _state.value.pubMapItems.find { it.pubId == pubId }
+                val partialDetail = existingItem?.toPartialDetail()
+
                 _state.update {
                     it.copy(
                         isPubDetailLoading = true,
                         showPubDetailSheet = true,
                         showPubListSheet = false,
+                        selectedPubDetail = partialDetail ?: it.selectedPubDetail,
                     )
                 }
 
@@ -168,8 +197,9 @@ class HomeViewModel
                         _state.update {
                             it.copy(
                                 isPubDetailLoading = false,
-                                showPubDetailSheet = false,
-                                showPubListSheet = it.pubMapItems.isNotEmpty(),
+                                // 이미 데이터가 있으면(partial) 시트를 닫지 않음
+                                showPubDetailSheet = it.selectedPubDetail != null,
+                                showPubListSheet = it.pubMapItems.isNotEmpty() && it.selectedPubDetail == null,
                             )
                         }
                         emit(HomeContract.SideEffect.ShowToast("펍 정보를 불러오지 못했습니다."))
@@ -563,6 +593,14 @@ class HomeViewModel
                         foodCodes = event.foodCodes,
                         showEmptyToast = true,
                     )
+                    loadPubList(
+                        teamId = teamId,
+                        openNow = event.openNow,
+                        businessDay = event.businessDay,
+                        facilityCodes = event.facilityCodes,
+                        themeCodes = event.themeCodes,
+                        foodCodes = event.foodCodes,
+                    )
                 }
 
                 is HomeContract.Event.OnKakaoMapClick -> {
@@ -598,6 +636,7 @@ class HomeViewModel
                         "OPEN" -> {
                             newFilter = currentFilter.copy(openNow = if (currentFilter.openNow == true) null else true)
                         }
+
                         "GROUP_SEAT" -> {
                             val codes = if (currentFilter.facilityCodes?.contains("GROUP_SEAT") ==
                                 true
@@ -608,6 +647,7 @@ class HomeViewModel
                             }
                             newFilter = currentFilter.copy(facilityCodes = codes)
                         }
+
                         "PARKING" -> {
                             val codes = if (currentFilter.facilityCodes?.contains("PARKING") ==
                                 true
@@ -618,6 +658,7 @@ class HomeViewModel
                             }
                             newFilter = currentFilter.copy(facilityCodes = codes)
                         }
+
                         "WIDE_SPACE" -> {
                             val codes = if (currentFilter.themeCodes?.contains("SPACIOUS_VIEW") ==
                                 true
@@ -628,6 +669,7 @@ class HomeViewModel
                             }
                             newFilter = currentFilter.copy(themeCodes = codes)
                         }
+
                         "VARIOUS_DRINKS" -> {
                             val codes = if (currentFilter.foodCodes?.isNotEmpty() ==
                                 true
@@ -659,6 +701,14 @@ class HomeViewModel
                         themeCodes = newFilter.themeCodes,
                         foodCodes = newFilter.foodCodes,
                         showEmptyToast = true,
+                    )
+                    loadPubList(
+                        teamId = teamId,
+                        openNow = newFilter.openNow,
+                        businessDay = newFilter.businessDay,
+                        facilityCodes = newFilter.facilityCodes,
+                        themeCodes = newFilter.themeCodes,
+                        foodCodes = newFilter.foodCodes,
                     )
                 }
 

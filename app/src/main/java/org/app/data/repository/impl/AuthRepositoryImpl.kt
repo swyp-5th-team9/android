@@ -58,10 +58,11 @@ class AuthRepositoryImpl
                 val data = authRemoteDataSource.postRefreshToken(refreshToken).getDataOrThrow()
                 val newAccessToken = data.accessToken?.takeIf { it.isNotBlank() }
                     ?: throw IllegalArgumentException("accessToken is missing in refresh response")
-                val newRefreshToken = data.refreshToken?.takeIf { it.isNotBlank() }
-                    ?: throw IllegalArgumentException("refreshToken is missing in refresh response")
                 localTokenDataSource.setAccessToken(newAccessToken)
-                localTokenDataSource.setRefreshToken(newRefreshToken)
+                // 새 refreshToken이 있을 때만 갱신, 없으면 기존 토큰 유지
+                data.refreshToken?.takeIf { it.isNotBlank() }?.let { newRefreshToken ->
+                    localTokenDataSource.setRefreshToken(newRefreshToken)
+                }
                 newAccessToken
             }
 

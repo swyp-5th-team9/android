@@ -85,6 +85,46 @@ fun PubDetailResponse.toPubDetail(): PubDetail =
 
 fun GetPubsMapResponse.toPubMapItems(): List<PubMapItem> = pubs.map { it.toPubMapItem() }
 
+fun PubMapItem.toPartialDetail(): PubDetail =
+    PubDetail(
+        pubId = pubId,
+        name = name,
+        address = "",
+        region = "",
+        latitude = latitude,
+        longitude = longitude,
+        phoneNumber = null,
+        status = status,
+        capacityRange = capacityRange,
+        groupSeatMaxPeople = groupSeatMaxPeople,
+        favoriteCount = favoriteCount,
+        description = null,
+        imageUrls = imageUrls,
+        teams = emptyList(),
+        facilityCodes = facilityCodes,
+        styleCodes = emptyList(),
+        themeCodes = emptyList(),
+        foodCodes = emptyList(),
+        businessHours = emptyList(),
+        menus = emptyList(),
+    )
+
+fun PubMapItem.toPubListItem(): PubListItem =
+    PubListItem(
+        pubId = pubId,
+        name = name,
+        region = "",
+        address = "",
+        thumbnailUrl = imageUrls.firstOrNull(),
+        favoriteCount = favoriteCount,
+        businessStatus = status.label,
+        supportedTeams = supportedTeams.map { PubTeam(0L, it, null) },
+        facilityCodes = facilityCodes,
+        styleCodes = emptyList(),
+        themeCodes = emptyList(),
+        foodCodes = emptyList(),
+    )
+
 fun PubMapItemResponse.toPubMapItem(): PubMapItem =
     PubMapItem(
         pubId = pubId,

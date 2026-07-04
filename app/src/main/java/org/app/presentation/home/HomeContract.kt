@@ -1,5 +1,6 @@
 package org.app.presentation.home
 
+import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.model.PubCluster
@@ -12,6 +13,7 @@ interface HomeContract {
         val pubMarkers: List<PubMarker> = emptyList(),
         val pubClusters: List<PubCluster> = emptyList(),
         val pubMapItems: List<PubMapItem> = emptyList(),
+        val pubListItems: List<PubListItem> = emptyList(),
         val selectedPubList: List<PubMapItem> = emptyList(),
         val filter: HomeFilter = HomeFilter(),
         val userFavoriteTeamIds: List<Long> = emptyList(),

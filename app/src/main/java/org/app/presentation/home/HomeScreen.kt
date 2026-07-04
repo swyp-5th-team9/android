@@ -50,6 +50,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.data.mapper.toPubListItem
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
@@ -316,8 +317,22 @@ fun HomeScreen(
         }
 
         if (state.showPubListSheet && !state.showPubDetailSheet) {
+            val displayItems = remember(state.selectedPubList, state.pubListItems) {
+                if (state.selectedPubList.isNotEmpty()) {
+                    val selectedIds = state.selectedPubList.map { it.pubId }.toSet()
+                    val existingItems = state.pubListItems.filter { it.pubId in selectedIds }
+                    val existingIds = existingItems.map { it.pubId }.toSet()
+                    val missingItems = state.selectedPubList
+                        .filter { it.pubId !in existingIds }
+                        .map { it.toPubListItem() }
+                    existingItems + missingItems
+                } else {
+                    state.pubListItems
+                }
+            }
+
             HomePubListBottomSheet(
-                pubItems = if (state.selectedPubList.isNotEmpty()) state.selectedPubList else state.pubMapItems,
+                pubItems = displayItems,
                 favoritePubIds = state.favoritePubIds,
                 onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
                 onFavoriteClick = { pubId -> onEvent(HomeContract.Event.OnPubListFavoriteClick(pubId)) },

@@ -10,7 +10,7 @@ import javax.inject.Singleton
 class AuthManager
     @Inject
     constructor() {
-        private val _authEvent = MutableSharedFlow<Unit>()
+        private val _authEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val authEvent: SharedFlow<Unit> = _authEvent.asSharedFlow()
 
         suspend fun emitAuthEvent() {
