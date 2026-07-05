@@ -1,10 +1,13 @@
 package org.app.presentation.pubdetail.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -53,23 +56,31 @@ fun PubPhotoSection(
                 textAlign = TextAlign.Center,
             )
         } else {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                maxLines = 3,
-                maxItemsInEachRow = 3,
-            ) {
-                imageUrls.forEachIndexed { index, url ->
-                    UrlImage(
-                        url = url,
-                        modifier = Modifier
-                            .size(124.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .noRippleClickable { onPhotoClick(index) },
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "매장 사진 ${index + 1}",
-                        placeholderRes = R.drawable.img_moball_empty,
-                    )
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val itemSize = (maxWidth - 8.dp) / 3
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    maxLines = 3,
+                    maxItemsInEachRow = 3,
+                ) {
+                    imageUrls.forEachIndexed { index, url ->
+                        Box(
+                            modifier = Modifier
+                                .size(itemSize)
+                                .clip(RoundedCornerShape(12.dp))
+                                .noRippleClickable { onPhotoClick(index) },
+                        ) {
+                            UrlImage(
+                                url = url,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "매장 사진 ${index + 1}",
+                                placeholderRes = R.drawable.img_moball_empty,
+                            )
+                        }
+                    }
                 }
             }
         }

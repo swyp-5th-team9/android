@@ -194,8 +194,6 @@ fun HomeScreen(
         }
     }
 
-    // 마커·클러스터는 관련 상태가 바뀔 때만 다시 그린다.
-    // AndroidView의 update 블록에서 그리면 무관한 리컴포지션마다 전체 마커가 재생성된다.
     LaunchedEffect(naverMap, state.pubMarkers, state.pubClusters) {
         val map = naverMap ?: return@LaunchedEffect
         renderPubMarkers(
@@ -222,7 +220,6 @@ fun HomeScreen(
                         map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
                         map.locationOverlay.isVisible = true
 
-                        // 카메라가 멈췄을 때만 조회 — 이동 중 프레임마다 API를 호출하지 않는다.
                         map.addOnCameraIdleListener {
                             val bounds = map.contentBounds
                             onEvent(

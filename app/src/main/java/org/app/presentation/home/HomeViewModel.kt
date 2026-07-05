@@ -443,7 +443,6 @@ class HomeViewModel
         private fun List<PubMapItem>.toClusters(): List<PubCluster> {
             if (isEmpty()) return emptyList()
 
-            // 위경도 오차범위 내의 펍들을 하나로 묶음 (그리드 방식)
             return groupBy {
                 (it.latitude / CLUSTER_GRID_SIZE).toInt() to (it.longitude / CLUSTER_GRID_SIZE).toInt()
             }.map { (_, group) ->
@@ -455,8 +454,6 @@ class HomeViewModel
                 )
             }
         }
-
-        // endregion
     }
 
 /** "all"(KBO 전체, id=0)이 포함되면 전체 조회를 위해 null 반환 */
@@ -486,5 +483,8 @@ private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
         else -> this
     }
 
-private fun HomeFilter.toggleFacility(code: String): HomeFilter =
-    copy(facilityCodes = if (facilityCodes?.contains(code) == true) emptyList() else listOf(code))
+private fun HomeFilter.toggleFacility(code: String): HomeFilter {
+    val current = facilityCodes?.toMutableList() ?: mutableListOf()
+    if (current.contains(code)) current.remove(code) else current.add(code)
+    return copy(facilityCodes = if (current.isEmpty()) null else current)
+}

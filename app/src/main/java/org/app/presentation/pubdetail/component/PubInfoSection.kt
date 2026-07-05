@@ -2,6 +2,7 @@ package org.app.presentation.pubdetail.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
@@ -177,26 +179,36 @@ private fun FeatureSection(
             color = MoballTheme.colors.textTitle,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Row(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
-                .padding(vertical = 16.dp, horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                .padding(vertical = 24.dp),
         ) {
-            features.forEach { feature ->
-                FeatureItem(feature)
+            val itemWidth = maxWidth / 4
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                maxItemsInEachRow = 4,
+            ) {
+                features.forEach { feature ->
+                    FeatureItem(feature, itemWidth)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun FeatureItem(feature: PubFeature) {
+private fun FeatureItem(
+    feature: PubFeature,
+    width: androidx.compose.ui.unit.Dp,
+) {
     Column(
-        modifier = Modifier.width(64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
+        modifier = Modifier.width(width),
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(id = feature.iconResId),
@@ -208,7 +220,8 @@ private fun FeatureItem(feature: PubFeature) {
         Text(
             text = feature.label,
             style = MoballTheme.typography.caption.regular12,
-            color = MoballTheme.colors.textSecondary,
+            color = MoballTheme.colors.textPrimary,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -234,10 +247,16 @@ private fun mapStyleCodeToFeature(code: String): PubFeature? =
 private fun mapFacilityCodeToFeature(code: String): PubFeature? =
     when (code.lowercase()) {
         "group_seat" -> PubFeature("단체석", R.drawable.ic_pubdetail_people)
-        "wide_space", "spacious_view" -> PubFeature("넓은 공간", R.drawable.ic_pubdetail_space)
+        "wide_space", "spacious_view", "spacious_area" -> PubFeature("넓은 공간", R.drawable.ic_pubdetail_space)
         "outdoor_seat" -> PubFeature("야외 좌석", R.drawable.ic_pubdetail_out)
         "parking" -> PubFeature("주차", R.drawable.ic_pubdetail_park)
-        "reservation" -> PubFeature("예약가능", R.drawable.ic_pubdetail_reservation)
+        "reservation" -> PubFeature("예약 가능", R.drawable.ic_pubdetail_reservation)
+        "private_booking" -> PubFeature("대관 가능", R.drawable.ic_pubdetail_booking)
+        "counter_seat" -> PubFeature("카운터석", R.drawable.ic_chair)
+        "solo_seat" -> PubFeature("1인석", R.drawable.ic_chair)
+        "pet_friendly" -> PubFeature("반려동물", R.drawable.ic_pubdetail_people)
+        "terrace" -> PubFeature("테라스", R.drawable.ic_pubdetail_out)
+        "rooftop" -> PubFeature("루프탑", R.drawable.ic_pubdetail_space)
         else -> null
     }
 
@@ -388,7 +407,14 @@ fun PubInfoSectionPreview() {
             phoneNumber = "02-1234-5678",
             groupSeatMaxPeople = 30,
             styleCodes = listOf("large_screen", "single_tv", "multi_tv", "broadcast_sound"),
-            facilityCodes = listOf("group_seat", "wide_space", "outdoor_seat", "parking", "reservation"),
+            facilityCodes = listOf(
+                "group_seat",
+                "wide_space",
+                "outdoor_seat",
+                "parking",
+                "reservation",
+                "pet_friendly",
+            ),
             isHoursExpanded = false,
             onHoursToggle = {},
             onPhoneCall = {},

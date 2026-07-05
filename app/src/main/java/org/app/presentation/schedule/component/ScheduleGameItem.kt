@@ -111,7 +111,7 @@ fun ScheduleGameItem(
                         )
                         Text(
                             text = game.stadium,
-                            style = MoballTheme.typography.body.regular14,
+                            style = MoballTheme.typography.caption.regular12,
                             color = MoballTheme.colors.textPrimary,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,

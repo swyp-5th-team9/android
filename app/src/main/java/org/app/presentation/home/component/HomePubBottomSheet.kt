@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -210,26 +211,33 @@ private fun PubListItem(
         }
         Spacer(Modifier.height(12.dp))
 
-        // 썸네일 리스트 (지도 명세의 imageUrls 4개 노출)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            repeat(4) { index ->
-                UrlImage(
-                    url = item.imageUrls.getOrNull(index),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(92.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MoballTheme.colors.borderNormal),
-                    contentScale = ContentScale.Crop,
-                )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val itemSize = (maxWidth - 24.dp) / 4
+            val imagesToShow = item.imageUrls.take(4).ifEmpty { listOf(null) }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                imagesToShow.forEachIndexed { index, url ->
+                    UrlImage(
+                        url = url,
+                        modifier = Modifier
+                            .width(itemSize)
+                            .height(92.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MoballTheme.colors.borderNormal),
+                        contentScale = ContentScale.Crop,
+                        placeholderRes = R.drawable.img_moball_empty,
+                    )
+                    if (index < imagesToShow.size - 1) {
+                        Spacer(Modifier.width(8.dp))
+                    }
+                }
             }
         }
         Spacer(Modifier.height(16.dp))
 
-        // 정보 박스
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -426,6 +434,7 @@ private fun PubDetailContent(
                         .size(110.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(MoballTheme.colors.borderNormal),
+                    placeholderRes = R.drawable.img_moball_empty,
                 )
             }
         }
