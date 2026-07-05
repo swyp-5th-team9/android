@@ -25,6 +25,7 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.pubdetail.model.KboTeamType
 import org.app.presentation.schedule.model.GameSchedule
 import org.app.presentation.schedule.model.GameStatus
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -32,20 +33,30 @@ import java.time.format.DateTimeFormatter
 private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
 /**
- * 팀 ID 또는 팀 이름 → 로고 drawable 매핑
+ * 팀 ID → shortName → 팀명(부분 일치) 순으로 로고 drawable 매핑.
+ * 전부 실패하면 진단 로그를 남기고 기본 로고를 반환한다.
  */
 @DrawableRes
 fun teamLogoRes(
     teamId: Long,
     teamShortName: String,
+    teamName: String = "",
 ): Int {
-    // 1. ID로 먼저 시도
-    val fromId = KboTeamType.fromId(teamId.toInt())
-    if (fromId != KboTeamType.ALL) return fromId.logoRes
-
-    // 2. ID로 안되면 shortName으로 시도
-    val fromName = KboTeamType.fromShortName(teamShortName)
-    return fromName.logoRes
+    val matched = KboTeamType.matchOrNull(
+        id = teamId.toInt(),
+        shortName = teamShortName,
+        fullName = teamName,
+    )
+    if (matched == null) {
+        Timber.w(
+            "팀 로고 매핑 실패 — teamId=%d, shortName='%s', name='%s' (서버 ID 체계/필드명 확인 필요)",
+            teamId,
+            teamShortName,
+            teamName,
+        )
+        return KboTeamType.ALL.logoRes
+    }
+    return matched.logoRes
 }
 
 /**
@@ -72,7 +83,7 @@ fun ScheduleGameItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TeamSection(
-                teamLogoRes = teamLogoRes(game.homeTeamId, game.homeTeamShortName),
+                teamLogoRes = teamLogoRes(game.homeTeamId, game.homeTeamShortName, game.homeTeamName),
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             )
@@ -121,7 +132,7 @@ fun ScheduleGameItem(
             Spacer(modifier = Modifier.width(10.dp))
 
             TeamSection(
-                teamLogoRes = teamLogoRes(game.awayTeamId, game.awayTeamShortName),
+                teamLogoRes = teamLogoRes(game.awayTeamId, game.awayTeamShortName, game.awayTeamName),
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             )

@@ -27,5 +27,33 @@ enum class KboTeamType(
         fun fromId(id: Int): KboTeamType = entries.find { it.id == id } ?: ALL
 
         fun fromShortName(name: String): KboTeamType = entries.find { it.shortName == name } ?: ALL
+
+        /**
+         * id → shortName → 팀명 부분 일치 순으로 매칭. 전부 실패하면 null.
+         * (서버 응답의 ID 체계·필드명이 달라져도 팀명 문자열로 복구하기 위한 안전망)
+         */
+        fun matchOrNull(
+            id: Int? = null,
+            shortName: String? = null,
+            fullName: String? = null,
+        ): KboTeamType? {
+            val byId = if (id != null) entries.find { it.id == id && it != ALL } else null
+            if (byId != null) return byId
+
+            val trimmedShort = shortName?.trim().orEmpty()
+            if (trimmedShort.isNotEmpty()) {
+                val byShortName = entries.find { it != ALL && it.shortName.equals(trimmedShort, ignoreCase = true) }
+                if (byShortName != null) return byShortName
+            }
+
+            val trimmedFull = fullName?.trim().orEmpty()
+            if (trimmedFull.isNotEmpty()) {
+                val byFullName = entries.find {
+                    it != ALL && (trimmedFull.contains(it.shortName, ignoreCase = true) || it.fullName == trimmedFull)
+                }
+                if (byFullName != null) return byFullName
+            }
+            return null
+        }
     }
 }
