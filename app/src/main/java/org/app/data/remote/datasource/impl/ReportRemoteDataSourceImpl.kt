@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.app.core.util.ImageCompressor
 import org.app.data.remote.datasource.api.ReportRemoteDataSource
 import org.app.data.remote.dto.BaseResponse
 import org.app.data.remote.dto.PostReportResponse
@@ -40,7 +41,7 @@ class ReportRemoteDataSourceImpl
                             "Failed to read report image: $uri"
                         }
                         tempFiles.add(file)
-                        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
                         MultipartBody.Part.createFormData("images", file.name, requestBody)
                     }
                 }
@@ -58,17 +59,13 @@ class ReportRemoteDataSourceImpl
             }
         }
 
-        private fun uriToTempFile(uri: Uri): File? =
+        /**
+         * 원본을 그대로 복사하지 않고 리사이즈+JPEG 압축해 임시 파일로 저장한다.
+         * (원본 무압축 업로드로 인한 전송 지연 방지, 서버 스펙: 파일당 10MB 이하)
+         */
+        private suspend fun uriToTempFile(uri: Uri): File? =
             runCatching {
-                val mimeType = context.contentResolver.getType(uri)
-                val ext = mimeType?.substringAfterLast("/") ?: "jpg"
-                val tempFile = File.createTempFile("report_img_", ".$ext", context.cacheDir)
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                    tempFile.outputStream().use { out -> input.copyTo(out) }
-                } ?: run {
-                    tempFile.delete()
-                    return null
-                }
-                tempFile
+                val tempFile = File.createTempFile("report_img_", ".jpg", context.cacheDir)
+                ImageCompressor.compress(context = context, uri = uri, targetFile = tempFile)
             }.getOrNull()
     }

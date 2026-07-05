@@ -66,6 +66,9 @@ class MyPageViewModel
                 val userResult = userDeferred.await()
                 val favoriteResult = favoriteDeferred.await()
 
+                // TODO 서버 프로필 이미지 API 추가 시 서버 응답 값으로 교체
+                val localProfileImagePath = userRepository.getLocalProfileImagePath().getOrNull()
+
                 userResult
                     .onSuccess { user ->
                         val favorites =
@@ -87,6 +90,7 @@ class MyPageViewModel
                             copy(
                                 isLoading = false,
                                 nickname = user.nickname,
+                                profileImageUrl = localProfileImagePath?.let { path -> "file://$path" },
                                 supportedTeams = user.favoriteTeams.map { team -> team.teamName },
                                 wishlistItems = favorites,
                             )
