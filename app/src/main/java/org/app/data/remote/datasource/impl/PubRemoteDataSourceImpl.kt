@@ -50,11 +50,15 @@ class PubRemoteDataSourceImpl
             neLat: Double,
             neLng: Double,
             teamId: Long?,
-            openNow: Boolean?,
-            businessDay: String?,
+            teamIds: List<Long>?,
+            region: String?,
             facilityCodes: List<String>?,
+            styleCodes: List<String>?,
             themeCodes: List<String>?,
             foodCodes: List<String>?,
+            capacityRange: String?,
+            openNow: Boolean?,
+            businessDay: String?,
         ): BaseResponse<GetPubsMapResponse> =
             pubService.getMapPubs(
                 swLat,
@@ -62,11 +66,15 @@ class PubRemoteDataSourceImpl
                 neLat,
                 neLng,
                 teamId,
-                openNow,
-                businessDay,
+                teamIds,
+                region,
                 facilityCodes,
+                styleCodes,
                 themeCodes,
                 foodCodes,
+                capacityRange,
+                openNow,
+                businessDay,
             )
 
         override suspend fun getPubDetail(pubId: Long): BaseResponse<PubDetailResponse> = pubService.getPubDetail(pubId)

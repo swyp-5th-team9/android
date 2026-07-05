@@ -70,6 +70,7 @@ data class HomeFilter(
     val openNow: Boolean? = null,
     val businessDay: String? = null,
     val facilityCodes: List<String>? = null,
+    val styleCodes: List<String>? = null,
     val themeCodes: List<String>? = null,
     val foodCodes: List<String>? = null,
 ) {

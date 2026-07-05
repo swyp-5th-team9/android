@@ -33,11 +33,15 @@ interface PubService {
         @Query("neLat") neLat: Double,
         @Query("neLng") neLng: Double,
         @Query("teamId") teamId: Long? = null,
-        @Query("openNow") openNow: Boolean? = null,
-        @Query("businessDay") businessDay: String? = null,
+        @Query("teamIds") teamIds: List<Long>? = null,
+        @Query("region") region: String? = null,
         @Query("facilityCodes") facilityCodes: List<String>? = null,
+        @Query("styleCodes") styleCodes: List<String>? = null,
         @Query("themeCodes") themeCodes: List<String>? = null,
         @Query("foodCodes") foodCodes: List<String>? = null,
+        @Query("capacityRange") capacityRange: String? = null,
+        @Query("openNow") openNow: Boolean? = null,
+        @Query("businessDay") businessDay: String? = null,
     ): BaseResponse<GetPubsMapResponse>
 
     @GET("/api/v1/pubs/{pubId}")

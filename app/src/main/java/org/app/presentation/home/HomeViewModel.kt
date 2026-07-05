@@ -135,6 +135,7 @@ class HomeViewModel
                         openNow = event.openNow,
                         businessDay = event.businessDay,
                         facilityCodes = event.facilityCodes,
+                        styleCodes = event.styleCodes,
                         themeCodes = event.themeCodes,
                         foodCodes = event.foodCodes,
                     )
@@ -198,10 +199,12 @@ class HomeViewModel
             viewModelScope.launch {
                 pubRepository
                     .getPubs(
-                        teamId = filter.teamIdForQuery,
+                        teamIds = filter.teamIdsForQuery,
+                        region = filter.regionForQuery,
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
                         facilityCodes = filter.facilityCodes,
+                        styleCodes = filter.styleCodes,
                         themeCodes = filter.themeCodes,
                         foodCodes = filter.foodCodes,
                         size = 50,
@@ -253,10 +256,12 @@ class HomeViewModel
                         swLng = currentSwLng,
                         neLat = currentNeLat,
                         neLng = currentNeLng,
-                        teamId = filter.teamIdForQuery,
+                        teamIds = filter.teamIdsForQuery,
+                        region = filter.regionForQuery,
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
                         facilityCodes = filter.facilityCodes,
+                        styleCodes = filter.styleCodes,
                         themeCodes = filter.themeCodes,
                         foodCodes = filter.foodCodes,
                     ).onSuccess { items ->
@@ -456,9 +461,21 @@ class HomeViewModel
         }
     }
 
-/** "all"(KBO 전체, id=0)이 포함되면 전체 조회를 위해 null 반환 */
-private val HomeFilter.teamIdForQuery: Long?
-    get() = if (selectedTeamIds.contains(0L)) null else selectedTeamIds.firstOrNull()
+/** "all"(KBO 전체, id=0)이 포함되면 전체 조회(null), 아니면 선택 구단 전체를 OR 매칭으로 전달 */
+private val HomeFilter.teamIdsForQuery: List<Long>?
+    get() = if (selectedTeamIds.contains(0L)) {
+        null
+    } else {
+        selectedTeamIds.ifEmpty { null }
+    }
+
+/**
+ * 서버 region 파라미터는 단일 값만 받으므로 정확히 1개 선택된 경우에만 전달.
+ * 다중 지역 선택은 카메라 이동(MoveCameraToBounds)으로만 반영된다.
+ * TODO 서버가 regions 다중 파라미터를 지원하면 전체 전달로 변경
+ */
+private val HomeFilter.regionForQuery: String?
+    get() = (selectedRegions - "SEOUL_ALL").singleOrNull()
 
 /** 퀵 필터 칩 토글 규칙 */
 private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =

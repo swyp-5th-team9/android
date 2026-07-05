@@ -51,6 +51,7 @@ import org.app.core.util.TimeUtils
 import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubStatus
+import org.app.data.model.PubTeam
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
@@ -270,8 +271,8 @@ private fun PubListItem(
             Spacer(Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                item.supportedTeams.firstOrNull()?.let { teamName ->
-                    TeamListBadge(text = teamName)
+                item.supportedTeams.firstOrNull()?.let { team ->
+                    TeamListBadge(text = team.shortName)
                 }
                 item.facilityCodes.firstOrNull()?.let { code ->
                     mapFacilityCodeToLabel(code)?.let { label ->
@@ -580,7 +581,7 @@ private fun HomePubListBottomSheetPreview() {
             status = PubStatus.OPEN,
             favoriteCount = 128,
             imageUrls = listOf("https://sample.com/1.jpg"),
-            supportedTeams = listOf("한화"),
+            supportedTeams = listOf(PubTeam(9L, "한화", null)),
             facilityCodes = listOf("group_seat"),
             openTime = LocalTime.of(8, 0),
             closeTime = LocalTime.of(0, 0),

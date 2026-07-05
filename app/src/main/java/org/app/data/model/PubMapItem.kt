@@ -1,6 +1,5 @@
 package org.app.data.model
 
-import org.app.data.model.PubStatus
 import java.time.LocalTime
 
 data class PubMapItem(
@@ -11,8 +10,11 @@ data class PubMapItem(
     val status: PubStatus,
     val favoriteCount: Int,
     val imageUrls: List<String> = emptyList(),
-    val supportedTeams: List<String> = emptyList(),
+    val supportedTeams: List<PubTeam> = emptyList(),
     val facilityCodes: List<String> = emptyList(),
+    val styleCodes: List<String> = emptyList(),
+    val themeCodes: List<String> = emptyList(),
+    val foodCodes: List<String> = emptyList(),
     val openTime: LocalTime? = null,
     val closeTime: LocalTime? = null,
     val groupSeatMaxPeople: Int? = null,
