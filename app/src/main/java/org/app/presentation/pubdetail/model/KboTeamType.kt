@@ -37,23 +37,49 @@ enum class KboTeamType(
             shortName: String? = null,
             fullName: String? = null,
         ): KboTeamType? {
-            val byId = if (id != null) entries.find { it.id == id && it != ALL } else null
+            // 1. ID 매칭 (최우선)
+            val byId = if (id != null && id > 0) entries.find { it.id == id && it != ALL } else null
             if (byId != null) return byId
 
-            val trimmedShort = shortName?.trim().orEmpty()
+            // 2. ShortName 매칭 (대소문자 무시, 공백 제거)
+            val trimmedShort = shortName?.trim()?.uppercase().orEmpty()
             if (trimmedShort.isNotEmpty()) {
-                val byShortName = entries.find { it != ALL && it.shortName.equals(trimmedShort, ignoreCase = true) }
+                val byShortName = entries.find {
+                    it != ALL &&
+                        (it.shortName.uppercase() == trimmedShort || trimmedShort.contains(it.shortName.uppercase()))
+                }
                 if (byShortName != null) return byShortName
             }
 
-            val trimmedFull = fullName?.trim().orEmpty()
+            // 3. FullName 매칭 (부분 일치 포함)
+            val trimmedFull = fullName?.trim()?.uppercase().orEmpty()
             if (trimmedFull.isNotEmpty()) {
                 val byFullName = entries.find {
-                    it != ALL && (trimmedFull.contains(it.shortName, ignoreCase = true) || it.fullName == trimmedFull)
+                    it != ALL &&
+                        (
+                            trimmedFull.contains(it.shortName.uppercase()) ||
+                                it.fullName.uppercase() == trimmedFull ||
+                                trimmedFull.contains(it.fullName.uppercase())
+                        )
                 }
                 if (byFullName != null) return byFullName
             }
-            return null
+
+            // 4. 특정 키워드 수동 매칭 (예외 케이스 및 별명)
+            val combined = (trimmedShort + trimmedFull)
+            return when {
+                combined.contains("두산") || combined.contains("DOOSAN") -> DOOSAN
+                combined.contains("LG") || combined.contains("엘지") -> LG
+                combined.contains("KIA") || combined.contains("기아") -> KIA
+                combined.contains("SSG") || combined.contains("쓱") || combined.contains("SSING") -> SSG
+                combined.contains("NC") || combined.contains("엔씨") -> NC
+                combined.contains("KT") || combined.contains("케이티") -> KT
+                combined.contains("삼성") || combined.contains("SAMSUNG") -> SAMSUNG
+                combined.contains("롯데") || combined.contains("LOTTE") -> LOTTE
+                combined.contains("한화") || combined.contains("HANWHA") -> HANWHA
+                combined.contains("키움") || combined.contains("KIWOOM") -> KIWOOM
+                else -> null
+            }
         }
     }
 }

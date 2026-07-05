@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,14 +82,14 @@ fun ScheduleGameItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TeamSection(
+                teamName = game.homeTeamShortName,
                 teamLogoRes = teamLogoRes(game.homeTeamId, game.homeTeamShortName, game.homeTeamName),
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             )
-            Spacer(modifier = Modifier.width(10.dp))
 
             Column(
-                modifier = Modifier.widthIn(min = 90.dp),
+                modifier = Modifier.weight(1.2f),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 when {
@@ -123,15 +122,15 @@ fun ScheduleGameItem(
                             text = game.stadium,
                             style = MoballTheme.typography.caption.regular12,
                             color = MoballTheme.colors.textPrimary,
-                            modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
+                            maxLines = 1,
                         )
                     }
                 }
             }
-            Spacer(modifier = Modifier.width(10.dp))
 
             TeamSection(
+                teamName = game.awayTeamShortName,
                 teamLogoRes = teamLogoRes(game.awayTeamId, game.awayTeamShortName, game.awayTeamName),
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
@@ -142,6 +141,7 @@ fun ScheduleGameItem(
 
 @Composable
 private fun TeamSection(
+    teamName: String,
     @DrawableRes teamLogoRes: Int,
     modifier: Modifier = Modifier,
     align: Alignment.Horizontal,
@@ -155,6 +155,16 @@ private fun TeamSection(
             contentDescription = null,
             modifier = Modifier.size(77.dp),
         )
+        if (teamName.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = teamName,
+                style = MoballTheme.typography.caption.medium12,
+                color = MoballTheme.colors.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
     }
 }
 
