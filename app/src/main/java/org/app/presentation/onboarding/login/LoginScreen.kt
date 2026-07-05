@@ -40,8 +40,8 @@ import org.app.core.extension.noRippleClickable
 import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.component.SocialLoginButton
 
-// TODO 개인정보처리방침 URL — 추후 실제 URL로 교체
-private const val PRIVACY_POLICY_URL = "https://moball.kr/privacy"
+private const val PRIVACY_POLICY_URL =
+    "https://www.notion.so/20221444hanyubin/36f913d4ef848088bf51e6317085f646?source=copy_link"
 
 @Composable
 fun LoginRoute(

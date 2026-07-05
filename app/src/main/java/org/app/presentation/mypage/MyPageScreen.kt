@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -144,7 +145,9 @@ private fun MyPageScreen(
     onDismissTeamSheet: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val uriHandler = LocalUriHandler.current
     val email = "moyeoball@gmail.com"
+    val termsUrl = "https://www.notion.so/20221444hanyubin/36f913d4ef848088bf51e6317085f646?source=copy_link"
 
     Column(
         modifier = modifier
@@ -221,8 +224,7 @@ private fun MyPageScreen(
                                 iconRes = R.drawable.ic_warning_info,
                                 title = "약관 및 정책",
                                 subtitle = "이용약관 · 개인정보처리방침",
-                                onClick = { // TODO 약관 및 정책 딥링크 연결
-                                },
+                                onClick = { uriHandler.openUri(termsUrl) },
                             ),
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_logout,
