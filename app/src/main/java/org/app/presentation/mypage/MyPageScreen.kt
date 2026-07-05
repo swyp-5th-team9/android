@@ -144,7 +144,7 @@ private fun MyPageScreen(
     onDismissTeamSheet: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val email = "appswyp5th9team@gmail.com"
+    val email = "moyeoball@gmail.com"
 
     Column(
         modifier = modifier
