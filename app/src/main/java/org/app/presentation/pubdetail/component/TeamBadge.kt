@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -43,7 +43,7 @@ fun TeamBadge(
 ) {
     val color = teamType.teamColor
     Surface(
-        modifier = modifier.height(28.dp),
+        modifier = modifier.heightIn(min = 28.dp),
         shape = RoundedCornerShape(999.dp),
         color = Color.Transparent,
         border = BorderStroke(width = 1.dp, color = color),
@@ -63,7 +63,7 @@ fun TeamListBadge(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.height(24.dp),
+        modifier = modifier.heightIn(min = 24.dp),
         shape = RoundedCornerShape(4.dp),
         color = MoballTheme.colors.teamListBadgeBg,
     ) {

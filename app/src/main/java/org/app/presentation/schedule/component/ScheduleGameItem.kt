@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,7 +81,7 @@ fun ScheduleGameItem(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(
-                modifier = Modifier.width(90.dp),
+                modifier = Modifier.widthIn(min = 90.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 when {

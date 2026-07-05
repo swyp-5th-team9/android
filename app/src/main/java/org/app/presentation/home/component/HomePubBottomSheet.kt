@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -224,7 +226,8 @@ private fun PubListItem(
                         url = url,
                         modifier = Modifier
                             .width(itemSize)
-                            .height(92.dp)
+                            // 화면 폭에 따라 셀 너비가 변해도 썸네일 비율(89:92) 유지
+                            .aspectRatio(89f / 92f)
                             .clip(RoundedCornerShape(8.dp))
                             .background(MoballTheme.colors.borderNormal),
                         contentScale = ContentScale.Crop,
@@ -509,7 +512,7 @@ fun MapActionButton(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .background(MoballTheme.colors.backgroundScrim)
             .noRippleClickable(onClick),
         horizontalArrangement = Arrangement.Center,
