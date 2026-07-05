@@ -54,7 +54,6 @@ fun LoginRoute(
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // SDK 로그인은 Activity Context가 필요한 UI 관심사 — Screen에서 수행하고 결과만 ViewModel로 전달
     val loginManagers = remember(context) {
         EntryPointAccessors
             .fromApplication(context.applicationContext, SocialLoginManagerEntryPoint::class.java)
