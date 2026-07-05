@@ -470,8 +470,9 @@ private val HomeFilter.teamIdsForQuery: List<Long>?
     }
 
 /**
- * 서버 region 파라미터는 단일 값만 받으므로 정확히 1개 선택된 경우에만 전달.
- * 다중 지역 선택은 카메라 이동(MoveCameraToBounds)으로만 반영된다.
+ * 지역 필터 UI는 다중 선택이지만 서버 region 파라미터는 단일 값만 받는다.
+ * 정확히 1개 선택된 경우에만 서버 필터로 전달하고, 다중 선택 시에는
+ * 카메라 이동(MoveCameraToBounds) + BBox 조회로 반영된다.
  * TODO 서버가 regions 다중 파라미터를 지원하면 전체 전달로 변경
  */
 private val HomeFilter.regionForQuery: String?

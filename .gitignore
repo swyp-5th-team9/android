@@ -30,3 +30,4 @@ local.properties
 .idea/planningMode.xml
 .idea/git_toolbox_prj.xml
 .idea/ktlint-plugin.xml
+.kotlin/
