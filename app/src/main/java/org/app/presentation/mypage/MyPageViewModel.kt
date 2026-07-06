@@ -68,6 +68,7 @@ class MyPageViewModel
 
                 userResult
                     .onSuccess { user ->
+                        Timber.d("내 정보 조회 성공 — profileImageUrl=%s", user.profileImageUrl)
                         val favorites =
                             favoriteResult
                                 .getOrElse { error ->

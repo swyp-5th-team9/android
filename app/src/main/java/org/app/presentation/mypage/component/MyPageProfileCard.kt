@@ -43,6 +43,9 @@ fun MyPageProfileCard(
                     .background(MoballTheme.colors.backgroundSurface, shape = CircleShape)
                     .size(80.dp),
                 contentScale = ContentScale.Crop,
+                placeholderRes = R.drawable.img_profile,
+                // 서버가 동일 URL에 이미지를 덮어쓰므로 캐시를 우회해 최신 이미지를 로드
+                bypassCache = true,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
