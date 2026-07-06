@@ -9,6 +9,8 @@ data class GetUserResponse(
     val userId: Long,
     @SerialName("nickname")
     val nickname: String,
+    @SerialName("profileImageUrl")
+    val profileImageUrl: String? = null,
     @SerialName("role")
     val role: String,
     @SerialName("onboardingCompleted")

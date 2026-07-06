@@ -9,6 +9,7 @@ fun GetUserResponse.toUserInfo(): UserInfo =
     UserInfo(
         userId = userId,
         nickname = nickname,
+        profileImageUrl = profileImageUrl,
         role = role,
         onboardingCompleted = onboardingCompleted,
         favoriteTeams = favoriteTeams.map { it.toFavoriteTeam() },
