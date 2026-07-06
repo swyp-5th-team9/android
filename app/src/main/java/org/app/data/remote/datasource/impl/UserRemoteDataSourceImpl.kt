@@ -15,6 +15,7 @@ import org.app.data.remote.dto.DeleteUserRequest
 import org.app.data.remote.dto.GetUserResponse
 import org.app.data.remote.dto.PostOnboardingRequest
 import org.app.data.remote.service.UserService
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -65,6 +66,12 @@ class UserRemoteDataSourceImpl
                         )
                     }
                 }
+                Timber.d(
+                    "PATCH /users/me — nickname=%s, teamIds=%s, image=%s",
+                    nickname,
+                    teamIds,
+                    tempFile?.let { "${it.name} (${it.length()} bytes)" } ?: "없음",
+                )
                 userService.patchUser(parts)
             } finally {
                 withContext(Dispatchers.IO) { tempFile?.delete() }
