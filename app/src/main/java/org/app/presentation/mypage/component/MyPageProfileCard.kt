@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,11 +41,11 @@ fun MyPageProfileCard(
                 url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
                 contentDescription = "프로필 이미지",
                 modifier = Modifier
-                    .background(MoballTheme.colors.backgroundSurface, shape = CircleShape)
-                    .size(80.dp),
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(MoballTheme.colors.backgroundSurface),
                 contentScale = ContentScale.Crop,
                 placeholderRes = R.drawable.img_profile,
-                // 서버가 동일 URL에 이미지를 덮어쓰므로 캐시를 우회해 최신 이미지를 로드
                 bypassCache = true,
             )
 
