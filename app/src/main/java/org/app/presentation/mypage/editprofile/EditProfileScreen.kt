@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -68,6 +69,13 @@ fun EditProfileRoute(
             viewModel.onEvent(EditProfileContract.Event.OnProfileImageChange(uri.toString()))
         }
     }
+    // 서버 닉네임 로드가 필드 생성보다 늦게 도착하므로, 로드 완료 시 필드에 반영한다.
+    LaunchedEffect(state.originalNickname) {
+        if (state.originalNickname.isNotEmpty() && nicknameState.text.isEmpty()) {
+            nicknameState.setTextAndPlaceCursorAtEnd(state.originalNickname)
+        }
+    }
+
     LaunchedEffect(nicknameState) {
         snapshotFlow { nicknameState.text.toString() }
             .collect { viewModel.onEvent(EditProfileContract.Event.OnNicknameChange(it)) }

@@ -70,18 +70,17 @@ class EditProfileViewModel
                 setState { copy(isLoading = true) }
 
                 val trimmedNickname = currentState.nickname.trim()
-                if (trimmedNickname.isBlank()) {
-                    setState { copy(isLoading = false) }
-                    postSideEffect(EditProfileContract.SideEffect.ShowToast("닉네임을 입력해 주세요."))
-                    return@launch
-                }
-
-                val nicknameChanged = trimmedNickname != currentState.originalNickname
+                // 빈 닉네임은 "변경"으로 취급하지 않는다 — 사진만 바꾸는 저장을 막지 않기 위함
+                val nicknameChanged = trimmedNickname.isNotBlank() &&
+                    trimmedNickname != currentState.originalNickname
                 val pickedImageUri = currentState.profileImageUrl
                     ?.takeIf { it != currentState.originalProfileImageUrl }
 
                 if (!nicknameChanged && pickedImageUri == null) {
                     setState { copy(isLoading = false) }
+                    if (trimmedNickname.isBlank()) {
+                        postSideEffect(EditProfileContract.SideEffect.ShowToast("닉네임을 입력해 주세요."))
+                    }
                     return@launch
                 }
 
@@ -94,7 +93,7 @@ class EditProfileViewModel
                         setState {
                             copy(
                                 isLoading = false,
-                                originalNickname = trimmedNickname,
+                                originalNickname = if (nicknameChanged) trimmedNickname else originalNickname,
                                 originalProfileImageUrl = profileImageUrl,
                             )
                         }
