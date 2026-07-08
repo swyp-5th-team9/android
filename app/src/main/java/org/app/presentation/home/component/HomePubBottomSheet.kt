@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -115,7 +116,10 @@ private fun PubListContent(
     onFilterClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    // 펍 개수가 많을 때 리스트가 화면을 넘어 잘리지 않도록,
+    // 시트 최대 높이를 화면의 90%로 제한하고 리스트 영역만 스크롤한다.
+    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
+    Column(modifier = modifier.heightIn(max = maxSheetHeight)) {
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -161,7 +165,9 @@ private fun PubListContent(
         }
 
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false),
             contentPadding = PaddingValues(bottom = 16.dp),
         ) {
             items(pubItems, key = { it.pubId }) { item ->

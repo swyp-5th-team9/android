@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -191,7 +195,10 @@ private fun FilterBottomSheetContent(
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    // 세부 지역 칩(최대 20개)이 많은 기기에서 하단 버튼이 잘리지 않도록,
+    // 시트 최대 높이를 화면의 90%로 제한하고 콘텐츠 영역만 스크롤한다.
+    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
+    Column(modifier = modifier.heightIn(max = maxSheetHeight)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -226,26 +233,33 @@ private fun FilterBottomSheetContent(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
+        // 콘텐츠가 화면을 넘칠 때만 이 영역이 스크롤되고, 버튼은 하단에 고정된다.
+        Column(
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            Spacer(Modifier.height(32.dp))
 
-        when (currentTab) {
-            FilterBottomSheetTab.TEAM ->
-                TeamFilterContent(
-                    favoriteTeamIds = userFavoriteTeamIds,
-                    selectedTeamIds = selectedTeamIds,
-                    onToggleTeam = onToggleTeam,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+            when (currentTab) {
+                FilterBottomSheetTab.TEAM ->
+                    TeamFilterContent(
+                        favoriteTeamIds = userFavoriteTeamIds,
+                        selectedTeamIds = selectedTeamIds,
+                        onToggleTeam = onToggleTeam,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
 
-            FilterBottomSheetTab.REGION ->
-                RegionFilterContent(
-                    selectedRegions = selectedRegions,
-                    onToggleRegion = onToggleRegion,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+                FilterBottomSheetTab.REGION ->
+                    RegionFilterContent(
+                        selectedRegions = selectedRegions,
+                        onToggleRegion = onToggleRegion,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
-
-        Spacer(Modifier.height(24.dp))
 
         Box(
             modifier = Modifier

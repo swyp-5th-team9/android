@@ -11,8 +11,9 @@ interface WithdrawContract {
         val canWithdraw: Boolean
             get() = selectedReason != null &&
                 isAgreed &&
-                etcError == null &&
-                (selectedReason != WithdrawReason.ETC || etcText.isNotBlank())
+                // 주관식 입력 검증은 '기타' 선택 시에만 적용한다.
+                // (객관식 사유만 선택해도 탈퇴 가능)
+                (selectedReason != WithdrawReason.ETC || (etcText.isNotBlank() && etcError == null))
     }
 
     sealed interface Event {
