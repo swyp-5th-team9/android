@@ -67,6 +67,22 @@ fun NavGraphBuilder.homeGraph(
                             ?.toList() ?: emptyList()
                     val openNow: Boolean? = savedStateHandle["pub_filter_open_now"]
                     val businessDay: String? = savedStateHandle["pub_filter_business_day"]
+                    val facilityCodes: List<String> =
+                        savedStateHandle
+                            .get<ArrayList<String>>("pub_filter_facility_codes")
+                            ?.toList() ?: emptyList()
+                    val styleCodes: List<String> =
+                        savedStateHandle
+                            .get<ArrayList<String>>("pub_filter_style_codes")
+                            ?.toList() ?: emptyList()
+                    val themeCodes: List<String> =
+                        savedStateHandle
+                            .get<ArrayList<String>>("pub_filter_theme_codes")
+                            ?.toList() ?: emptyList()
+                    val foodCodes: List<String> =
+                        savedStateHandle
+                            .get<ArrayList<String>>("pub_filter_food_codes")
+                            ?.toList() ?: emptyList()
                     homeViewModel.onEvent(
                         HomeContract.Event.OnFilterApply(
                             teamIds = ids,
@@ -74,6 +90,10 @@ fun NavGraphBuilder.homeGraph(
                             regions = regions,
                             openNow = openNow,
                             businessDay = businessDay,
+                            facilityCodes = facilityCodes.ifEmpty { null },
+                            styleCodes = styleCodes.ifEmpty { null },
+                            themeCodes = themeCodes.ifEmpty { null },
+                            foodCodes = foodCodes.ifEmpty { null },
                         ),
                     )
                     savedStateHandle["pub_filter_applied"] = false

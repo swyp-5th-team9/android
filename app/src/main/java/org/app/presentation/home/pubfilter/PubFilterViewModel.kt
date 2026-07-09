@@ -84,6 +84,12 @@ class PubFilterViewModel
                 else -> null
             }
 
+            // 펍스타일 4종 섹션의 optionId는 서버 코드이므로 그대로 전달
+            val facilityCodes = (selectedOptions["style_facility"] ?: emptySet()).toList()
+            val styleCodes = (selectedOptions["style_broadcast"] ?: emptySet()).toList()
+            val themeCodes = (selectedOptions["style_theme"] ?: emptySet()).toList()
+            val foodCodes = (selectedOptions["food"] ?: emptySet()).toList()
+
             postSideEffect(
                 PubFilterContract.SideEffect.ApplyFilter(
                     selectedOptions,
@@ -92,6 +98,10 @@ class PubFilterViewModel
                     regions,
                     openNow,
                     businessDay,
+                    facilityCodes,
+                    styleCodes,
+                    themeCodes,
+                    foodCodes,
                 ),
             )
         }

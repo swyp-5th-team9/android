@@ -62,7 +62,11 @@ fun PubFilterRoute(
         regions: List<String>,
         openNow: Boolean?,
         businessDay: String?,
-    ) -> Unit = { _, _, _, _, _ -> },
+        facilityCodes: List<String>,
+        styleCodes: List<String>,
+        themeCodes: List<String>,
+        foodCodes: List<String>,
+    ) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     viewModel: PubFilterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -72,7 +76,17 @@ fun PubFilterRoute(
         when (effect) {
             PubFilterContract.SideEffect.NavigateBack -> onBack()
             is PubFilterContract.SideEffect.ApplyFilter -> {
-                onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
+                onApplyFilter(
+                    effect.teamIds,
+                    effect.teamNames,
+                    effect.regions,
+                    effect.openNow,
+                    effect.businessDay,
+                    effect.facilityCodes,
+                    effect.styleCodes,
+                    effect.themeCodes,
+                    effect.foodCodes,
+                )
                 onBack()
             }
 
