@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import com.moball.app.R
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraAnimation
+import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
@@ -155,9 +157,22 @@ fun HomeScreen(
         hasLocationPermission = permissions.values.all { it }
     }
 
+    // 펍 상세 등 네비게이션 왕복 시 지도(MapView)가 재생성되므로, 카메라 위치를 저장해 복원한다.
+    // (rememberSaveable 은 백스택 복귀 시 값이 보존된다)
+    var savedCameraLat by rememberSaveable { mutableStateOf(Double.NaN) }
+    var savedCameraLng by rememberSaveable { mutableStateOf(Double.NaN) }
+    var savedCameraZoom by rememberSaveable { mutableStateOf(Double.NaN) }
+    val hasSavedCamera = !savedCameraLat.isNaN()
+
     LaunchedEffect(hasLocationPermission, naverMap) {
-        if (hasLocationPermission && naverMap != null) {
-            naverMap.locationTrackingMode = LocationTrackingMode.Follow
+        val map = naverMap ?: return@LaunchedEffect
+        if (hasSavedCamera) {
+            // 복귀 상황: 저장된 위치를 유지하고 현위치로 카메라가 튀지 않도록 추적만 표시(NoFollow)
+            map.locationTrackingMode =
+                if (hasLocationPermission) LocationTrackingMode.NoFollow else LocationTrackingMode.None
+        } else if (hasLocationPermission) {
+            // 최초 진입: 현위치로 카메라 이동
+            map.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
 
@@ -220,7 +235,23 @@ fun HomeScreen(
                         map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
                         map.locationOverlay.isVisible = true
 
+                        // 재생성된 지도에 이전 카메라 위치를 즉시 복원(기본 위치로 깜빡이는 것 방지)
+                        if (!savedCameraLat.isNaN()) {
+                            map.moveCamera(
+                                CameraUpdate.toCameraPosition(
+                                    CameraPosition(
+                                        LatLng(savedCameraLat, savedCameraLng),
+                                        savedCameraZoom,
+                                    ),
+                                ),
+                            )
+                        }
+
                         map.addOnCameraIdleListener {
+                            val cameraPos = map.cameraPosition
+                            savedCameraLat = cameraPos.target.latitude
+                            savedCameraLng = cameraPos.target.longitude
+                            savedCameraZoom = cameraPos.zoom
                             val bounds = map.contentBounds
                             onEvent(
                                 HomeContract.Event.OnMapBoundsChanged(
@@ -228,7 +259,7 @@ fun HomeScreen(
                                     swLng = bounds.southWest.longitude,
                                     neLat = bounds.northEast.latitude,
                                     neLng = bounds.northEast.longitude,
-                                    zoom = map.cameraPosition.zoom,
+                                    zoom = cameraPos.zoom,
                                 ),
                             )
                         }

@@ -142,7 +142,11 @@ class HomeViewModel
                     setState { copy(filter = newFilter, showFilterBottomSheet = false) }
 
                     // 선택된 지역들의 좌표를 모아 바운즈 이동 처리
-                    val points = event.regions.mapNotNull { RegionMapper.getLatLng(it) }
+                    // "서울 전체"(SEOUL_ALL)는 특정 지점이 아니라 전체 조회이므로 카메라 이동 대상에서 제외
+                    // (시청 좌표로 카메라가 튀는 문제 방지)
+                    val points = event.regions
+                        .filter { it != "SEOUL_ALL" }
+                        .mapNotNull { RegionMapper.getLatLng(it) }
                     if (points.isNotEmpty()) {
                         postSideEffect(HomeContract.SideEffect.MoveCameraToBounds(points))
                     }
