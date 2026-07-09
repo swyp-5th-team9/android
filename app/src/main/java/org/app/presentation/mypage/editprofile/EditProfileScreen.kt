@@ -197,7 +197,8 @@ private fun EditProfileScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            // 스크롤 컨테이너 안에서는 weight(1f)가 0으로 붕괴해 버튼이 필드에 붙으므로 고정 간격을 준다.
+            Spacer(modifier = Modifier.height(40.dp))
 
             if (state.isEditingNickname || state.hasChanged) {
                 MoballButton(

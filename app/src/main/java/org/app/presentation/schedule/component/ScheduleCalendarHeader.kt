@@ -130,7 +130,9 @@ private fun MonthNavigationRow(
             imageVector = ImageVector.vectorResource(R.drawable.ic_calender),
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier.noRippleClickable(onClick = onCalendarClick),
+            modifier = Modifier
+                .size(24.dp)
+                .noRippleClickable(onClick = onCalendarClick),
         )
     }
 }

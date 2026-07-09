@@ -47,7 +47,7 @@ fun MyPageAddSportsCard(
                 .noRippleClickable(onAddClick),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (supportedTeams.isEmpty()) {
             Column(
@@ -71,19 +71,24 @@ fun MyPageAddSportsCard(
                 Spacer(modifier = Modifier.height(77.dp))
             }
         } else {
+            val teams = supportedTeams.take(3)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 19.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                supportedTeams.take(3).forEach { team ->
+                teams.forEach { team ->
                     androidx.compose.foundation.layout.Box(
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
                         MoballBaseBallTeamBadge(teamName = team)
                     }
+                }
+                // 구단이 3개 미만이어도 3칸 슬롯을 유지해 뱃지 간격이 넓어지지 않게 한다.
+                repeat(3 - teams.size) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
