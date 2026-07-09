@@ -101,11 +101,14 @@ fun CityChip(
         text = label,
         style = MoballTheme.typography.body.medium14,
         color = textColor,
+        // 칩 라벨이 좁은 화면에서 줄바꿈되어 모양이 깨지지 않도록 한 줄 고정
+        maxLines = 1,
+        softWrap = false,
         modifier = modifier
             .clip(RoundedCornerShape(100.dp))
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))
             .then(if (isEnabled) Modifier.noRippleClickable(onClick) else Modifier)
-            .padding(horizontal = 28.dp, vertical = 12.dp),
+            .padding(horizontal = 20.dp, vertical = 12.dp),
     )
 }

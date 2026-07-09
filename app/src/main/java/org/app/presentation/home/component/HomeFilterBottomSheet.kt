@@ -1,7 +1,6 @@
 package org.app.presentation.home.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -264,10 +263,7 @@ private fun FilterBottomSheetContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MoballTheme.colors.borderNormal,
-                ).padding(horizontal = 16.dp, vertical = 25.dp),
+                .padding(horizontal = 16.dp, vertical = 25.dp),
         ) {
             MoballButton(
                 text = "적용하기",
