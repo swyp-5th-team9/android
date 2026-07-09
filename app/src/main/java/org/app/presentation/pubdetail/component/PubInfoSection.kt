@@ -73,12 +73,19 @@ fun PubInfoSection(
             verticalAlignment = Alignment.Top,
         ) {
             if (teams.isNotEmpty()) {
+                // 전 구단을 상영하는 펍은 개별 구단 칩을 모두 나열하지 않고 '전구단 상영' 단일 칩으로 표시
+                val teamIds = teams.map { it.teamId.toInt() }.toSet()
+                val isAllTeams = 0 in teamIds || teamIds.containsAll((1..10).toList())
                 FlowRow(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    teams.forEach { team ->
-                        TeamBadge(teamType = KboTeamType.fromId(team.teamId.toInt()))
+                    if (isAllTeams) {
+                        TeamBadge(teamType = KboTeamType.ALL)
+                    } else {
+                        teams.forEach { team ->
+                            TeamBadge(teamType = KboTeamType.fromId(team.teamId.toInt()))
+                        }
                     }
                 }
             } else {
