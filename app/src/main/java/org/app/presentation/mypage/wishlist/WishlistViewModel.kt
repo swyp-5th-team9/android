@@ -81,6 +81,9 @@ class WishlistViewModel
                                     setState {
                                         copy(items = items.filter { it.favoriteId != event.favoriteId })
                                     }
+                                    postSideEffect(
+                                        WishlistContract.SideEffect.ShowToast("1개의 펍이 삭제되었습니다."),
+                                    )
                                 }.onFailure { e ->
                                     postSideEffect(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
                                 }

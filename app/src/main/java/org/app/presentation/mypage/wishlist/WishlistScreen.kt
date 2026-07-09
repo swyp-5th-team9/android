@@ -48,6 +48,7 @@ fun WishlistRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var heartDeleteId by remember { mutableStateOf<Long?>(null) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -80,7 +81,7 @@ fun WishlistRoute(
         onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
         onDeleteClick = { showDeleteDialog = true },
         onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
-        onHeartClick = { favoriteId -> viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId)) },
+        onHeartClick = { favoriteId -> heartDeleteId = favoriteId },
         modifier = modifier,
     )
 
@@ -93,6 +94,19 @@ fun WishlistRoute(
                 showDeleteDialog = false
             },
             onDismiss = { showDeleteDialog = false },
+            iconRes = R.drawable.ic_trash_full,
+        )
+    }
+
+    heartDeleteId?.let { favoriteId ->
+        MoballDialog(
+            title = "펍 즐겨찾기 삭제",
+            subtitle = "즐겨찾기 목록에서 삭제할까요?",
+            onConfirm = {
+                viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId))
+                heartDeleteId = null
+            },
+            onDismiss = { heartDeleteId = null },
             iconRes = R.drawable.ic_trash_full,
         )
     }
