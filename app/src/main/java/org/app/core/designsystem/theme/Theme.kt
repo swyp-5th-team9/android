@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.Density
  * 시스템 글꼴 크기(fontScale) 상한.
  * 사용자가 기기 글꼴을 크게 설정해도 앱 UI가 시안 대비 과도하게 커지지 않도록 제한한다.
  */
-private const val MAX_FONT_SCALE = 1.15f
+private const val MAX_FONT_SCALE = 1.3f
 
 object MoballTheme {
     val colors: MoballColors
