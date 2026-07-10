@@ -62,9 +62,13 @@ fun ScheduleCalendarHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            // 스크롤되는 콘텐츠 위로 헤더가 떠 보이도록 하단 드롭섀도우
-            .shadow(elevation = 4.dp)
-            .background(MoballTheme.colors.backgroundBase),
+            // 헤더 하단 드롭섀도우 — 피그마(elevation 20/4%)는 너무 옅고 기본 그림자는 너무 진해 중간값으로 조정
+            // (elevation = 퍼짐, 색상 알파 0x1A = 진하기)
+            .shadow(
+                elevation = 20.dp,
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000),
+            ).background(MoballTheme.colors.backgroundBase),
     ) {
         MonthNavigationRow(
             currentMonth = currentMonth,
