@@ -97,47 +97,52 @@ private fun MonthNavigationRow(
     onCalendarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
     ) {
-        Spacer(Modifier.width(87.dp))
+        // 가운데: < 2026년 N월 > — 화면 폭과 무관하게 중앙 정렬
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left_md),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onClick = onPrevWeek),
+            )
 
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left_md),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .size(24.dp)
-                .noRippleClickable(onClick = onPrevWeek),
-        )
+            Spacer(Modifier.width(40.dp))
 
-        Spacer(Modifier.width(40.dp))
+            Text(
+                text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
+                style = MoballTheme.typography.heading5.bold18,
+                color = MoballTheme.colors.textPrimary,
+            )
 
-        Text(
-            text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
-            style = MoballTheme.typography.heading5.bold18,
-            color = MoballTheme.colors.textPrimary,
-        )
+            Spacer(Modifier.width(36.dp))
 
-        Spacer(Modifier.width(36.dp))
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right_md),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onClick = onNextWeek),
+            )
+        }
 
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right_md),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .size(24.dp)
-                .noRippleClickable(onClick = onNextWeek),
-        )
-
-        Spacer(Modifier.width(34.dp))
-
+        // 오른쪽 고정: 캘린더 아이콘
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_calender),
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier
+                .align(Alignment.CenterEnd)
                 .size(48.dp)
                 .noRippleClickable(onClick = onCalendarClick),
         )
