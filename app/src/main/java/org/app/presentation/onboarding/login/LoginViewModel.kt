@@ -47,6 +47,12 @@ class LoginViewModel
                 loginResult
                     .onSuccess { socialLoginToken ->
                         setState { copy(isLoading = false) }
+                        // 탈퇴 후 30일 이내 재로그인으로 계정이 복구된 경우 안내
+                        if (socialLoginToken.restored == true) {
+                            postSideEffect(
+                                LoginContract.SideEffect.ShowToast("다시 만나서 반가워요! 탈퇴 전 계정이 복구되었어요."),
+                            )
+                        }
                         if (socialLoginToken.onboardingCompleted == true) {
                             postSideEffect(LoginContract.SideEffect.NavigateToHome)
                         } else {

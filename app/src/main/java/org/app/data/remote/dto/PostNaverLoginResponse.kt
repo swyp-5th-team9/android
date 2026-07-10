@@ -13,4 +13,6 @@ data class PostNaverLoginResponse(
     val role: String?,
     @SerialName("onboardingCompleted")
     val onboardingCompleted: Boolean?,
+    @SerialName("restored")
+    val restored: Boolean? = null,
 )

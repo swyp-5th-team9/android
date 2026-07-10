@@ -14,5 +14,6 @@ fun PostNaverLoginResponse.toNaverLoginToken(): SocialLoginToken {
         refreshToken = refresh,
         role = role,
         onboardingCompleted = onboardingCompleted,
+        restored = restored,
     )
 }
