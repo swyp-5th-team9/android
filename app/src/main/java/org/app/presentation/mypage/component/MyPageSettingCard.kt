@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.moball.app.BuildConfig
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
@@ -138,7 +139,7 @@ fun MyPageSettingCardPreview() {
                 MyPageSettingItem(
                     iconRes = R.drawable.ic_baseball_chip,
                     title = "버전 정보",
-                    subtitle = "최신 버전을 사용 중입니다 (v1.0.0)",
+                    subtitle = "최신 버전을 사용 중입니다 (v${BuildConfig.VERSION_NAME})",
                     onClick = {},
                 ),
             )

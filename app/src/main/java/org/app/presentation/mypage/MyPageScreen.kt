@@ -44,6 +44,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.BuildConfig
 import com.moball.app.R
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
@@ -280,7 +281,7 @@ private fun MyPageScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "모여볼 v1.0.0",
+                        text = "모여볼 v${BuildConfig.VERSION_NAME}",
                         style = MoballTheme.typography.caption.regular12,
                         color = MoballTheme.colors.textTertiary,
                         textAlign = TextAlign.Center,
