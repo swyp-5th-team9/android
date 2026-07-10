@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -58,7 +59,10 @@ private fun SignUpCompleteScreen(
                         1.0f to Color(0xFF1C1C1C),
                     ),
                 ),
-            ).padding(horizontal = 16.dp),
+            )
+            // 배경은 시스템바 뒤까지 채우고, 콘텐츠만 시스템바 안쪽으로 인셋
+            .systemBarsPadding()
+            .padding(horizontal = 16.dp),
     ) {
         Spacer(modifier = Modifier.height(83.dp))
 
