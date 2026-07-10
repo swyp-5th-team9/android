@@ -3,6 +3,7 @@ package org.app.presentation.mypage.withdraw
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -34,8 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -198,18 +200,13 @@ private fun WithdrawScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MoballTheme.colors.backgroundSurface)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                WithdrawNoticeItem("회원 탈퇴 시 계정과 개인정보가 30일간 보관되고, 재가입 시 복구돼요.")
-                WithdrawNoticeItem("30일이 지나면 계정과 개인정보는 영구 삭제돼요.")
-                WithdrawNoticeItem("관련 법령에 따라 일부 정보는 일정 기간 보관될 수 있어요.")
-            }
+            WithdrawNoticeBox(
+                notices = listOf(
+                    "회원 탈퇴 시 계정과 개인정보가 30일간 보관되고, 재가입 시 복구돼요.",
+                    "30일이 지나면 계정과 개인정보는 영구 삭제돼요.",
+                    "관련 법령에 따라 일부 정보는 일정 기간 보관될 수 있어요.",
+                ),
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -268,21 +265,51 @@ private fun WithdrawScreen(
 }
 
 @Composable
-private fun WithdrawNoticeItem(text: String) {
+private fun WithdrawNoticeBox(notices: List<String>) {
+    val textMeasurer = rememberTextMeasurer()
+    val baseStyle = MoballTheme.typography.caption.regular12
+    val density = LocalDensity.current
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MoballTheme.colors.backgroundSurface),
+    ) {
+        // 박스 좌우 패딩(16*2)과 불릿/간격 여유를 제외한 실제 텍스트 폭
+        val availableTextWidthPx = with(density) { (maxWidth - 48.dp).toPx() }
+        // 가장 긴 문구를 기준으로 축소 비율을 구해 세 항목에 동일한 크기를 적용한다.
+        val widestPx = notices.maxOf { textMeasurer.measure(it, style = baseStyle).size.width }.coerceAtLeast(1)
+        val scale = (availableTextWidthPx / widestPx).coerceIn(8f / 12f, 1f)
+        val fontSize = (12f * scale).sp
+
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            notices.forEach { WithdrawNoticeItem(text = it, fontSize = fontSize) }
+        }
+    }
+}
+
+@Composable
+private fun WithdrawNoticeItem(
+    text: String,
+    fontSize: TextUnit,
+) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = "•",
             style = MoballTheme.typography.caption.regular12,
+            fontSize = fontSize,
             color = MoballTheme.colors.textSecondary,
         )
-        // 문구가 길어 폭을 넘칠 때 한 줄에 들어오도록 폰트를 자동 축소한다.
-        BasicText(
+        Text(
             text = text,
-            style = MoballTheme.typography.caption.regular12.copy(
-                color = MoballTheme.colors.textSecondary,
-            ),
+            style = MoballTheme.typography.caption.regular12,
+            fontSize = fontSize,
+            color = MoballTheme.colors.textSecondary,
             maxLines = 1,
-            autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = 12.sp),
             modifier = Modifier.weight(1f),
         )
     }
