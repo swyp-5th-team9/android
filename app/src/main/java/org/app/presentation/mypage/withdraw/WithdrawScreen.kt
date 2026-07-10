@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
@@ -174,8 +177,7 @@ private fun WithdrawScreen(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(60.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -273,10 +275,14 @@ private fun WithdrawNoticeItem(text: String) {
             style = MoballTheme.typography.caption.regular12,
             color = MoballTheme.colors.textSecondary,
         )
-        Text(
+        // 문구가 길어 폭을 넘칠 때 한 줄에 들어오도록 폰트를 자동 축소한다.
+        BasicText(
             text = text,
-            style = MoballTheme.typography.caption.regular12,
-            color = MoballTheme.colors.textSecondary,
+            style = MoballTheme.typography.caption.regular12.copy(
+                color = MoballTheme.colors.textSecondary,
+            ),
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = 12.sp),
             modifier = Modifier.weight(1f),
         )
     }
