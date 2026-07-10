@@ -137,12 +137,19 @@ fun PubInfoSection(
             text = address,
         )
 
-        phoneNumber?.let { phone ->
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        if (!phoneNumber.isNullOrBlank()) {
             InfoRow(
                 icon = ImageVector.vectorResource(R.drawable.ic_phone),
-                text = phone,
+                text = phoneNumber,
                 onClick = onPhoneCall,
+            )
+        } else {
+            // 번호가 아직 없는 가게도 일관성을 위해 행을 노출(플레이스홀더)
+            InfoRow(
+                icon = ImageVector.vectorResource(R.drawable.ic_phone),
+                text = "전화번호 준비 중",
+                textColor = MoballTheme.colors.textTertiary,
             )
         }
 
@@ -368,6 +375,7 @@ private fun InfoRow(
     text: String,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    textColor: Color = MoballTheme.colors.textPrimary,
 ) {
     Row(
         modifier = modifier
@@ -385,7 +393,7 @@ private fun InfoRow(
         Text(
             text = text,
             style = MoballTheme.typography.body.regular14,
-            color = MoballTheme.colors.textPrimary,
+            color = textColor,
         )
     }
 }
