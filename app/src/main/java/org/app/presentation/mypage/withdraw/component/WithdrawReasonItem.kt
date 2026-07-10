@@ -28,7 +28,7 @@ fun WithdrawReasonItem(
             .fillMaxWidth()
             .background(MoballTheme.colors.backgroundBase)
             .noRippleClickable(onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
