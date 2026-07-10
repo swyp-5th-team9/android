@@ -141,7 +141,6 @@ internal fun PubDetailScreen(
             }
 
             PubBottomBar(
-                hasPhoneNumber = detail.phoneNumber != null,
                 onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
                 onKakaoMapClick = { onEvent(PubDetailContract.Event.OnKakaoMapClick) },
                 onNaverMapClick = { onEvent(PubDetailContract.Event.OnNaverMapClick) },

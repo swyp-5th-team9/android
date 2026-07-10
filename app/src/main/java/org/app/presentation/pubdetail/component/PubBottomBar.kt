@@ -29,7 +29,6 @@ import org.app.core.extension.noRippleClickable
 
 @Composable
 fun PubBottomBar(
-    hasPhoneNumber: Boolean,
     onPhoneCall: () -> Unit,
     onKakaoMapClick: () -> Unit,
     onNaverMapClick: () -> Unit,
@@ -49,26 +48,25 @@ fun PubBottomBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (hasPhoneNumber) {
-                Surface(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            width = 1.dp,
-                            color = MoballTheme.colors.borderStrong,
-                            shape = RoundedCornerShape(12.dp),
-                        ).noRippleClickable(onPhoneCall),
-                    color = MoballTheme.colors.backgroundBase,
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.padding(16.dp),
-                    )
-                }
+            // 전화번호 유무와 무관하게 항상 노출(일관성). 번호가 없으면 탭 시 토스트로 안내
+            Surface(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = MoballTheme.colors.borderStrong,
+                        shape = RoundedCornerShape(12.dp),
+                    ).noRippleClickable(onPhoneCall),
+                color = MoballTheme.colors.backgroundBase,
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.padding(16.dp),
+                )
             }
 
             MapButton(
@@ -125,7 +123,6 @@ private fun MapButton(
 private fun PubBottomBarPreview() {
     MoballTheme {
         PubBottomBar(
-            hasPhoneNumber = true,
             onPhoneCall = {},
             onKakaoMapClick = {},
             onNaverMapClick = {},

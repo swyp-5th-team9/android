@@ -42,8 +42,12 @@ class PubDetailViewModel
                     setState { copy(currentImageIndex = event.index) }
 
                 is PubDetailContract.Event.OnPhoneCall -> {
-                    val phone = currentState.pubDetail?.phoneNumber ?: return
-                    postSideEffect(PubDetailContract.SideEffect.CallPhone(phone))
+                    val phone = currentState.pubDetail?.phoneNumber
+                    if (phone.isNullOrBlank()) {
+                        postSideEffect(PubDetailContract.SideEffect.ShowToast("등록된 전화번호가 없어요"))
+                    } else {
+                        postSideEffect(PubDetailContract.SideEffect.CallPhone(phone))
+                    }
                 }
 
                 is PubDetailContract.Event.OnKakaoMapClick -> {
