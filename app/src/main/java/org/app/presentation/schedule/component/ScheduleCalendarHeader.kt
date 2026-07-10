@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -61,6 +62,8 @@ fun ScheduleCalendarHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // 스크롤되는 콘텐츠 위로 헤더가 떠 보이도록 하단 드롭섀도우
+            .shadow(elevation = 4.dp)
             .background(MoballTheme.colors.backgroundBase),
     ) {
         MonthNavigationRow(
