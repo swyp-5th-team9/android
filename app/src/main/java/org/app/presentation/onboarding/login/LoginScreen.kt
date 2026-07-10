@@ -41,7 +41,7 @@ import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.component.SocialLoginButton
 
 private const val PRIVACY_POLICY_URL =
-    "https://www.notion.so/20221444hanyubin/36f913d4ef848088bf51e6317085f646?source=copy_link"
+    "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
 @Composable
 fun LoginRoute(

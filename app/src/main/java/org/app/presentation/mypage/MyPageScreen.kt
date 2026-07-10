@@ -148,7 +148,8 @@ private fun MyPageScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     val email = "moyeoball@gmail.com"
-    val termsUrl = "https://www.notion.so/20221444hanyubin/36f913d4ef848088bf51e6317085f646?source=copy_link"
+    val privacyPolicyUrl =
+        "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
     Column(
         modifier = modifier
@@ -224,8 +225,8 @@ private fun MyPageScreen(
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_warning_info,
                                 title = "약관 및 정책",
-                                subtitle = "이용약관 · 개인정보처리방침",
-                                onClick = { uriHandler.openUri(termsUrl) },
+                                subtitle = "개인정보처리방침",
+                                onClick = { uriHandler.openUri(privacyPolicyUrl) },
                             ),
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_logout,
