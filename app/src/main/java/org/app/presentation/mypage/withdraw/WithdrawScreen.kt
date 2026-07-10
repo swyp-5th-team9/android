@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -172,6 +178,40 @@ private fun WithdrawScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
+                    contentDescription = null,
+                    tint = MoballTheme.colors.stateNegative,
+                    modifier = Modifier.size(16.dp),
+                )
+                Text(
+                    text = "잠깐만요!",
+                    style = MoballTheme.typography.body.semibold14,
+                    color = MoballTheme.colors.stateNegative,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MoballTheme.colors.backgroundSurface)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                WithdrawNoticeItem("회원 탈퇴 시 계정과 개인정보가 30일간 보관되고, 재가입 시 복구돼요.")
+                WithdrawNoticeItem("30일이 지나면 계정과 개인정보는 영구 삭제돼요.")
+                WithdrawNoticeItem("관련 법령에 따라 일부 정보는 일정 기간 보관될 수 있어요.")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .noRippleClickable { onAgreementToggle() },
@@ -188,7 +228,7 @@ private fun WithdrawScreen(
                     ),
                 )
                 Text(
-                    text = "탈퇴하면 모여볼 계정 이용이 종료돼요.",
+                    text = "위 주의사항을 숙지했고, 탈퇴에 동의합니다.",
                     style = MoballTheme.typography.body.medium14,
                     color = MoballTheme.colors.textPrimary,
                 )
@@ -221,6 +261,23 @@ private fun WithdrawScreen(
             subtitle = "그동안 모여볼을 사용해주셔서 감사합니다.",
             onConfirm = onConfirmDialog,
             iconRes = R.drawable.ic_report_check,
+        )
+    }
+}
+
+@Composable
+private fun WithdrawNoticeItem(text: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = "•",
+            style = MoballTheme.typography.caption.regular12,
+            color = MoballTheme.colors.textSecondary,
+        )
+        Text(
+            text = text,
+            style = MoballTheme.typography.caption.regular12,
+            color = MoballTheme.colors.textSecondary,
+            modifier = Modifier.weight(1f),
         )
     }
 }
