@@ -212,6 +212,7 @@ fun HomeScreen(
     LaunchedEffect(naverMap, state.pubMarkers, state.pubClusters) {
         val map = naverMap ?: return@LaunchedEffect
         renderPubMarkers(
+            context = context,
             map = map,
             markers = state.pubMarkers,
             currentMarkers = activeMarkers,
@@ -376,19 +377,31 @@ fun HomeScreen(
 }
 
 private fun renderPubMarkers(
+    context: Context,
     map: NaverMap,
     markers: List<PubMarker>,
     currentMarkers: MutableList<Marker>,
     onMarkerClick: (String) -> Unit,
 ) {
+    // PNG 마커는 원본 픽셀 크기로 렌더되므로, 원래 벡터(dp) 크기를 명시해 확대되지 않게 한다.
+    val density = context.resources.displayMetrics.density
     currentMarkers.forEach { it.map = null }
     currentMarkers.clear()
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            icon = when (pubMarker.type) {
-                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.img_pin)
-                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.img_favorite)
+            when (pubMarker.type) {
+                PubMarkerType.MATCH -> {
+                    icon = OverlayImage.fromResource(R.drawable.img_pin)
+                    width = (68 * density).toInt()
+                    height = (68 * density).toInt()
+                }
+
+                PubMarkerType.FAVORITE -> {
+                    icon = OverlayImage.fromResource(R.drawable.img_favorite)
+                    width = (60 * density).toInt()
+                    height = (68 * density).toInt()
+                }
             }
             this.map = map
             setOnClickListener {
