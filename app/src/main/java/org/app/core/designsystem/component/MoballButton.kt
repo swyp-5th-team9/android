@@ -40,12 +40,12 @@ fun MoballButton(
             .clip(RoundedCornerShape(12.dp))
             .background(resolvedBackgroundColor)
             .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
-            .padding(vertical = 15.dp),
+            .padding(vertical = 13.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            style = typography.heading5.semibold18,
+            style = typography.heading6.semibold16,
             color = resolvedTextColor,
         )
     }

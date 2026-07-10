@@ -107,7 +107,7 @@ fun MoballLineTextField(
                             start = 10.dp,
                             end = if (isFilled) 48.dp else 10.dp,
                         ).padding(
-                            vertical = 12.dp,
+                            vertical = 10.dp,
                         ).onFocusEvent { isFocused = it.isFocused },
                     onKeyboardAction = { focusManager.clearFocus() },
                 )

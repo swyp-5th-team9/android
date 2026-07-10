@@ -131,7 +131,7 @@ private fun MonthNavigationRow(
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier
-                .size(24.dp)
+                .size(48.dp)
                 .noRippleClickable(onClick = onCalendarClick),
         )
     }

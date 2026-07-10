@@ -76,8 +76,13 @@ fun MyPageAddSportsCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 19.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.Center,
             ) {
+                val emptyWeight = (3 - teams.size).toFloat()
+                if (emptyWeight > 0) {
+                    Spacer(modifier = Modifier.weight(emptyWeight / 2))
+                }
+
                 teams.forEach { team ->
                     androidx.compose.foundation.layout.Box(
                         modifier = Modifier.weight(1f),
@@ -86,9 +91,9 @@ fun MyPageAddSportsCard(
                         MoballBaseBallTeamBadge(teamName = team)
                     }
                 }
-                // 구단이 3개 미만이어도 3칸 슬롯을 유지해 뱃지 간격이 넓어지지 않게 한다.
-                repeat(3 - teams.size) {
-                    Spacer(modifier = Modifier.weight(1f))
+
+                if (emptyWeight > 0) {
+                    Spacer(modifier = Modifier.weight(emptyWeight / 2))
                 }
             }
         }
@@ -100,7 +105,7 @@ fun MyPageAddSportsCard(
 private fun MyPageAddSportsCardPreview() {
     MoballTheme {
         MyPageAddSportsCard(
-            supportedTeams = listOf("한화", "KT", "삼성"),
+            supportedTeams = listOf("KT", "삼성"),
             onAddClick = {},
         )
     }

@@ -42,12 +42,9 @@ fun MoballFilterChip(
 ) {
     Row(
         modifier = modifier
-            .shadow(
-                elevation = 3.dp,
-                shape = ChipShape,
-                ambientColor = Color(0x1A000000),
-                spotColor = Color(0x14000000),
-            ).then(
+            .shadow(elevation = 3.dp, spotColor = Color(0x1A000000), ambientColor = Color(0x1A000000))
+            .shadow(elevation = 4.dp, spotColor = Color(0x14000000), ambientColor = Color(0x14000000))
+            .then(
                 if (isSelected) {
                     Modifier.border(
                         width = 1.dp,

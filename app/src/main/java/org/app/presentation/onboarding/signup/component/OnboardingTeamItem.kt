@@ -65,7 +65,6 @@ fun OnboardingTeamItem(
                 modifier = Modifier
                     .fillMaxWidth(0.65f)
                     .aspectRatio(1f),
-                alpha = if (isSelected) 1f else 0.5f,
             )
         }
 

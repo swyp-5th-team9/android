@@ -6,9 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -101,7 +99,7 @@ fun ScheduleGameItem(
 
                     game.isFinished && game.homeScore != null && game.awayScore != null -> {
                         Text(
-                            text = "${game.homeScore} : ${game.awayScore}",
+                            text = "${game.homeScore}:${game.awayScore}",
                             style = MoballTheme.typography.heading5.bold18,
                             color = MoballTheme.colors.textPrimary,
                         )
@@ -155,16 +153,6 @@ private fun TeamSection(
             contentDescription = null,
             modifier = Modifier.size(77.dp),
         )
-        if (teamName.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = teamName,
-                style = MoballTheme.typography.caption.medium12,
-                color = MoballTheme.colors.textPrimary,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-            )
-        }
     }
 }
 

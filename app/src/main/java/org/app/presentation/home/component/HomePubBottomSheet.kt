@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -101,7 +100,6 @@ fun HomePubListBottomSheet(
             onItemClick = onItemClick,
             onFavoriteClick = onFavoriteClick,
             onFilterClick = onFilterClick,
-            modifier = Modifier.navigationBarsPadding(),
         )
     }
 }
@@ -346,7 +344,7 @@ private fun PubDetailContent(
     onNaverMapClick: () -> Unit,
     onCardClick: (Long) -> Unit,
 ) {
-    Column(modifier = Modifier.navigationBarsPadding()) {
+    Column {
         if (detail == null && isLoading) {
             Box(
                 modifier = Modifier
@@ -363,6 +361,7 @@ private fun PubDetailContent(
                     .noRippleClickable { onCardClick(detail.pubId) }
                     .padding(horizontal = 16.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
             ) {
                 Column(
                     modifier = Modifier.weight(1f),

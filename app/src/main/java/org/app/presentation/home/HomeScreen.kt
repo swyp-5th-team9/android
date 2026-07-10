@@ -387,8 +387,8 @@ private fun renderPubMarkers(
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
             icon = when (pubMarker.type) {
-                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.ic_pin)
-                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.ic_pub_favorite)
+                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.img_pin)
+                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.img_favorite)
             }
             this.map = map
             setOnClickListener {

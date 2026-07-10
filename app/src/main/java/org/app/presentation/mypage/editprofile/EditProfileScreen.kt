@@ -197,16 +197,21 @@ private fun EditProfileScreen(
                     )
                 }
             }
-            // 스크롤 컨테이너 안에서는 weight(1f)가 0으로 붕괴해 버튼이 필드에 붙으므로 고정 간격을 준다.
-            Spacer(modifier = Modifier.height(40.dp))
+            // 하단 여백 확보
+            Spacer(modifier = Modifier.height(30.dp))
+        }
 
-            if (state.isEditingNickname || state.hasChanged) {
+        if (state.isEditingNickname || state.hasChanged) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
                 MoballButton(
                     text = "이걸로 할래요",
                     onClick = onSave,
                     enabled = state.hasChanged && !state.isLoading,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

@@ -1,7 +1,6 @@
 package org.app.presentation.home.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -68,7 +67,6 @@ fun HomeMyLocationButton(
             .shadow(elevation = 2.dp, shape = CircleShape)
             .clip(CircleShape)
             .background(MoballTheme.colors.backgroundBase)
-            .border(1.dp, MoballTheme.colors.borderNormal, CircleShape)
             .noRippleClickable(onClick)
             .padding(12.dp),
     )
