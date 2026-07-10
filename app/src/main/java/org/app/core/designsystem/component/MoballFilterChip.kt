@@ -42,9 +42,18 @@ fun MoballFilterChip(
 ) {
     Row(
         modifier = modifier
-            .shadow(elevation = 3.dp, spotColor = Color(0x1A000000), ambientColor = Color(0x1A000000))
-            .shadow(elevation = 4.dp, spotColor = Color(0x14000000), ambientColor = Color(0x14000000))
-            .then(
+            // pill 외곽을 따라 그림자가 보이도록 shape 지정(미지정 시 사각형으로 그려져 거의 안 보임)
+            .shadow(
+                elevation = 3.dp,
+                shape = ChipShape,
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000),
+            ).shadow(
+                elevation = 4.dp,
+                shape = ChipShape,
+                spotColor = Color(0x14000000),
+                ambientColor = Color(0x14000000),
+            ).then(
                 if (isSelected) {
                     Modifier.border(
                         width = 1.dp,
