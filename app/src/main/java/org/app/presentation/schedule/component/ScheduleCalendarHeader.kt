@@ -63,11 +63,11 @@ fun ScheduleCalendarHeader(
         modifier = modifier
             .fillMaxWidth()
             // 헤더 하단 드롭섀도우 — 피그마(elevation 20/4%)는 너무 옅고 기본 그림자는 너무 진해 중간값으로 조정
-            // (elevation = 퍼짐, 색상 알파 0x1A = 진하기)
+            // (elevation = 퍼짐, 색상 알파 0x26 ≈ 15% = 진하기)
             .shadow(
                 elevation = 20.dp,
-                spotColor = Color(0x1A000000),
-                ambientColor = Color(0x1A000000),
+                spotColor = Color(0x26000000),
+                ambientColor = Color(0x26000000),
             ).background(MoballTheme.colors.backgroundBase),
     ) {
         MonthNavigationRow(
