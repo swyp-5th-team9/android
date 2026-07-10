@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
@@ -71,6 +72,11 @@ private fun MainNavHost(
     appState: MainAppState,
     innerPadding: PaddingValues,
 ) {
+    // 로그인 등 프리-로그인 화면은 배경을 화면 끝(시스템바 뒤)까지 그리도록 innerPadding을 적용하지 않는다.
+    // (해당 화면들은 각자 콘텐츠에 systemBarsPadding을 적용)
+    val currentEntry by appState.navController.currentBackStackEntryAsState()
+    val isFullBleed = currentEntry?.destination?.route == Login::class.qualifiedName
+
     NavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -78,7 +84,7 @@ private fun MainNavHost(
         popExitTransition = { ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
-        modifier = Modifier.padding(innerPadding),
+        modifier = if (isFullBleed) Modifier.fillMaxSize() else Modifier.padding(innerPadding),
     ) {
         splashGraph(
             navigateToHome = {
