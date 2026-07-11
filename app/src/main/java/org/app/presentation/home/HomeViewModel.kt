@@ -204,7 +204,7 @@ class HomeViewModel
                 pubRepository
                     .getPubs(
                         teamIds = filter.teamIdsForQuery,
-                        region = filter.regionForQuery,
+                        regions = filter.regionsForQuery,
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
                         facilityCodes = filter.facilityCodes,
@@ -261,7 +261,7 @@ class HomeViewModel
                         neLat = currentNeLat,
                         neLng = currentNeLng,
                         teamIds = filter.teamIdsForQuery,
-                        region = filter.regionForQuery,
+                        regions = filter.regionsForQuery,
                         openNow = filter.openNow,
                         businessDay = filter.businessDay,
                         facilityCodes = filter.facilityCodes,
@@ -474,14 +474,12 @@ private val HomeFilter.teamIdsForQuery: List<Long>?
     }
 
 /**
- * 선택된 지역을 콤마로 이어 단일 region 파라미터로 전달한다.
- * (서버가 region String 하나에 콤마 구분 다중 값을 처리 — 필드 스펙 불변)
+ * 선택된 지역을 서버 regions(복수) 파라미터로 전달한다.
+ * 서버가 regions를 우선 처리하므로 다중/단일 모두 regions로 보낸다(regions=A&regions=B).
  * "서울 전체"(SEOUL_ALL)는 전체 조회이므로 제외하고, 선택이 없으면 null.
  */
-private val HomeFilter.regionForQuery: String?
-    get() = (selectedRegions - "SEOUL_ALL")
-        .ifEmpty { null }
-        ?.joinToString(",")
+private val HomeFilter.regionsForQuery: List<String>?
+    get() = (selectedRegions - "SEOUL_ALL").ifEmpty { null }
 
 /** 퀵 필터 칩 토글 규칙 */
 private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
