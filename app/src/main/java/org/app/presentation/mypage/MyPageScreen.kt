@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -83,10 +83,12 @@ fun MyPageRoute(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // 내정보 수정에서 돌아오면 프로필 이미지를 강제로 다시 로드 (동일 URL 덮어쓰기 대응)
-    var profileImageVersion by remember { mutableIntStateOf(0) }
+    // 세션 간 캐시버스터 중복을 막기 위해 timestamp 사용
+    var profileImageVersion by remember { mutableLongStateOf(0L) }
     LaunchedEffect(profileUpdated) {
         if (profileUpdated) {
-            profileImageVersion++
+            viewModel.onEvent(MyPageContract.Event.OnRefresh) // 최신 유저정보(프로필 URL) 재조회 보장
+            profileImageVersion = System.currentTimeMillis() // 이미지 캐시버스터
             onProfileUpdateConsumed()
         }
     }
@@ -159,7 +161,7 @@ private fun MyPageScreen(
     onAddTeamClick: () -> Unit,
     onDismissTeamSheet: () -> Unit,
     modifier: Modifier = Modifier,
-    imageVersion: Int = 0,
+    imageVersion: Long = 0L,
 ) {
     val uriHandler = LocalUriHandler.current
     val email = "moyeoball@gmail.com"

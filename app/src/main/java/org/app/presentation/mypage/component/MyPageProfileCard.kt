@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +30,7 @@ fun MyPageProfileCard(
     profileImageUrl: String?,
     onEditProfileClick: () -> Unit,
     modifier: Modifier = Modifier,
-    imageVersion: Int = 0,
+    imageVersion: Long = 0L,
 ) {
     Box(
         modifier = modifier
@@ -39,20 +38,26 @@ fun MyPageProfileCard(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // 서버가 동일 URL에 이미지를 덮어써도(문자열 불변) imageVersion 변경 시 강제로 다시 로드한다.
-            key(imageVersion) {
-                UrlImage(
-                    url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
-                    contentDescription = "프로필 이미지",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(MoballTheme.colors.backgroundSurface),
-                    contentScale = ContentScale.Crop,
-                    placeholderRes = R.drawable.img_profile,
-                    bypassCache = true,
-                )
+            // 서버가 동일 URL에 이미지를 덮어쓰면 CDN/HTTP 캐시가 옛 이미지를 계속 주므로,
+            // 편집 후(imageVersion>0) URL에 캐시버스터 쿼리를 붙여 최신 이미지를 강제로 받아온다.
+            val imageUrl = profileImageUrl?.takeIf { it.isNotBlank() }
+            val imageModel: Any = when {
+                imageUrl == null -> R.drawable.img_profile
+                imageVersion > 0L ->
+                    imageUrl + (if (imageUrl.contains("?")) "&" else "?") + "v=" + imageVersion
+                else -> imageUrl
             }
+            UrlImage(
+                url = imageModel,
+                contentDescription = "프로필 이미지",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(MoballTheme.colors.backgroundSurface),
+                contentScale = ContentScale.Crop,
+                placeholderRes = R.drawable.img_profile,
+                bypassCache = true,
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
