@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -147,9 +146,11 @@ fun HomeFilterBottomSheet(
                         selectedTeamIds.clear()
                         selectedTeamIds.add(0L)
                     }
+
                     teamId in selectedTeamIds -> {
                         selectedTeamIds.remove(teamId)
                     }
+
                     else -> {
                         selectedTeamIds.remove(0L)
                         selectedTeamIds.add(teamId)
@@ -162,9 +163,11 @@ fun HomeFilterBottomSheet(
                         selectedRegions.clear()
                         selectedRegions.add("SEOUL_ALL")
                     }
+
                     regionCode in selectedRegions -> {
                         selectedRegions.remove(regionCode)
                     }
+
                     else -> {
                         selectedRegions.remove("SEOUL_ALL")
                         selectedRegions.add(regionCode)
