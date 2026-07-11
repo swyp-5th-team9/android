@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -62,8 +64,6 @@ fun ScheduleCalendarHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            // 헤더 하단 드롭섀도우 — 피그마(elevation 20/4%)는 너무 옅고 기본 그림자는 너무 진해 중간값으로 조정
-            // (elevation = 퍼짐, 색상 알파 0x26 ≈ 15% = 진하기)
             .shadow(
                 elevation = 20.dp,
                 spotColor = Color(0x26000000),
@@ -186,8 +186,9 @@ private fun DateItem(
     Column(
         modifier = modifier
             .noRippleClickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .heightIn(min = 83.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         if (isToday) {
             Box(

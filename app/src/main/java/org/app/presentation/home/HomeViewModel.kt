@@ -151,8 +151,8 @@ class HomeViewModel
                         postSideEffect(HomeContract.SideEffect.MoveCameraToBounds(points))
                     }
 
-                    loadMapPubs(newFilter, showEmptyToast = true)
-                    loadPubList(newFilter)
+                    loadMapPubs(newFilter)
+                    loadPubList(newFilter, showEmptyToast = true)
                 }
 
                 is HomeContract.Event.OnKakaoMapClick -> {
@@ -183,8 +183,8 @@ class HomeViewModel
                 is HomeContract.Event.OnQuickFilterClick -> {
                     val newFilter = currentState.filter.applyQuickFilter(event.filterKey)
                     setState { copy(filter = newFilter) }
-                    loadMapPubs(newFilter, showEmptyToast = true)
-                    loadPubList(newFilter)
+                    loadMapPubs(newFilter)
+                    loadPubList(newFilter, showEmptyToast = true)
                 }
 
                 is HomeContract.Event.OnClusterClick ->
@@ -199,7 +199,10 @@ class HomeViewModel
 
         // region ─── 데이터 로드 ───────────────────────────────────────────────
 
-        private fun loadPubList(filter: HomeFilter) {
+        private fun loadPubList(
+            filter: HomeFilter,
+            showEmptyToast: Boolean = false,
+        ) {
             viewModelScope.launch {
                 pubRepository
                     .getPubs(
@@ -214,6 +217,10 @@ class HomeViewModel
                         size = 50,
                     ).onSuccess { page ->
                         setState { copy(pubListItems = page.content) }
+                        // 필터 결과(bbox 무관)가 비면 안내 토스트
+                        if (showEmptyToast && page.content.isEmpty()) {
+                            postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
+                        }
                     }.onFailure { Timber.e("펍 목록 로드 실패: $it") }
             }
         }

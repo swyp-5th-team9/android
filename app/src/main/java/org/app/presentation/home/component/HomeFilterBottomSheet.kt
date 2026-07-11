@@ -177,7 +177,6 @@ fun HomeFilterBottomSheet(
                     .map { (_, name) -> name }
                 onApply(selectedTeamIds.toList(), names, selectedRegions.toList())
             },
-            modifier = Modifier.navigationBarsPadding(),
         )
     }
 }
@@ -204,11 +203,11 @@ private fun FilterBottomSheetContent(
             FilterBottomSheetTab.entries.forEach { tab ->
                 val label = if (tab == FilterBottomSheetTab.TEAM) "응원팀" else "지역"
                 val isActive = tab == currentTab
-                Column(
+                Box(
                     modifier = Modifier
                         .weight(1f)
+                        .heightIn(min = 52.dp)
                         .noRippleClickable { onTabChange(tab) },
-                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = label,
@@ -218,10 +217,13 @@ private fun FilterBottomSheetContent(
                         } else {
                             MoballTheme.colors.textTertiary
                         },
-                        modifier = Modifier.padding(vertical = 14.dp),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(bottom = 2.dp),
                     )
                     Box(
                         modifier = Modifier
+                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
                             .height(2.dp)
                             .background(

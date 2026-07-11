@@ -3,14 +3,17 @@ package org.app.presentation.home.pubfilter.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,17 +75,22 @@ fun PubFilterOptionChip(
     val borderColor = if (isSelected) MoballTheme.colors.accentPrimary else MoballTheme.colors.borderNormal
     val textColor = if (isSelected) MoballTheme.colors.textPrimary else MoballTheme.colors.textSecondary
 
-    Text(
-        text = label,
-        style = MoballTheme.typography.heading7.semibold14,
-        color = textColor,
+    Box(
         modifier = modifier
             .clip(CircleShape)
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))
             .noRippleClickable(onToggle)
-            .padding(horizontal = 23.dp, vertical = 12.dp),
-    )
+            .heightIn(min = 44.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = MoballTheme.typography.heading7.semibold14,
+            color = textColor,
+            modifier = Modifier.padding(horizontal = 23.dp),
+        )
+    }
 }
 
 @Preview(showBackground = true)

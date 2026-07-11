@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ fun MoballButton(
             .clip(RoundedCornerShape(12.dp))
             .background(resolvedBackgroundColor)
             .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
-            .padding(vertical = 13.dp),
+            .heightIn(min = 48.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

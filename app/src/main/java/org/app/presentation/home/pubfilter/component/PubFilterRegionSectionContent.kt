@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -97,18 +99,23 @@ fun CityChip(
         MoballTheme.colors.borderNormal
     }
 
-    Text(
-        text = label,
-        style = MoballTheme.typography.body.medium14,
-        color = textColor,
-        // 칩 라벨이 좁은 화면에서 줄바꿈되어 모양이 깨지지 않도록 한 줄 고정
-        maxLines = 1,
-        softWrap = false,
+    Box(
         modifier = modifier
             .clip(RoundedCornerShape(100.dp))
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))
             .then(if (isEnabled) Modifier.noRippleClickable(onClick) else Modifier)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-    )
+            .heightIn(min = 44.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = MoballTheme.typography.body.medium14,
+            color = textColor,
+            // 칩 라벨이 좁은 화면에서 줄바꿈되어 모양이 깨지지 않도록 한 줄 고정
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.padding(horizontal = 20.dp),
+        )
+    }
 }
