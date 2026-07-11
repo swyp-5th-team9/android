@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -135,15 +133,12 @@ internal fun PubFilterScreen(
             .fillMaxSize()
             .background(MoballTheme.colors.backgroundBase),
     ) {
-        Row {
-            Spacer(modifier = Modifier.width(16.dp))
-            MoballTopBar(
-                state = TopBarState.Back(
-                    title = "필터",
-                    onBackClick = { onEvent(PubFilterContract.Event.OnBack) },
-                ),
-            )
-        }
+        MoballTopBar(
+            state = TopBarState.Back(
+                title = "필터",
+                onBackClick = { onEvent(PubFilterContract.Event.OnBack) },
+            ),
+        )
 
         LazyColumn(
             state = lazyListState,
