@@ -177,8 +177,8 @@ private fun TeamSelectBottomSheetContent(
         MoballButton(
             text = "적용하기",
             onClick = onApply,
-            // 최소 1개 구단을 선택해야 적용 가능
-            enabled = selectedTeams.isNotEmpty(),
+            // 마이페이지에서는 선택 개수와 무관하게 항상 적용 가능 (선택 해제 저장 허용)
+            enabled = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
