@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,7 @@ fun MyPageProfileCard(
     profileImageUrl: String?,
     onEditProfileClick: () -> Unit,
     modifier: Modifier = Modifier,
+    imageVersion: Int = 0,
 ) {
     Box(
         modifier = modifier
@@ -37,17 +39,20 @@ fun MyPageProfileCard(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            UrlImage(
-                url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
-                contentDescription = "프로필 이미지",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(MoballTheme.colors.backgroundSurface),
-                contentScale = ContentScale.Crop,
-                placeholderRes = R.drawable.img_profile,
-                bypassCache = true,
-            )
+            // 서버가 동일 URL에 이미지를 덮어써도(문자열 불변) imageVersion 변경 시 강제로 다시 로드한다.
+            key(imageVersion) {
+                UrlImage(
+                    url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
+                    contentDescription = "프로필 이미지",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(MoballTheme.colors.backgroundSurface),
+                    contentScale = ContentScale.Crop,
+                    placeholderRes = R.drawable.img_profile,
+                    bypassCache = true,
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
