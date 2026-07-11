@@ -44,8 +44,15 @@ class UserRemoteDataSourceImpl
             return try {
                 val parts = buildList {
                     nickname?.let { add(MultipartBody.Part.createFormData("nickname", it)) }
-                    // 빈 배열([]) 전달 = 전체 해제, null = 미전달(기존 값 유지)
-                    teamIds?.forEach { add(MultipartBody.Part.createFormData("teamIds", it.toString())) }
+                    // null = 미전달(기존 값 유지). 빈 배열([]) = 전체 해제 —
+                    // multipart는 part가 0개면 전송이 불가하므로 빈 값 part 하나로 "해제"를 표현한다.
+                    teamIds?.let { ids ->
+                        if (ids.isEmpty()) {
+                            add(MultipartBody.Part.createFormData("teamIds", ""))
+                        } else {
+                            ids.forEach { add(MultipartBody.Part.createFormData("teamIds", it.toString())) }
+                        }
+                    }
                     profileImageUri?.let { uri ->
                         val file = withContext(Dispatchers.IO) {
                             val temp = File.createTempFile("profile_upload_", ".jpg", context.cacheDir)
