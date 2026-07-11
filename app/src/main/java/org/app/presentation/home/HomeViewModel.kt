@@ -474,13 +474,14 @@ private val HomeFilter.teamIdsForQuery: List<Long>?
     }
 
 /**
- * 지역 필터 UI는 다중 선택이지만 서버 region 파라미터는 단일 값만 받는다.
- * 정확히 1개 선택된 경우에만 서버 필터로 전달하고, 다중 선택 시에는
- * 카메라 이동(MoveCameraToBounds) + BBox 조회로 반영된다.
- * TODO 서버가 regions 다중 파라미터를 지원하면 전체 전달로 변경
+ * 선택된 지역을 콤마로 이어 단일 region 파라미터로 전달한다.
+ * (서버가 region String 하나에 콤마 구분 다중 값을 처리 — 필드 스펙 불변)
+ * "서울 전체"(SEOUL_ALL)는 전체 조회이므로 제외하고, 선택이 없으면 null.
  */
 private val HomeFilter.regionForQuery: String?
-    get() = (selectedRegions - "SEOUL_ALL").singleOrNull()
+    get() = (selectedRegions - "SEOUL_ALL")
+        .ifEmpty { null }
+        ?.joinToString(",")
 
 /** 퀵 필터 칩 토글 규칙 */
 private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
