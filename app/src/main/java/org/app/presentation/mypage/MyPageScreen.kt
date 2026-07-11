@@ -19,9 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,8 +69,6 @@ fun MyPageRoute(
     navigateToWishlist: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
-    profileUpdated: Boolean = false,
-    onProfileUpdateConsumed: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -81,17 +77,6 @@ fun MyPageRoute(
     val scope = rememberCoroutineScope()
     var showTeamSheet by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    // 내정보 수정에서 돌아오면 프로필 이미지를 강제로 다시 로드 (동일 URL 덮어쓰기 대응)
-    // 세션 간 캐시버스터 중복을 막기 위해 timestamp 사용
-    var profileImageVersion by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(profileUpdated) {
-        if (profileUpdated) {
-            viewModel.onEvent(MyPageContract.Event.OnRefresh) // 최신 유저정보(프로필 URL) 재조회 보장
-            profileImageVersion = System.currentTimeMillis() // 이미지 캐시버스터
-            onProfileUpdateConsumed()
-        }
-    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -147,7 +132,6 @@ fun MyPageRoute(
         },
         onAddTeamClick = { showTeamSheet = true },
         onDismissTeamSheet = { showTeamSheet = false },
-        imageVersion = profileImageVersion,
         modifier = modifier,
     )
 }
@@ -161,7 +145,6 @@ private fun MyPageScreen(
     onAddTeamClick: () -> Unit,
     onDismissTeamSheet: () -> Unit,
     modifier: Modifier = Modifier,
-    imageVersion: Long = 0L,
 ) {
     val uriHandler = LocalUriHandler.current
     val email = "moyeoball@gmail.com"
@@ -188,7 +171,6 @@ private fun MyPageScreen(
                     MyPageProfileCard(
                         nickname = state.nickname,
                         profileImageUrl = state.profileImageUrl,
-                        imageVersion = imageVersion,
                         onEditProfileClick = { onEvent(MyPageContract.Event.OnEditProfileClick) },
                     )
 

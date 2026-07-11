@@ -1,7 +1,5 @@
 package org.app.presentation.mypage
 
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -26,11 +24,7 @@ fun NavGraphBuilder.myPageGraph(
     navigateToLogin: () -> Unit,
 ) {
     navigation<MyPageGraph>(startDestination = MyPage) {
-        composable<MyPage> { backStackEntry ->
-            // 내정보 수정 화면에서 돌아오면 프로필 이미지를 강제 리로드하기 위한 플래그
-            val profileUpdated by backStackEntry.savedStateHandle
-                .getStateFlow("profile_updated", false)
-                .collectAsStateWithLifecycle()
+        composable<MyPage> {
             MyPageRoute(
                 navigateToLogin = navigateToLogin,
                 navigateToEditProfile = { navController.navigateToEditProfile() },
@@ -38,16 +32,9 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToWithdraw = { navController.navigateToWithdraw() },
                 navigateToWishlist = { navController.navigateToWishlist() },
                 navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
-                profileUpdated = profileUpdated,
-                onProfileUpdateConsumed = { backStackEntry.savedStateHandle["profile_updated"] = false },
             )
         }
-        editProfileScreen(
-            onBack = {
-                navController.previousBackStackEntry?.savedStateHandle?.set("profile_updated", true)
-                navController.popBackStack()
-            },
-        )
+        editProfileScreen(onBack = { navController.popBackStack() })
         reportScreen(onBack = { navController.popBackStack() })
         withdrawScreen(
             onBack = { navController.popBackStack() },

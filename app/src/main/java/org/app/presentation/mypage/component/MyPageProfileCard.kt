@@ -30,7 +30,6 @@ fun MyPageProfileCard(
     profileImageUrl: String?,
     onEditProfileClick: () -> Unit,
     modifier: Modifier = Modifier,
-    imageVersion: Long = 0L,
 ) {
     Box(
         modifier = modifier
@@ -38,17 +37,8 @@ fun MyPageProfileCard(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // 서버가 동일 URL에 이미지를 덮어쓰면 CDN/HTTP 캐시가 옛 이미지를 계속 주므로,
-            // 편집 후(imageVersion>0) URL에 캐시버스터 쿼리를 붙여 최신 이미지를 강제로 받아온다.
-            val imageUrl = profileImageUrl?.takeIf { it.isNotBlank() }
-            val imageModel: Any = when {
-                imageUrl == null -> R.drawable.img_profile
-                imageVersion > 0L ->
-                    imageUrl + (if (imageUrl.contains("?")) "&" else "?") + "v=" + imageVersion
-                else -> imageUrl
-            }
             UrlImage(
-                url = imageModel,
+                url = profileImageUrl.takeIf { !it.isNullOrBlank() } ?: R.drawable.img_profile,
                 contentDescription = "프로필 이미지",
                 modifier = Modifier
                     .size(80.dp)
