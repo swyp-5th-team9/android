@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -197,7 +198,12 @@ private fun FilterBottomSheetContent(
     modifier: Modifier = Modifier,
 ) {
     val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.8f).dp
-    Column(modifier = modifier.heightIn(max = maxSheetHeight)) {
+    Column(
+        modifier = modifier
+            .heightIn(max = maxSheetHeight)
+            // 시트 하단 "적용하기" 버튼이 시스템 내비게이션 바(하단바)와 겹치지 않도록 하단 인셋 확보
+            .navigationBarsPadding(),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
