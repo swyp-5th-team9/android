@@ -103,9 +103,6 @@ internal fun PubFilterScreen(
     onEvent: (PubFilterContract.Event) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // [진단용/임시] 폰트 크기 이슈 원인 특정 오버레이 — 확인 후 제거
-    org.app.presentation.home.ScaleDiagnostics(tag = "FILTER")
-
     val lazyListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
