@@ -275,8 +275,14 @@ private fun PubListItem(
             Spacer(Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                item.supportedTeams.firstOrNull()?.let { team ->
-                    TeamListBadge(text = team.shortName)
+                if (item.supportedTeams.isNotEmpty()) {
+                    // 전 구단 지원이면 첫 팀명 대신 '전구단' (상세 화면과 동일)
+                    val teamLabel = if (isAllTeams(item.supportedTeams.map { it.teamId })) {
+                        KboTeamType.ALL.shortName
+                    } else {
+                        item.supportedTeams.first().shortName
+                    }
+                    TeamListBadge(text = teamLabel)
                 }
                 item.facilityCodes.firstOrNull()?.let { code ->
                     mapFacilityCodeToLabel(code)?.let { label ->
@@ -289,6 +295,12 @@ private fun PubListItem(
             }
         }
     }
+}
+
+/** 지원 구단이 전 구단(teamId 0 또는 1~10 전체)인지 — 펍 상세 화면(PubInfoSection)과 동일 판정 */
+private fun isAllTeams(teamIds: List<Long>): Boolean {
+    val ids = teamIds.map { it.toInt() }.toSet()
+    return 0 in ids || ids.containsAll((1..10).toList())
 }
 
 private fun mapFacilityCodeToLabel(code: String): String? =
@@ -367,9 +379,19 @@ private fun PubDetailContent(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    val firstTeam = detail.teams.firstOrNull()
-                    if (firstTeam != null) {
-                        TeamBadge(teamType = KboTeamType.fromId(firstTeam.teamId.toInt()))
+                    if (detail.teams.isNotEmpty()) {
+                        // 전 구단 지원이면 개별 팀 대신 '전구단 상영' 배지 (상세 화면과 동일)
+                        val teamType = if (isAllTeams(detail.teams.map { it.teamId })) {
+                            KboTeamType.ALL
+                        } else {
+                            KboTeamType.fromId(
+                                detail.teams
+                                    .first()
+                                    .teamId
+                                    .toInt(),
+                            )
+                        }
+                        TeamBadge(teamType = teamType)
                     }
 
                     Text(
