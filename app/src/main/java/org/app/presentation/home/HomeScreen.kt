@@ -79,6 +79,9 @@ fun HomeRoute(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    // [진단용/임시] 폰트 크기 이슈 원인 특정 로그 — 확인 후 제거
+    ScaleDiagnostics(tag = "NORMAL")
+
     // Screen에서 지도 준비 완료 시 올려주는(호이스팅) NaverMap 참조 — 카메라 이동 SideEffect 처리에 사용
     var naverMap by remember { mutableStateOf<NaverMap?>(null) }
 
