@@ -235,7 +235,6 @@ private fun FilterBottomSheetContent(
             }
         }
 
-        // 콘텐츠가 화면을 넘칠 때만 이 영역이 스크롤되고, 버튼은 하단에 고정된다.
         Column(
             modifier = Modifier
                 .weight(1f, fill = false)
@@ -334,17 +333,25 @@ private fun RegionFilterContent(
             }
         }
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MoballTheme.colors.backgroundSurface)
+                .padding(16.dp),
         ) {
-            REGIONS.forEach { (code, label) ->
-                PubFilterSubRegionChip(
-                    label = label,
-                    isSelected = code in selectedRegions,
-                    onClick = { onToggleRegion(code) },
-                )
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                REGIONS.forEach { (code, label) ->
+                    PubFilterSubRegionChip(
+                        label = label,
+                        isSelected = code in selectedRegions,
+                        onClick = { onToggleRegion(code) },
+                    )
+                }
             }
         }
     }
