@@ -399,7 +399,7 @@ private fun renderPubMarkers(
 
                 PubMarkerType.FAVORITE -> {
                     icon = OverlayImage.fromResource(R.drawable.img_favorite)
-                    width = (60 * density).toInt()
+                    width = (68 * density).toInt()
                     height = (68 * density).toInt()
                 }
             }
