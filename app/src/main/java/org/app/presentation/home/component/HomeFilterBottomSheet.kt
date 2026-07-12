@@ -333,18 +333,25 @@ private fun RegionFilterContent(
                 )
             }
         }
-
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MoballTheme.colors.backgroundSurface)
+                .padding(16.dp),
         ) {
-            REGIONS.forEach { (code, label) ->
-                PubFilterSubRegionChip(
-                    label = label,
-                    isSelected = code in selectedRegions,
-                    onClick = { onToggleRegion(code) },
-                )
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                REGIONS.forEach { (code, label) ->
+                    PubFilterSubRegionChip(
+                        label = label,
+                        isSelected = code in selectedRegions,
+                        onClick = { onToggleRegion(code) },
+                    )
+                }
             }
         }
     }
