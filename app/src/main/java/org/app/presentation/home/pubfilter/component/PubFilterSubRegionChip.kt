@@ -27,7 +27,7 @@ fun PubFilterSubRegionChip(
             .clip(RoundedCornerShape(12.dp))
             .background(
                 if (isSelected) {
-                    MoballTheme.colors.accentTertiaryLight
+                    MoballTheme.colors.accentDisabled
                 } else {
                     MoballTheme.colors.backgroundBase
                 },
@@ -42,7 +42,7 @@ fun PubFilterSubRegionChip(
         Text(
             text = label,
             style = MoballTheme.typography.heading7.semibold14,
-            color = MoballTheme.colors.textPrimary,
+            color = MoballTheme.colors.textTertiary,
             modifier = Modifier.padding(horizontal = 19.dp),
         )
     }

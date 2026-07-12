@@ -196,9 +196,7 @@ private fun FilterBottomSheetContent(
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // 세부 지역 칩(최대 20개)이 많은 기기에서 하단 버튼이 잘리지 않도록,
-    // 시트 최대 높이를 화면의 90%로 제한하고 콘텐츠 영역만 스크롤한다.
-    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
+    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.8f).dp
     Column(modifier = modifier.heightIn(max = maxSheetHeight)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
