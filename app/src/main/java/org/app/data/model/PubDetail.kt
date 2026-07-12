@@ -45,6 +45,22 @@ enum class PubStatus(
     }
 }
 
+/**
+ * 표시용 영업상태 라벨.
+ *
+ * 서버 [serverStatus]가 오늘의 휴무를 반영하지 못하는 경우가 있어(휴무일인데 "영업중"으로 내려오는 등),
+ * [businessHours]의 오늘([todayIso], ISO 1=월~7=일) 영업 여부를 기준으로 보정한다.
+ * 오늘이 휴무일이면 서버 status와 무관하게 "휴무"로 표시한다.
+ */
+fun pubStatusLabel(
+    serverStatus: PubStatus,
+    businessHours: List<BusinessHour>,
+    todayIso: Int,
+): String {
+    val today = businessHours.firstOrNull { it.dayOfWeek == todayIso }
+    return if (today?.isClosed == true) "휴무" else serverStatus.label
+}
+
 data class KboTeam(
     val teamId: Long,
     val shortName: String,

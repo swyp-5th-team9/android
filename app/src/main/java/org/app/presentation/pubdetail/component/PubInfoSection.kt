@@ -36,6 +36,7 @@ import org.app.core.util.TimeUtils
 import org.app.data.model.BusinessHour
 import org.app.data.model.KboTeam
 import org.app.data.model.PubStatus
+import org.app.data.model.pubStatusLabel
 import org.app.presentation.pubdetail.model.KboTeamType
 import java.time.LocalDate
 import java.time.LocalTime
@@ -293,13 +294,16 @@ private fun BusinessHoursRow(
             )
             Spacer(modifier = Modifier.width(8.dp))
 
+            val isClosedToday = todayHours?.isClosed == true
+
+            // 서버 status가 오늘 휴무를 반영 못 하는 경우가 있어 businessHours 기준으로 보정
             Text(
-                text = status.label,
+                text = pubStatusLabel(status, hours, todayIso),
                 style = MoballTheme.typography.body.medium14,
                 color = MoballTheme.colors.textPrimary,
             )
 
-            if (status == PubStatus.OPEN && todayHours?.closeTime != null) {
+            if (!isClosedToday && status == PubStatus.OPEN && todayHours?.closeTime != null) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "${TimeUtils.formatTime(todayHours.closeTime)} 영업 종료",

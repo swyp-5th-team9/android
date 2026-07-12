@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,6 +53,7 @@ import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubStatus
 import org.app.data.model.PubTeam
+import org.app.data.model.pubStatusLabel
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
@@ -117,7 +119,12 @@ private fun PubListContent(
     // 펍 개수가 많을 때 리스트가 화면을 넘어 잘리지 않도록,
     // 시트 최대 높이를 화면의 90%로 제한하고 리스트 영역만 스크롤한다.
     val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
-    Column(modifier = modifier.heightIn(max = maxSheetHeight)) {
+    Column(
+        modifier = modifier
+            .heightIn(max = maxSheetHeight)
+            // 시트가 시스템 내비게이션 바(하단바)를 침범하지 않도록 하단 인셋 확보
+            .navigationBarsPadding(),
+    ) {
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -356,7 +363,8 @@ private fun PubDetailContent(
     onNaverMapClick: () -> Unit,
     onCardClick: (Long) -> Unit,
 ) {
-    Column {
+    // 시트 하단 버튼(찜/길찾기)이 시스템 내비게이션 바(하단바)와 겹치지 않도록 하단 인셋 확보
+    Column(modifier = Modifier.navigationBarsPadding()) {
         if (detail == null && isLoading) {
             Box(
                 modifier = Modifier
@@ -409,35 +417,29 @@ private fun PubDetailContent(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        val todayIso = remember { LocalDate.now().dayOfWeek.value }
+                        val todayHours = detail.businessHours.find { it.dayOfWeek == todayIso }
+                        val isClosedToday = todayHours?.isClosed == true
+
+                        // 서버 status가 오늘 휴무를 반영 못 하는 경우가 있어 businessHours 기준으로 보정
                         Text(
-                            text = detail.status.label,
+                            text = pubStatusLabel(detail.status, detail.businessHours, todayIso),
                             style = MoballTheme.typography.body.medium14,
                             color = MoballTheme.colors.textPrimary,
                         )
-                        Spacer(Modifier.width(6.dp))
 
-                        if (detail.businessHours.isNotEmpty()) {
-                            val todayIso = remember { LocalDate.now().dayOfWeek.value }
-                            val todayHours = detail.businessHours.find { it.dayOfWeek == todayIso }
-                            val timeText = if (todayHours?.isClosed == true) {
-                                "휴무"
-                            } else if (todayHours?.openTime != null && todayHours.closeTime != null) {
-                                "${
-                                    TimeUtils.formatTime(
-                                        todayHours.openTime,
-                                    )
-                                } - ${TimeUtils.formatTime(todayHours.closeTime)}"
-                            } else {
-                                ""
-                            }
-                            if (timeText.isNotEmpty()) {
-                                Text(
-                                    text = timeText,
-                                    style = MoballTheme.typography.body.regular14,
-                                    color = MoballTheme.colors.textSecondary,
-                                )
-                            }
-                        } else if (isLoading) {
+                        // 휴무일이면 라벨이 이미 "휴무"이므로 영업시간은 중복 표시하지 않는다
+                        if (!isClosedToday && todayHours?.openTime != null && todayHours.closeTime != null) {
+                            Spacer(Modifier.width(6.dp))
+                            val open = TimeUtils.formatTime(todayHours.openTime)
+                            val close = TimeUtils.formatTime(todayHours.closeTime)
+                            Text(
+                                text = "$open - $close",
+                                style = MoballTheme.typography.body.regular14,
+                                color = MoballTheme.colors.textSecondary,
+                            )
+                        } else if (detail.businessHours.isEmpty() && isLoading) {
+                            Spacer(Modifier.width(6.dp))
                             CircularProgressIndicator(
                                 modifier = Modifier.size(12.dp),
                                 strokeWidth = 2.dp,
