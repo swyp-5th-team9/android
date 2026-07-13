@@ -417,13 +417,13 @@ private fun PubDetailContent(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        val todayIso = remember { LocalDate.now().dayOfWeek.value }
-                        val todayHours = detail.businessHours.find { it.dayOfWeek == todayIso }
+                        val now = remember { TimeUtils.nowKst() }
+                        val todayHours = detail.businessHours.find { it.dayOfWeek == now.dayOfWeek.value }
                         val isClosedToday = todayHours?.isClosed == true
 
-                        // 서버 status가 오늘 휴무를 반영 못 하는 경우가 있어 businessHours 기준으로 보정
+                        // 서버 status가 실제 영업시간/휴무를 반영 못 해 businessHours+현재시각 기준으로 보정
                         Text(
-                            text = pubStatusLabel(detail.status, detail.businessHours, todayIso),
+                            text = pubStatusLabel(detail.status, detail.businessHours, now),
                             style = MoballTheme.typography.body.medium14,
                             color = MoballTheme.colors.textPrimary,
                         )
