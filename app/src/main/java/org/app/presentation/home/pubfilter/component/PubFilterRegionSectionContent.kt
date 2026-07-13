@@ -86,7 +86,7 @@ fun CityChip(
     val bgColor = if (isEnabled && isSelected) {
         MoballTheme.colors.accentPrimary
     } else {
-        MoballTheme.colors.accentDisabled
+        MoballTheme.colors.backgroundBase
     }
     val textColor = when {
         !isEnabled -> MoballTheme.colors.textTertiary
