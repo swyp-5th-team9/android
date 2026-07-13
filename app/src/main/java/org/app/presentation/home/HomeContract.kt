@@ -16,6 +16,8 @@ interface HomeContract {
         val pubMapItems: List<PubMapItem> = emptyList(),
         val pubListItems: List<PubListItem> = emptyList(),
         val selectedPubList: List<PubMapItem> = emptyList(),
+        // 리스트 바텀시트용 lazy 상세 캐시 (지도 API엔 영업시간이 없어, 보이는 항목만 상세를 받아 영업상태/시간 표시)
+        val listPubDetails: Map<Long, PubDetail> = emptyMap(),
         val filter: HomeFilter = HomeFilter(),
         val userFavoriteTeamIds: List<Long> = emptyList(),
         val userFavoriteTeamNames: List<String> = emptyList(),
@@ -88,6 +90,10 @@ interface HomeContract {
         ) : Event
 
         data class OnPubListFavoriteClick(
+            val pubId: Long,
+        ) : Event
+
+        data class OnPubListItemAppear(
             val pubId: Long,
         ) : Event
 

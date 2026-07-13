@@ -348,6 +348,8 @@ fun HomeScreen(
                 pubItems = displayItems,
                 favoritePubIds = state.favoritePubIds,
                 filter = state.filter,
+                pubDetails = state.listPubDetails,
+                onItemAppear = { pubId -> onEvent(HomeContract.Event.OnPubListItemAppear(pubId)) },
                 onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
                 onFavoriteClick = { pubId -> onEvent(HomeContract.Event.OnPubListFavoriteClick(pubId)) },
                 onFilterClick = { filterKey -> onEvent(HomeContract.Event.OnQuickFilterClick(filterKey)) },

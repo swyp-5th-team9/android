@@ -32,6 +32,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,6 +82,8 @@ fun HomePubListBottomSheet(
     pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
     filter: HomeFilter,
+    pubDetails: Map<Long, PubDetail>,
+    onItemAppear: (Long) -> Unit,
     onItemClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
@@ -99,6 +102,8 @@ fun HomePubListBottomSheet(
             pubItems = pubItems,
             favoritePubIds = favoritePubIds,
             filter = filter,
+            pubDetails = pubDetails,
+            onItemAppear = onItemAppear,
             onItemClick = onItemClick,
             onFavoriteClick = onFavoriteClick,
             onFilterClick = onFilterClick,
@@ -111,6 +116,8 @@ private fun PubListContent(
     pubItems: List<PubMapItem>,
     favoritePubIds: Set<Long>,
     filter: HomeFilter,
+    pubDetails: Map<Long, PubDetail>,
+    onItemAppear: (Long) -> Unit,
     onItemClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
     onFilterClick: (String) -> Unit,
@@ -178,7 +185,9 @@ private fun PubListContent(
             items(pubItems, key = { it.pubId }) { item ->
                 PubListItem(
                     item = item,
+                    detail = pubDetails[item.pubId],
                     isFavorite = item.pubId in favoritePubIds,
+                    onAppear = { onItemAppear(item.pubId) },
                     onClick = { onItemClick(item.pubId) },
                     onFavoriteClick = { onFavoriteClick(item.pubId) },
                 )
@@ -190,10 +199,15 @@ private fun PubListContent(
 @Composable
 private fun PubListItem(
     item: PubMapItem,
+    detail: PubDetail?,
     isFavorite: Boolean,
+    onAppear: () -> Unit,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
 ) {
+    // 화면에 보일 때 상세(businessHours)를 lazy 로드 요청 — 지도 API엔 영업시간이 없어서
+    LaunchedEffect(item.pubId) { onAppear() }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,13 +281,21 @@ private fun PubListItem(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                // 서버 status가 마감/휴무를 반영 못 해, 단일 영업시간 + 현재시각 기준으로 보정
+                // 상세가 로드됐으면 businessHours 기준(휴무/영업시간까지 정확), 아직이면 지도 status로 임시 표시
                 val now = remember { TimeUtils.nowKst() }
-                val statusLabel = pubStatusLabel(item.status, item.openTime, item.closeTime, now)
-                val timeRange = if (item.openTime != null && item.closeTime != null) {
-                    " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
+                val todayHours = detail?.businessHours?.firstOrNull { it.dayOfWeek == now.dayOfWeek.value }
+                val statusLabel = if (detail != null) {
+                    pubStatusLabel(detail.status, detail.businessHours, now)
                 } else {
-                    ""
+                    pubStatusLabel(item.status, item.openTime, item.closeTime, now)
+                }
+                val timeRange = when {
+                    todayHours?.isClosed == true -> ""
+                    todayHours?.openTime != null && todayHours.closeTime != null ->
+                        " ${TimeUtils.formatTime(todayHours.openTime)} - ${TimeUtils.formatTime(todayHours.closeTime)}"
+                    item.openTime != null && item.closeTime != null ->
+                        " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
+                    else -> ""
                 }
                 Text(
                     text = "$statusLabel$timeRange",
@@ -627,6 +649,8 @@ private fun HomePubListBottomSheetPreview() {
             favoritePubIds = setOf(1L),
             filter = org.app.presentation.home.model
                 .HomeFilter(),
+            pubDetails = emptyMap(),
+            onItemAppear = {},
             onItemClick = {},
             onFavoriteClick = {},
             onFilterClick = {},

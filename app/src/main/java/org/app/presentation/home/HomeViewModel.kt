@@ -48,6 +48,9 @@ class HomeViewModel
 
         private var loadMapPubsJob: Job? = null
 
+        // 리스트 바텀시트에서 이미 상세를 요청 중인 pubId (중복 요청 방지)
+        private val loadingListDetailIds = mutableSetOf<Long>()
+
         init {
             loadUserFavoriteTeams()
             loadMapPubs(currentState.filter)
@@ -123,6 +126,9 @@ class HomeViewModel
 
                 is HomeContract.Event.OnPubListFavoriteClick ->
                     toggleFavorite(pubId = event.pubId, updateSelectedDetail = false)
+
+                is HomeContract.Event.OnPubListItemAppear ->
+                    loadListPubDetail(event.pubId)
 
                 is HomeContract.Event.OnPubDetailCardClick ->
                     postSideEffect(HomeContract.SideEffect.NavigateToPubDetail(event.pubId.toString()))
@@ -323,6 +329,24 @@ class HomeViewModel
                         }
                         postSideEffect(HomeContract.SideEffect.ShowToast("펍 정보를 불러오지 못했습니다."))
                     }
+            }
+        }
+
+        /**
+         * 리스트 바텀시트에서 화면에 보이는 항목의 상세(businessHours)를 lazy 로드해 캐시한다.
+         * 지도 API가 영업시간을 주지 않아, 보이는 펍만 상세를 받아 영업상태/영업시간을 정확히 표시하기 위함.
+         * 이미 캐시됐거나 요청 중이면 스킵한다.
+         */
+        private fun loadListPubDetail(pubId: Long) {
+            if (currentState.listPubDetails.containsKey(pubId)) return
+            if (!loadingListDetailIds.add(pubId)) return
+            viewModelScope.launch {
+                pubRepository
+                    .getPubDetail(pubId)
+                    .onSuccess { detail ->
+                        setState { copy(listPubDetails = listPubDetails + (pubId to detail)) }
+                    }
+                loadingListDetailIds.remove(pubId)
             }
         }
 
