@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 val white = Color(0xFFFFFFFF)
 val black = Color(0xFF000000)
-
+val backGround = Color(0XFFF8F9F9)
 val coolNeutral130 = Color(0xFFF1F2F4)
 val coolNeutral150 = Color(0xFFEBEDF0)
 val coolNeutral200 = Color(0xFFDCE0E5)
@@ -153,7 +153,7 @@ data class MoballColors(
 
 val defaultMoballColors = MoballColors(
     // Background
-    backgroundBase = white,
+    backgroundBase = backGround,
     backgroundSurface = coolNeutral130,
     backgroundScrim = coolNeutral800,
     // Border & Line
