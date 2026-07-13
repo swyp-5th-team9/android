@@ -267,7 +267,9 @@ private fun PubListItem(
                     modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                val statusLabel = item.status.label
+                // 서버 status가 마감/휴무를 반영 못 해, 단일 영업시간 + 현재시각 기준으로 보정
+                val now = remember { TimeUtils.nowKst() }
+                val statusLabel = pubStatusLabel(item.status, item.openTime, item.closeTime, now)
                 val timeRange = if (item.openTime != null && item.closeTime != null) {
                     " ${TimeUtils.formatTime(item.openTime)} - ${TimeUtils.formatTime(item.closeTime)}"
                 } else {

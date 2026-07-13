@@ -105,6 +105,29 @@ private fun isOpenNow(
     return false
 }
 
+/**
+ * 요일별 businessHours가 없는 목록/지도용 — 단일 오픈/마감 시간과 현재 시각 [now]로 영업 여부를 보정한다.
+ * 자정을 넘겨 마감하는 경우(예: 17:00~02:00, 매일 동일 시간 가정)도 처리한다.
+ * openTime/closeTime이 없으면 서버 status를 그대로 사용한다.
+ */
+fun pubStatusLabel(
+    serverStatus: PubStatus,
+    openTime: LocalTime?,
+    closeTime: LocalTime?,
+    now: LocalDateTime,
+): String {
+    if (openTime == null || closeTime == null) return serverStatus.label
+    if (serverStatus == PubStatus.TEMP_CLOSED || serverStatus == PubStatus.MATCHING) return serverStatus.label
+
+    val nowTime = now.toLocalTime()
+    val isOpen = if (closeTime > openTime) {
+        !nowTime.isBefore(openTime) && nowTime.isBefore(closeTime)
+    } else {
+        !nowTime.isBefore(openTime) || nowTime.isBefore(closeTime)
+    }
+    return if (isOpen) PubStatus.OPEN.label else PubStatus.CLOSED.label
+}
+
 data class KboTeam(
     val teamId: Long,
     val shortName: String,
