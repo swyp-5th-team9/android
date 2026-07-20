@@ -47,49 +47,20 @@ import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.FilterBottomSheetTab
+import org.app.presentation.home.model.SeoulRegion
 import org.app.presentation.home.pubfilter.CITIES
 import org.app.presentation.home.pubfilter.component.CityChip
 import org.app.presentation.home.pubfilter.component.PubFilterOptionChip
 import org.app.presentation.home.pubfilter.component.PubFilterSubRegionChip
+import org.app.presentation.pubdetail.model.KboTeamType
 
-/** 백엔드 region 코드 to 한글 표시 라벨 */
-private val REGIONS: List<Pair<String, String>> = listOf(
-    "SEOUL_ALL" to "서울 전체",
-    "GANGNAM" to "강남/서초",
-    "JAMSIL" to "잠실/잠실새내",
-    "SONGPA" to "송파",
-    "GANGDONG" to "강동/천호",
-    "SEONGDONG" to "성수/왕십리",
-    "JUNGNANG" to "중랑",
-    "JONGNO" to "종로",
-    "JUNGGU" to "중구",
-    "HONGDAE_HAPJEONG" to "홍대/합정",
-    "SANGAM_MANGWON" to "상암/망원",
-    "MAPO" to "마포",
-    "EUNPYEONG" to "은평/서대문",
-    "YEONGDEUNGPO" to "영등포/여의도",
-    "GANGSEO" to "마곡/강서",
-    "DONGJAK" to "동작",
-    "NOWON" to "노원/강북",
-    "DOBONG" to "도봉/성북",
-    "GURO" to "구로",
-    "GWANAK" to "관악",
-)
+/** 지역 필터 목록. 단일 출처는 [SeoulRegion]. */
+private val REGIONS: List<Pair<String, String>> =
+    SeoulRegion.entries.map { it.code to it.label }
 
-/** 백엔드 V2 시드 기준 (teamId: Long) */
-private val KBO_TEAMS = listOf(
-    0L to "KBO 전체",
-    1L to "LG",
-    2L to "두산",
-    3L to "KT",
-    4L to "SSG",
-    5L to "NC",
-    6L to "KIA",
-    7L to "롯데",
-    8L to "삼성",
-    9L to "한화",
-    10L to "키움",
-)
+/** 0L = 전체(KBO 전체) 의사 항목 + KboTeamType의 실제 10개 구단 (id 순서) */
+private val KBO_TEAMS: List<Pair<Long, String>> =
+    listOf(0L to "KBO 전체") + KboTeamType.teams.map { it.id.toLong() to it.shortName }
 
 /**
  * 홈 화면 전용 필터 바텀시트
@@ -159,10 +130,11 @@ fun HomeFilterBottomSheet(
                 }
             },
             onToggleRegion = { regionCode ->
+                val seoulAll = SeoulRegion.SEOUL_ALL.code
                 when {
-                    regionCode == "SEOUL_ALL" -> {
+                    regionCode == seoulAll -> {
                         selectedRegions.clear()
-                        selectedRegions.add("SEOUL_ALL")
+                        selectedRegions.add(seoulAll)
                     }
 
                     regionCode in selectedRegions -> {
@@ -170,7 +142,7 @@ fun HomeFilterBottomSheet(
                     }
 
                     else -> {
-                        selectedRegions.remove("SEOUL_ALL")
+                        selectedRegions.remove(seoulAll)
                         selectedRegions.add(regionCode)
                     }
                 }
