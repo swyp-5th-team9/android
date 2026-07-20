@@ -1,11 +1,16 @@
 package org.app.presentation.mypage.wishlist
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+
 interface WishlistContract {
     data class State(
-        val items: List<WishlistItem> = emptyList(),
+        val items: ImmutableList<WishlistItem> = persistentListOf(),
         val isLoading: Boolean = false,
         val isEditMode: Boolean = false,
-        val selectedIds: Set<Long> = emptySet(), // favoriteId 기준
+        val selectedIds: ImmutableSet<Long> = persistentSetOf(), // favoriteId 기준
     ) {
         val hasSelection: Boolean get() = selectedIds.isNotEmpty()
     }

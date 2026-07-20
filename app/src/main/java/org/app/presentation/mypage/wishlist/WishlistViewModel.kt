@@ -2,6 +2,9 @@ package org.app.presentation.mypage.wishlist
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.FavoriteRepository
@@ -29,11 +32,11 @@ class WishlistViewModel
                 }
 
                 WishlistContract.Event.OnEditClick -> {
-                    setState { copy(isEditMode = !isEditMode, selectedIds = emptySet()) }
+                    setState { copy(isEditMode = !isEditMode, selectedIds = persistentSetOf()) }
                 }
 
                 WishlistContract.Event.OnCancelEdit -> {
-                    setState { copy(isEditMode = false, selectedIds = emptySet()) }
+                    setState { copy(isEditMode = false, selectedIds = persistentSetOf()) }
                 }
 
                 WishlistContract.Event.OnDeleteSelected -> {
@@ -46,8 +49,8 @@ class WishlistViewModel
                             .onSuccess {
                                 setState {
                                     copy(
-                                        items = items.filter { it.favoriteId !in favoriteIds },
-                                        selectedIds = emptySet(),
+                                        items = items.filter { it.favoriteId !in favoriteIds }.toImmutableList(),
+                                        selectedIds = persistentSetOf(),
                                         isEditMode = false,
                                         isLoading = false,
                                     )
@@ -66,7 +69,7 @@ class WishlistViewModel
                     setState {
                         val ids = selectedIds.toMutableSet()
                         if (event.favoriteId in ids) ids.remove(event.favoriteId) else ids.add(event.favoriteId)
-                        copy(selectedIds = ids)
+                        copy(selectedIds = ids.toImmutableSet())
                     }
                 }
 
@@ -79,7 +82,12 @@ class WishlistViewModel
                                 .deleteFavorites(listOf(event.favoriteId))
                                 .onSuccess {
                                     setState {
-                                        copy(items = items.filter { it.favoriteId != event.favoriteId })
+                                        copy(
+                                            items = items
+                                                .filter {
+                                                    it.favoriteId != event.favoriteId
+                                                }.toImmutableList(),
+                                        )
                                     }
                                     postSideEffect(
                                         WishlistContract.SideEffect.ShowToast("1개의 펍이 삭제되었습니다."),
@@ -125,15 +133,16 @@ class WishlistViewModel
                         setState {
                             copy(
                                 isLoading = false,
-                                items = favoriteItems.map { item ->
-                                    WishlistItem(
-                                        favoriteId = item.favoriteId,
-                                        pubId = item.pubId,
-                                        pubName = item.pubName,
-                                        address = item.address,
-                                        thumbnailImageUrl = item.thumbnailImageUrl,
-                                    )
-                                },
+                                items = favoriteItems
+                                    .map { item ->
+                                        WishlistItem(
+                                            favoriteId = item.favoriteId,
+                                            pubId = item.pubId,
+                                            pubName = item.pubName,
+                                            address = item.address,
+                                            thumbnailImageUrl = item.thumbnailImageUrl,
+                                        )
+                                    }.toImmutableList(),
                             )
                         }
                     }.onFailure { e ->

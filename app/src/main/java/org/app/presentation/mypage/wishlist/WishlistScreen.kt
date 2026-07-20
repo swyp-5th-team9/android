@@ -31,6 +31,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -218,7 +220,7 @@ private fun WishlistScreen(
 private fun WishlistScreenEmptyPreview() {
     MoballTheme {
         WishlistScreen(
-            state = WishlistContract.State(items = emptyList()),
+            state = WishlistContract.State(items = persistentListOf()),
             onBack = {},
             onEditClick = {},
             onCancelEdit = {},
@@ -235,7 +237,7 @@ private fun WishlistScreenPreview() {
     MoballTheme {
         WishlistScreen(
             state = WishlistContract.State(
-                items = listOf(
+                items = persistentListOf(
                     WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
                     WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
                     WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
@@ -259,13 +261,13 @@ private fun WishlistScreenEditPreview() {
     MoballTheme {
         WishlistScreen(
             state = WishlistContract.State(
-                items = listOf(
+                items = persistentListOf(
                     WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
                     WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
                     WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
                 ),
                 isEditMode = true,
-                selectedIds = setOf(1L),
+                selectedIds = persistentSetOf(1L),
             ),
             onBack = {},
             onEditClick = {},
