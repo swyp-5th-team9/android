@@ -7,22 +7,28 @@ enum class KboTeamType(
     val id: Int,
     val shortName: String,
     val fullName: String,
-    @DrawableRes val logoRes: Int,
+    /** 연고지. ALL(전구단)은 해당 없음("") */
+    val city: String,
+    /** 구단 로고. ALL(전구단)은 로고를 쓰지 않으므로 null */
+    @DrawableRes val logoRes: Int?,
 ) {
-    ALL(0, "전구단", "전구단 상영", R.drawable.img_doosan),
-    LG(1, "LG", "LG 트윈스", R.drawable.img_lg),
-    DOOSAN(2, "두산", "두산 베어스", R.drawable.img_doosan),
-    KT(3, "KT", "KT 위즈", R.drawable.img_kt),
-    SSG(4, "SSG", "SSG 랜더스", R.drawable.img_ssg),
-    NC(5, "NC", "NC 다이노스", R.drawable.img_nc),
-    KIA(6, "KIA", "KIA 타이거즈", R.drawable.img_kia),
-    LOTTE(7, "롯데", "롯데 자이언츠", R.drawable.img_lotte),
-    SAMSUNG(8, "삼성", "삼성 라이온즈", R.drawable.img_samsung),
-    HANWHA(9, "한화", "한화 이글스", R.drawable.img_hanwha),
-    KIWOOM(10, "키움", "키움 히어로즈", R.drawable.img_kiwoom),
+    ALL(0, "전구단", "전구단 상영", "", null),
+    LG(1, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
+    DOOSAN(2, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
+    KT(3, "KT", "KT 위즈", "수원", R.drawable.img_kt),
+    SSG(4, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
+    NC(5, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
+    KIA(6, "KIA", "KIA 타이거즈", "광주", R.drawable.img_kia),
+    LOTTE(7, "롯데", "롯데 자이언츠", "부산", R.drawable.img_lotte),
+    SAMSUNG(8, "삼성", "삼성 라이온즈", "대구", R.drawable.img_samsung),
+    HANWHA(9, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
+    KIWOOM(10, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
     ;
 
     companion object {
+        /** 전구단(ALL)을 제외한 실제 10개 구단. 팀 선택/표시 UI의 단일 출처 */
+        val teams: List<KboTeamType> = entries.filter { it != ALL }
+
         /** 백엔드 V2 시드 기준 (PR #63) */
         fun fromId(id: Int): KboTeamType = entries.find { it.id == id } ?: ALL
 
