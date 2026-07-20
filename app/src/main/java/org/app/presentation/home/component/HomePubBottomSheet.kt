@@ -56,13 +56,15 @@ import org.app.data.model.PubStatus
 import org.app.data.model.PubTeam
 import org.app.data.model.pubStatusLabel
 import org.app.presentation.home.model.HomeFilter
+import org.app.presentation.home.pubfilter.FacilityCode
+import org.app.presentation.home.pubfilter.FoodCode
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
 import org.app.presentation.pubdetail.model.KboTeamType
 import java.time.LocalDate
 import java.time.LocalTime
 
-private val DRINK_CODES = setOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+private val DRINK_CODES = setOf(FoodCode.SOJU.code, FoodCode.BEER.code, FoodCode.COCKTAIL.code, FoodCode.HIGHBALL.code)
 
 @Composable
 private fun DragHandle() {
@@ -149,21 +151,21 @@ private fun PubListContent(
             item {
                 HomePubFilterChip(
                     label = "단체석",
-                    isSelected = filter.facilityCodes?.contains("GROUP_SEAT") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.GROUP_SEAT.code) == true,
                     onClick = { onFilterClick("GROUP_SEAT") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "주차",
-                    isSelected = filter.facilityCodes?.contains("PARKING") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.PARKING.code) == true,
                     onClick = { onFilterClick("PARKING") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "넓은",
-                    isSelected = filter.facilityCodes?.contains("SPACIOUS_AREA") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.SPACIOUS_AREA.code) == true,
                     onClick = { onFilterClick("WIDE_SPACE") },
                 )
             }
