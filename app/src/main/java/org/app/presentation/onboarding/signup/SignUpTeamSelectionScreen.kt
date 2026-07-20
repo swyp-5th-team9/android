@@ -1,7 +1,6 @@
 package org.app.presentation.onboarding.signup
 
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.moball.app.R
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -31,29 +29,7 @@ import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.onboarding.signup.component.OnboardingProgressBar
 import org.app.presentation.onboarding.signup.component.OnboardingTeamItem
-
-/** 구단 로고·연고지를 포함한 UI 선택 아이템. 서버 모델 KboTeam과 별개 */
-data class KboTeamItem(
-    val id: Int,
-    val shortName: String,
-    val fullName: String,
-    val city: String,
-    @get:DrawableRes val logoRes: Int,
-)
-
-// TODO teamId는 API 구현 후 서버 명세에 맞게 수정
-val KBO_TEAM_ITEMS = listOf(
-    KboTeamItem(1, "LG", "LG 트윈스", "서울", R.drawable.img_lg),
-    KboTeamItem(2, "두산", "두산 베어스", "서울", R.drawable.img_doosan),
-    KboTeamItem(3, "KT", "KT WIZ", "수원", R.drawable.img_kt),
-    KboTeamItem(4, "SSG", "SSG 랜더스", "인천", R.drawable.img_ssg),
-    KboTeamItem(5, "NC", "NC 다이노스", "창원", R.drawable.img_nc),
-    KboTeamItem(6, "KIA", "기아 타이거즈", "광주", R.drawable.img_kia),
-    KboTeamItem(7, "롯데", "롯데 자이언츠", "부산", R.drawable.img_lotte),
-    KboTeamItem(8, "삼성", "삼성 라이온즈", "대구", R.drawable.img_samsung),
-    KboTeamItem(9, "한화", "한화 이글스", "대전", R.drawable.img_hanwha),
-    KboTeamItem(10, "키움", "키움 히어로즈", "서울", R.drawable.img_kiwoom),
-)
+import org.app.presentation.pubdetail.model.KboTeamType
 
 @Composable
 fun SignUpTeamSelectionRoute(
@@ -149,11 +125,13 @@ private fun SignUpTeamSelectionScreen(
                     .weight(1f)
                     .fillMaxWidth(),
             ) {
-                items(KBO_TEAM_ITEMS, key = { it.id }) { team ->
+                items(KboTeamType.teams, key = { it.id }) { team ->
+                    // teams는 ALL(로고 없음)을 제외하므로 logoRes는 항상 존재
+                    val logoRes = team.logoRes ?: return@items
                     OnboardingTeamItem(
                         teamName = team.fullName,
                         city = team.city,
-                        logoRes = team.logoRes,
+                        logoRes = logoRes,
                         isSelected = team.id in state.selectedTeamIds,
                         onClick = { onTeamToggled(team.id) },
                     )
