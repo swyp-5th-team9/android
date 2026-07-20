@@ -177,6 +177,7 @@ private fun TeamSelectBottomSheetContent(
         MoballButton(
             text = "적용하기",
             onClick = onApply,
+            // 마이페이지에서는 선택 개수와 무관하게 항상 적용 가능 (선택 해제 저장 허용)
             enabled = true,
             modifier = Modifier
                 .fillMaxWidth()

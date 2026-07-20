@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -42,11 +43,17 @@ fun MoballFilterChip(
 ) {
     Row(
         modifier = modifier
+            // pill 외곽을 따라 그림자가 보이도록 shape 지정(미지정 시 사각형으로 그려져 거의 안 보임)
             .shadow(
                 elevation = 3.dp,
                 shape = ChipShape,
-                ambientColor = Color(0x1A000000),
-                spotColor = Color(0x14000000),
+                spotColor = Color(0x52000000),
+                ambientColor = Color(0x52000000),
+            ).shadow(
+                elevation = 4.dp,
+                shape = ChipShape,
+                spotColor = Color(0x40000000),
+                ambientColor = Color(0x40000000),
             ).then(
                 if (isSelected) {
                     Modifier.border(
@@ -62,7 +69,8 @@ fun MoballFilterChip(
                 shape = ChipShape,
             ).noRippleClickable(
                 onClick = onClick,
-            ).padding(horizontal = 8.dp, vertical = 6.dp),
+            ).heightIn(min = 36.dp)
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (leadingIcon != null) {

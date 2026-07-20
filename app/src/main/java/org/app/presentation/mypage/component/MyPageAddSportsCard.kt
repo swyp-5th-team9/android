@@ -47,7 +47,7 @@ fun MyPageAddSportsCard(
                 .noRippleClickable(onAddClick),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (supportedTeams.isEmpty()) {
             Column(
@@ -71,19 +71,29 @@ fun MyPageAddSportsCard(
                 Spacer(modifier = Modifier.height(77.dp))
             }
         } else {
+            val teams = supportedTeams.take(3)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 19.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.Center,
             ) {
-                supportedTeams.take(3).forEach { team ->
+                val emptyWeight = (3 - teams.size).toFloat()
+                if (emptyWeight > 0) {
+                    Spacer(modifier = Modifier.weight(emptyWeight / 2))
+                }
+
+                teams.forEach { team ->
                     androidx.compose.foundation.layout.Box(
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
                         MoballBaseBallTeamBadge(teamName = team)
                     }
+                }
+
+                if (emptyWeight > 0) {
+                    Spacer(modifier = Modifier.weight(emptyWeight / 2))
                 }
             }
         }
@@ -95,7 +105,7 @@ fun MyPageAddSportsCard(
 private fun MyPageAddSportsCardPreview() {
     MoballTheme {
         MyPageAddSportsCard(
-            supportedTeams = listOf("한화", "KT", "삼성"),
+            supportedTeams = listOf("KT", "삼성"),
             onAddClick = {},
         )
     }

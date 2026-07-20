@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -71,7 +72,9 @@ private fun MoballDialogContent(
 ) {
     Column(
         modifier = Modifier
-            .width(343.dp)
+            .padding(horizontal = 16.dp)
+            .widthIn(max = 343.dp)
+            .fillMaxWidth()
             .background(
                 color = MoballTheme.colors.backgroundBase,
                 shape = RoundedCornerShape(16.dp),
@@ -134,7 +137,7 @@ private fun MoballDialogContent(
                             color = MoballTheme.colors.backgroundSurface,
                             shape = RoundedCornerShape(12.dp),
                         ).noRippleClickable(onClick = onDismiss)
-                        .padding(vertical = 15.dp),
+                        .heightIn(min = 56.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -152,7 +155,7 @@ private fun MoballDialogContent(
                         color = MoballTheme.colors.accentPrimary,
                         shape = RoundedCornerShape(12.dp),
                     ).noRippleClickable(onClick = onConfirm)
-                    .padding(vertical = 16.dp),
+                    .heightIn(min = 56.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(

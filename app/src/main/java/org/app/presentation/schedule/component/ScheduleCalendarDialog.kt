@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -21,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
@@ -56,6 +58,11 @@ fun ScheduleCalendarDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
+        val dialogWindow = (LocalView.current.parent as? DialogWindowProvider)?.window
+        SideEffect {
+            dialogWindow?.setDimAmount(0.60f)
+        }
+
         ScheduleCalendarDialogContent(
             displayMonth = displayMonth,
             selectedDate = selectedDate,
@@ -83,8 +90,8 @@ private fun ScheduleCalendarDialogContent(
 
     Column(
         modifier = Modifier
+            .padding(horizontal = 27.dp)
             .fillMaxWidth()
-            .widthIn(360.dp)
             .background(
                 MoballTheme.colors.backgroundBase,
                 RoundedCornerShape(16.dp),
@@ -263,7 +270,7 @@ private fun getDaysInMonth(yearMonth: YearMonth): List<LocalDate?> {
     return days
 }
 
-@Preview(showBackground = true, widthDp = 360)
+@Preview(showBackground = true, backgroundColor = 0XFF8B9097)
 @Composable
 private fun ScheduleCalendarDialogPreview() {
     MoballTheme {

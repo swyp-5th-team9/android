@@ -1,6 +1,6 @@
 package org.app.presentation.pubdetail
 
-import org.app.presentation.pubdetail.model.PubDetail
+import org.app.data.model.PubDetail
 
 interface PubDetailContract {
     data class State(

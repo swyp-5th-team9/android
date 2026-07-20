@@ -31,4 +31,9 @@ object TimeUtils {
      * LocalTime을 "HH:mm" 형식의 문자열로 변환
      */
     fun formatTime(time: LocalTime?): String = time?.format(TIME_FORMATTER) ?: ""
+
+    /**
+     * 현재 시각(KST). 영업 여부 판정 등 businessHours(KST 변환됨)와 비교할 때 사용.
+     */
+    fun nowKst(): LocalDateTime = LocalDateTime.now(KST_ZONE)
 }

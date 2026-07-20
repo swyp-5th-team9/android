@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import com.moball.app.R
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraAnimation
+import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapView
@@ -49,6 +51,7 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
@@ -73,16 +76,53 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Screen에서 지도 준비 완료 시 올려주는(호이스팅) NaverMap 참조 — 카메라 이동 SideEffect 처리에 사용
+    var naverMap by remember { mutableStateOf<NaverMap?>(null) }
+
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+            is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+            is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
+            is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
+            is HomeContract.SideEffect.MoveCameraToBounds -> {
+                val latLngs = effect.points.map { LatLng(it.first, it.second) }
+                if (latLngs.size == 1) {
+                    naverMap?.moveCamera(CameraUpdate.scrollTo(latLngs.first()).animate(CameraAnimation.Easing))
+                } else if (latLngs.size > 1) {
+                    val bounds = LatLngBounds.Builder().include(latLngs).build()
+                    naverMap?.moveCamera(CameraUpdate.fitBounds(bounds, 150).animate(CameraAnimation.Easing))
+                }
+            }
+
+            is HomeContract.SideEffect.ShowToast ->
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+
+            is HomeContract.SideEffect.OpenMap -> {
+                val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
+                val isAppInstalled = context.packageManager
+                    .queryIntentActivities(
+                        intent,
+                        PackageManager.MATCH_DEFAULT_ONLY,
+                    ).isNotEmpty()
+
+                if (isAppInstalled) {
+                    context.startActivity(intent)
+                } else {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri()))
+                }
+            }
+        }
+    }
 
     HomeScreen(
         state = state,
-        sideEffect = viewModel.sideEffect,
         onEvent = viewModel::onEvent,
-        onNavigateToSearch = onNavigateToSearch,
-        onNavigateToPubFilter = onNavigateToPubFilter,
-        onNavigateToReport = onNavigateToReport,
-        onNavigateToPubDetail = onNavigateToPubDetail,
+        naverMap = naverMap,
+        onMapReady = { naverMap = it },
         modifier = modifier,
     )
 }
@@ -91,12 +131,9 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     state: HomeContract.State,
-    sideEffect: kotlinx.coroutines.flow.Flow<HomeContract.SideEffect>,
     onEvent: (HomeContract.Event) -> Unit,
-    onNavigateToSearch: () -> Unit,
-    onNavigateToPubFilter: () -> Unit,
-    onNavigateToReport: () -> Unit,
-    onNavigateToPubDetail: (String) -> Unit,
+    naverMap: NaverMap?,
+    onMapReady: (NaverMap) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -105,45 +142,6 @@ fun HomeScreen(
     val locationSource =
         remember { FusedLocationSource(context.findActivity()!!, LOCATION_PERMISSION_REQUEST_CODE) }
 
-    var naverMap by remember { mutableStateOf<NaverMap?>(null) }
-
-    LaunchedEffect(Unit) {
-        sideEffect.collect { effect ->
-            when (effect) {
-                is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-                is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
-                is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
-                is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
-                is HomeContract.SideEffect.MoveCameraToBounds -> {
-                    val latLngs = effect.points.map { LatLng(it.first, it.second) }
-                    if (latLngs.size == 1) {
-                        naverMap?.moveCamera(CameraUpdate.scrollTo(latLngs.first()).animate(CameraAnimation.Easing))
-                    } else if (latLngs.size > 1) {
-                        val bounds = LatLngBounds.Builder().include(latLngs).build()
-                        naverMap?.moveCamera(CameraUpdate.fitBounds(bounds, 150).animate(CameraAnimation.Easing))
-                    }
-                }
-
-                is HomeContract.SideEffect.ShowToast ->
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-
-                is HomeContract.SideEffect.OpenMap -> {
-                    val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
-                    val isAppInstalled = context.packageManager
-                        .queryIntentActivities(
-                            intent,
-                            PackageManager.MATCH_DEFAULT_ONLY,
-                        ).isNotEmpty()
-
-                    if (isAppInstalled) {
-                        context.startActivity(intent)
-                    } else {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri()))
-                    }
-                }
-            }
-        }
-    }
     var hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -159,9 +157,22 @@ fun HomeScreen(
         hasLocationPermission = permissions.values.all { it }
     }
 
+    // 펍 상세 등 네비게이션 왕복 시 지도(MapView)가 재생성되므로, 카메라 위치를 저장해 복원한다.
+    // (rememberSaveable 은 백스택 복귀 시 값이 보존된다)
+    var savedCameraLat by rememberSaveable { mutableStateOf(Double.NaN) }
+    var savedCameraLng by rememberSaveable { mutableStateOf(Double.NaN) }
+    var savedCameraZoom by rememberSaveable { mutableStateOf(Double.NaN) }
+    val hasSavedCamera = !savedCameraLat.isNaN()
+
     LaunchedEffect(hasLocationPermission, naverMap) {
-        if (hasLocationPermission && naverMap != null) {
-            naverMap?.locationTrackingMode = LocationTrackingMode.Follow
+        val map = naverMap ?: return@LaunchedEffect
+        if (hasSavedCamera) {
+            // 복귀 상황: 저장된 위치를 유지하고 현위치로 카메라가 튀지 않도록 추적만 표시(NoFollow)
+            map.locationTrackingMode =
+                if (hasLocationPermission) LocationTrackingMode.NoFollow else LocationTrackingMode.None
+        } else if (hasLocationPermission) {
+            // 최초 진입: 현위치로 카메라 이동
+            map.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
 
@@ -198,56 +209,66 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(naverMap, state.pubMarkers, state.pubClusters) {
+        val map = naverMap ?: return@LaunchedEffect
+        renderPubMarkers(
+            context = context,
+            map = map,
+            markers = state.pubMarkers,
+            currentMarkers = activeMarkers,
+            onMarkerClick = { pubId -> onEvent(HomeContract.Event.OnPubMarkerClick(pubId)) },
+        )
+        renderPubClusters(
+            context = context,
+            map = map,
+            clusters = state.pubClusters,
+            currentClusters = activeClusters,
+            onClusterClick = { cluster -> onEvent(HomeContract.Event.OnClusterClick(cluster)) },
+        )
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
             factory = {
                 mapView.apply {
                     getMapAsync { map ->
-                        naverMap = map
                         map.locationSource = locationSource
                         map.uiSettings.isLocationButtonEnabled = false // 커스텀 버튼 사용
                         map.locationOverlay.isVisible = true
 
-                        map.addOnCameraChangeListener { reason, animated ->
+                        // 재생성된 지도에 이전 카메라 위치를 즉시 복원(기본 위치로 깜빡이는 것 방지)
+                        if (!savedCameraLat.isNaN()) {
+                            map.moveCamera(
+                                CameraUpdate.toCameraPosition(
+                                    CameraPosition(
+                                        LatLng(savedCameraLat, savedCameraLng),
+                                        savedCameraZoom,
+                                    ),
+                                ),
+                            )
+                        }
+
+                        map.addOnCameraIdleListener {
+                            val cameraPos = map.cameraPosition
+                            savedCameraLat = cameraPos.target.latitude
+                            savedCameraLng = cameraPos.target.longitude
+                            savedCameraZoom = cameraPos.zoom
                             val bounds = map.contentBounds
-                            val zoom = map.cameraPosition.zoom
                             onEvent(
                                 HomeContract.Event.OnMapBoundsChanged(
                                     swLat = bounds.southWest.latitude,
                                     swLng = bounds.southWest.longitude,
                                     neLat = bounds.northEast.latitude,
                                     neLng = bounds.northEast.longitude,
-                                    zoom = zoom,
+                                    zoom = cameraPos.zoom,
                                 ),
                             )
                         }
 
-                        map.locationOverlay.setOnClickListener {
-                            false
-                        }
+                        map.locationOverlay.setOnClickListener { false }
+
+                        onMapReady(map)
                     }
-                }
-            },
-            update = {
-                naverMap?.let { map ->
-                    renderPubMarkers(
-                        context = context,
-                        map = map,
-                        markers = state.pubMarkers,
-                        currentMarkers = activeMarkers,
-                        onMarkerClick = { pubId ->
-                            onEvent(HomeContract.Event.OnPubMarkerClick(pubId))
-                        },
-                    )
-                    renderPubClusters(
-                        context = context,
-                        map = map,
-                        clusters = state.pubClusters,
-                        currentClusters = activeClusters,
-                        onClusterClick = { cluster ->
-                            onEvent(HomeContract.Event.OnClusterClick(cluster))
-                        },
-                    )
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -287,10 +308,7 @@ fun HomeScreen(
                 onClick = { onEvent(HomeContract.Event.OnReportClick) },
             )
             HomeMyLocationButton(
-                onClick = {
-                    onEvent(HomeContract.Event.OnMyLocationClick)
-                    naverMap?.locationTrackingMode = LocationTrackingMode.Follow
-                },
+                onClick = { naverMap?.locationTrackingMode = LocationTrackingMode.Follow },
             )
         }
 
@@ -330,6 +348,8 @@ fun HomeScreen(
                 pubItems = displayItems,
                 favoritePubIds = state.favoritePubIds,
                 filter = state.filter,
+                pubDetails = state.listPubDetails,
+                onItemAppear = { pubId -> onEvent(HomeContract.Event.OnPubListItemAppear(pubId)) },
                 onItemClick = { pubId -> onEvent(HomeContract.Event.OnPubListItemClick(pubId)) },
                 onFavoriteClick = { pubId -> onEvent(HomeContract.Event.OnPubListFavoriteClick(pubId)) },
                 onFilterClick = { filterKey -> onEvent(HomeContract.Event.OnQuickFilterClick(filterKey)) },
@@ -351,7 +371,7 @@ fun HomeScreen(
                     val d = state.selectedPubDetail ?: return@HomePubDetailBottomSheet
                     onEvent(HomeContract.Event.OnNaverMapClick(d.latitude, d.longitude, d.name))
                 },
-                onCardClick = { pubId -> onNavigateToPubDetail(pubId.toString()) },
+                onCardClick = { pubId -> onEvent(HomeContract.Event.OnPubDetailCardClick(pubId)) },
                 onDismiss = { onEvent(HomeContract.Event.OnPubDetailSheetDismiss) },
             )
         }
@@ -365,14 +385,25 @@ private fun renderPubMarkers(
     currentMarkers: MutableList<Marker>,
     onMarkerClick: (String) -> Unit,
 ) {
+    // PNG 마커는 원본 픽셀 크기로 렌더되므로, 원래 벡터(dp) 크기를 명시해 확대되지 않게 한다.
+    val density = context.resources.displayMetrics.density
     currentMarkers.forEach { it.map = null }
     currentMarkers.clear()
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            icon = when (pubMarker.type) {
-                PubMarkerType.MATCH -> OverlayImage.fromResource(R.drawable.ic_pin)
-                PubMarkerType.FAVORITE -> OverlayImage.fromResource(R.drawable.ic_pub_favorite)
+            when (pubMarker.type) {
+                PubMarkerType.MATCH -> {
+                    icon = OverlayImage.fromResource(R.drawable.img_pin)
+                    width = (68 * density).toInt()
+                    height = (68 * density).toInt()
+                }
+
+                PubMarkerType.FAVORITE -> {
+                    icon = OverlayImage.fromResource(R.drawable.img_favorite)
+                    width = (68 * density).toInt()
+                    height = (68 * density).toInt()
+                }
             }
             this.map = map
             setOnClickListener {
@@ -423,12 +454,9 @@ fun HomeScreenPreview() {
     MoballTheme {
         HomeScreen(
             state = HomeContract.State(),
-            sideEffect = kotlinx.coroutines.flow.emptyFlow(),
             onEvent = {},
-            onNavigateToSearch = {},
-            onNavigateToPubFilter = {},
-            onNavigateToReport = {},
-            onNavigateToPubDetail = {},
+            naverMap = null,
+            onMapReady = {},
         )
     }
 }

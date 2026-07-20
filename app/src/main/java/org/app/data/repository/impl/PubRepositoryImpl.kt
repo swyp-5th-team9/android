@@ -4,12 +4,12 @@ import org.app.core.util.suspendRunCatching
 import org.app.data.mapper.toPubDetail
 import org.app.data.mapper.toPubMapItems
 import org.app.data.mapper.toPubPage
+import org.app.data.model.PubDetail
 import org.app.data.model.PubMapItem
 import org.app.data.model.PubPage
 import org.app.data.remote.datasource.api.PubRemoteDataSource
 import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.PubRepository
-import org.app.presentation.pubdetail.model.PubDetail
 import javax.inject.Inject
 
 class PubRepositoryImpl
@@ -22,6 +22,7 @@ class PubRepositoryImpl
             teamId: Long?,
             teamIds: List<Long>?,
             region: String?,
+            regions: List<String>?,
             facilityCodes: List<String>?,
             styleCodes: List<String>?,
             themeCodes: List<String>?,
@@ -39,6 +40,7 @@ class PubRepositoryImpl
                         teamId,
                         teamIds,
                         region,
+                        regions,
                         facilityCodes,
                         styleCodes,
                         themeCodes,
@@ -58,11 +60,16 @@ class PubRepositoryImpl
             neLat: Double,
             neLng: Double,
             teamId: Long?,
-            openNow: Boolean?,
-            businessDay: String?,
+            teamIds: List<Long>?,
+            region: String?,
+            regions: List<String>?,
             facilityCodes: List<String>?,
+            styleCodes: List<String>?,
             themeCodes: List<String>?,
             foodCodes: List<String>?,
+            capacityRange: String?,
+            openNow: Boolean?,
+            businessDay: String?,
         ): Result<List<PubMapItem>> =
             suspendRunCatching {
                 pubRemoteDataSource
@@ -72,11 +79,16 @@ class PubRepositoryImpl
                         neLat,
                         neLng,
                         teamId,
-                        openNow,
-                        businessDay,
+                        teamIds,
+                        region,
+                        regions,
                         facilityCodes,
+                        styleCodes,
                         themeCodes,
                         foodCodes,
+                        capacityRange,
+                        openNow,
+                        businessDay,
                     ).getDataOrThrow()
                     .toPubMapItems()
             }

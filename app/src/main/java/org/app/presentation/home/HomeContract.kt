@@ -1,20 +1,23 @@
 package org.app.presentation.home
 
+import org.app.data.model.PubDetail
 import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
-import org.app.presentation.pubdetail.model.PubDetail
 
 interface HomeContract {
     data class State(
         val isLoading: Boolean = false,
+        val zoom: Double = DEFAULT_ZOOM,
         val pubMarkers: List<PubMarker> = emptyList(),
         val pubClusters: List<PubCluster> = emptyList(),
         val pubMapItems: List<PubMapItem> = emptyList(),
         val pubListItems: List<PubListItem> = emptyList(),
         val selectedPubList: List<PubMapItem> = emptyList(),
+        // 리스트 바텀시트용 lazy 상세 캐시 (지도 API엔 영업시간이 없어, 보이는 항목만 상세를 받아 영업상태/시간 표시)
+        val listPubDetails: Map<Long, PubDetail> = emptyMap(),
         val filter: HomeFilter = HomeFilter(),
         val userFavoriteTeamIds: List<Long> = emptyList(),
         val userFavoriteTeamNames: List<String> = emptyList(),
@@ -40,6 +43,10 @@ interface HomeContract {
 
         val regionChipLabel: String
             get() = filter.regionChipLabel
+
+        companion object {
+            const val DEFAULT_ZOOM = 14.0
+        }
     }
 
     sealed interface Event {
@@ -55,8 +62,6 @@ interface HomeContract {
 
         data object OnReportClick : Event
 
-        data object OnMyLocationClick : Event
-
         data object OnRegionSearchClick : Event
 
         data object OnPubDetailSheetDismiss : Event
@@ -64,6 +69,9 @@ interface HomeContract {
         data object OnPubListSheetDismiss : Event
 
         data object OnFavoriteClick : Event
+
+        /** 화면 재진입(ON_RESUME) 시 응원 구단·찜 목록 갱신 */
+        data object OnRefresh : Event
 
         data class OnMapBoundsChanged(
             val swLat: Double,
@@ -85,6 +93,14 @@ interface HomeContract {
             val pubId: Long,
         ) : Event
 
+        data class OnPubListItemAppear(
+            val pubId: Long,
+        ) : Event
+
+        data class OnPubDetailCardClick(
+            val pubId: Long,
+        ) : Event
+
         data class OnFilterApply(
             val teamIds: List<Long>,
             val teamNames: List<String>,
@@ -92,6 +108,7 @@ interface HomeContract {
             val openNow: Boolean? = null,
             val businessDay: String? = null,
             val facilityCodes: List<String>? = null,
+            val styleCodes: List<String>? = null,
             val themeCodes: List<String>? = null,
             val foodCodes: List<String>? = null,
         ) : Event

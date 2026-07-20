@@ -14,6 +14,7 @@ interface UserRemoteDataSource {
     suspend fun patchUser(
         nickname: String?,
         teamIds: List<Long>?,
+        profileImageUri: String?,
     ): BaseResponse<Unit>
 
     suspend fun deleteUser(

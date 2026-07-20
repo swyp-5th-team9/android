@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,15 +30,19 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.component.SocialLoginButton
 
-// TODO 개인정보처리방침 URL — 추후 실제 URL로 교체
-private const val PRIVACY_POLICY_URL = "https://moball.kr/privacy"
+private const val PRIVACY_POLICY_URL =
+    "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
 @Composable
 fun LoginRoute(
@@ -45,28 +52,52 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel.sideEffect) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                LoginContract.SideEffect.NavigateToHome -> {
-                    navigateToHome()
-                }
+    val loginManagers = remember(context) {
+        EntryPointAccessors
+            .fromApplication(context.applicationContext, SocialLoginManagerEntryPoint::class.java)
+            .socialLoginManagers()
+    }
 
-                LoginContract.SideEffect.NavigateToSignUp -> {
-                    navigateToSignUp()
-                }
+    CollectSideEffect(viewModel.sideEffect) { sideEffect ->
+        when (sideEffect) {
+            LoginContract.SideEffect.NavigateToHome -> navigateToHome()
 
-                is LoginContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+            LoginContract.SideEffect.NavigateToSignUp -> navigateToSignUp()
+
+            is LoginContract.SideEffect.ShowToast ->
+                Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun startSocialLogin(type: SocialType) {
+        if (state.isLoading) return
+        val manager = loginManagers[type]
+        if (manager == null) {
+            viewModel.onEvent(
+                LoginContract.Event.OnSocialLoginFailed(
+                    type = type,
+                    throwable = IllegalStateException("지원하지 않는 로그인 방식입니다: $type"),
+                ),
+            )
+            return
+        }
+        scope.launch {
+            manager
+                .login(context = context)
+                .onSuccess { token ->
+                    viewModel.onEvent(LoginContract.Event.OnSocialTokenReceived(type = type, token = token))
+                }.onFailure { throwable ->
+                    viewModel.onEvent(LoginContract.Event.OnSocialLoginFailed(type = type, throwable = throwable))
                 }
-            }
         }
     }
 
     LoginScreen(
-        onKakaoLoginClick = { viewModel.login(type = SocialType.KAKAO, context = context) },
-        onNaverLoginClick = { viewModel.login(type = SocialType.NAVER, context = context) },
+        onKakaoLoginClick = { startSocialLogin(SocialType.KAKAO) },
+        onNaverLoginClick = { startSocialLogin(SocialType.NAVER) },
         onPrivacyPolicyClick = {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
         },
@@ -92,7 +123,10 @@ private fun LoginScreen(
                         1.0f to Color(0xFF1C1C1C),
                     ),
                 ),
-            ).padding(horizontal = 16.dp),
+            )
+            // 배경은 시스템바 뒤까지 채우고, 콘텐츠만 시스템바 안쪽으로 인셋
+            .systemBarsPadding()
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.weight(1f))

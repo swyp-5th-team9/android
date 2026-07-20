@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,6 +36,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import kotlinx.coroutines.launch
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -62,24 +60,36 @@ fun PubFilterRoute(
         regions: List<String>,
         openNow: Boolean?,
         businessDay: String?,
-    ) -> Unit = { _, _, _, _, _ -> },
+        facilityCodes: List<String>,
+        styleCodes: List<String>,
+        themeCodes: List<String>,
+        foodCodes: List<String>,
+    ) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     viewModel: PubFilterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                PubFilterContract.SideEffect.NavigateBack -> onBack()
-                is PubFilterContract.SideEffect.ApplyFilter -> {
-                    onApplyFilter(effect.teamIds, effect.teamNames, effect.regions, effect.openNow, effect.businessDay)
-                    onBack()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            PubFilterContract.SideEffect.NavigateBack -> onBack()
+            is PubFilterContract.SideEffect.ApplyFilter -> {
+                onApplyFilter(
+                    effect.teamIds,
+                    effect.teamNames,
+                    effect.regions,
+                    effect.openNow,
+                    effect.businessDay,
+                    effect.facilityCodes,
+                    effect.styleCodes,
+                    effect.themeCodes,
+                    effect.foodCodes,
+                )
+                onBack()
+            }
 
-                is PubFilterContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is PubFilterContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -123,15 +133,12 @@ internal fun PubFilterScreen(
             .fillMaxSize()
             .background(MoballTheme.colors.backgroundBase),
     ) {
-        Row {
-            Spacer(modifier = Modifier.width(16.dp))
-            MoballTopBar(
-                state = TopBarState.Back(
-                    title = "필터",
-                    onBackClick = { onEvent(PubFilterContract.Event.OnBack) },
-                ),
-            )
-        }
+        MoballTopBar(
+            state = TopBarState.Back(
+                title = "필터",
+                onBackClick = { onEvent(PubFilterContract.Event.OnBack) },
+            ),
+        )
 
         LazyColumn(
             state = lazyListState,

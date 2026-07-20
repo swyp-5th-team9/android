@@ -30,10 +30,13 @@ class UserRepositoryImpl
         override suspend fun patchUser(
             nickname: String?,
             teamIds: List<Long>?,
+            profileImageUri: String?,
         ): Result<Unit> =
             suspendRunCatching {
-                require(nickname != null || teamIds != null) { "변경할 필드가 없습니다." }
-                userRemoteDataSource.patchUser(nickname = nickname, teamIds = teamIds).checkSuccess()
+                require(nickname != null || teamIds != null || profileImageUri != null) { "변경할 필드가 없습니다." }
+                userRemoteDataSource
+                    .patchUser(nickname = nickname, teamIds = teamIds, profileImageUri = profileImageUri)
+                    .checkSuccess()
             }
 
         override suspend fun deleteUser(

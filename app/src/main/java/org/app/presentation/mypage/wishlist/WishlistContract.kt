@@ -11,6 +11,9 @@ interface WishlistContract {
     }
 
     sealed interface Event {
+        /** 화면 재진입(ON_RESUME) 시 목록 갱신 */
+        data object OnRefresh : Event
+
         data object OnEditClick : Event
 
         data object OnCancelEdit : Event

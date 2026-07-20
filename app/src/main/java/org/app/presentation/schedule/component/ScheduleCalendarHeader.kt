@@ -1,12 +1,14 @@
 package org.app.presentation.schedule.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -61,7 +64,11 @@ fun ScheduleCalendarHeader(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(MoballTheme.colors.backgroundBase),
+            .shadow(
+                elevation = 20.dp,
+                spotColor = Color(0x26000000),
+                ambientColor = Color(0x26000000),
+            ).background(MoballTheme.colors.backgroundBase),
     ) {
         MonthNavigationRow(
             currentMonth = currentMonth,
@@ -90,47 +97,54 @@ private fun MonthNavigationRow(
     onCalendarClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
     ) {
-        Spacer(Modifier.width(87.dp))
+        // 가운데: < 2026년 N월 > — 화면 폭과 무관하게 중앙 정렬
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left_md),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onClick = onPrevWeek),
+            )
 
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_left_md),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .size(24.dp)
-                .noRippleClickable(onClick = onPrevWeek),
-        )
+            Spacer(Modifier.width(40.dp))
 
-        Spacer(Modifier.width(40.dp))
+            Text(
+                text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
+                style = MoballTheme.typography.heading5.bold18,
+                color = MoballTheme.colors.textPrimary,
+            )
 
-        Text(
-            text = "${currentMonth.year}년 ${currentMonth.monthValue}월",
-            style = MoballTheme.typography.heading5.bold18,
-            color = MoballTheme.colors.textPrimary,
-        )
+            Spacer(Modifier.width(36.dp))
 
-        Spacer(Modifier.width(36.dp))
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right_md),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(24.dp)
+                    .noRippleClickable(onClick = onNextWeek),
+            )
+        }
 
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_chevron_right_md),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .size(24.dp)
-                .noRippleClickable(onClick = onNextWeek),
-        )
-
-        Spacer(Modifier.width(34.dp))
-
+        // 오른쪽 고정: 캘린더 아이콘
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_calender),
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier.noRippleClickable(onClick = onCalendarClick),
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .size(48.dp)
+                .noRippleClickable(onClick = onCalendarClick),
         )
     }
 }
@@ -172,8 +186,9 @@ private fun DateItem(
     Column(
         modifier = modifier
             .noRippleClickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .heightIn(min = 83.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         if (isToday) {
             Box(

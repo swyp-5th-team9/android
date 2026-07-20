@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
 
 private val splashBackground = Brush.verticalGradient(
@@ -40,12 +40,10 @@ fun SplashRoute(
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                SplashContract.SideEffect.NavigateToHome -> navigateToHome()
-                SplashContract.SideEffect.NavigateToLogin -> navigateToLogin()
-            }
+    CollectSideEffect(viewModel.sideEffect) { sideEffect ->
+        when (sideEffect) {
+            SplashContract.SideEffect.NavigateToHome -> navigateToHome()
+            SplashContract.SideEffect.NavigateToLogin -> navigateToLogin()
         }
     }
     SplashScreen(modifier = modifier)

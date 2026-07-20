@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,16 +22,17 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.data.model.BusinessHour
+import org.app.data.model.KboTeam
+import org.app.data.model.PubDetail
+import org.app.data.model.PubStatus
 import org.app.presentation.pubdetail.component.PubBottomBar
 import org.app.presentation.pubdetail.component.PubHeroCarousel
 import org.app.presentation.pubdetail.component.PubInfoSection
 import org.app.presentation.pubdetail.component.PubPhotoGallery
 import org.app.presentation.pubdetail.component.PubPhotoSection
-import org.app.presentation.pubdetail.model.BusinessHour
-import org.app.presentation.pubdetail.model.KboTeam
-import org.app.presentation.pubdetail.model.PubDetail
-import org.app.presentation.pubdetail.model.PubStatus
 import java.time.LocalTime
 
 @Composable
@@ -44,32 +44,30 @@ fun PubDetailRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                is PubDetailContract.SideEffect.NavigateBack -> onBack()
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            is PubDetailContract.SideEffect.NavigateBack -> onBack()
 
-                is PubDetailContract.SideEffect.CallPhone -> {
-                    context.startActivity(
-                        Intent(Intent.ACTION_DIAL, "tel:${effect.phoneNumber}".toUri()),
-                    )
-                }
+            is PubDetailContract.SideEffect.CallPhone -> {
+                context.startActivity(
+                    Intent(Intent.ACTION_DIAL, "tel:${effect.phoneNumber}".toUri()),
+                )
+            }
 
-                is PubDetailContract.SideEffect.OpenMap -> {
-                    val appIntent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
-                    val webIntent = Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri())
-                    try {
-                        context.startActivity(appIntent)
-                    } catch (_: Exception) {
-                        context.startActivity(webIntent)
-                    }
+            is PubDetailContract.SideEffect.OpenMap -> {
+                val appIntent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
+                val webIntent = Intent(Intent.ACTION_VIEW, effect.webFallbackUrl.toUri())
+                try {
+                    context.startActivity(appIntent)
+                } catch (_: Exception) {
+                    context.startActivity(webIntent)
                 }
+            }
 
-                is PubDetailContract.SideEffect.ShowToast -> {
-                    android.widget.Toast
-                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
-                        .show()
-                }
+            is PubDetailContract.SideEffect.ShowToast -> {
+                android.widget.Toast
+                    .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

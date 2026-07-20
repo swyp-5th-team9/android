@@ -19,8 +19,10 @@ fun MatchItemResponse.toGameSchedule(): GameSchedule? {
         startTime = finalTime,
         homeTeamId = homeTeam.teamId,
         homeTeamName = homeTeam.name,
+        homeTeamShortName = homeTeam.shortName,
         awayTeamId = awayTeam.teamId,
         awayTeamName = awayTeam.name,
+        awayTeamShortName = awayTeam.shortName,
         stadium = stadium,
         status = when (status) {
             "SCHEDULED" -> GameStatus.SCHEDULED

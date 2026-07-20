@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.component.textfield.MoballLineTextField
@@ -67,21 +69,26 @@ fun EditProfileRoute(
             viewModel.onEvent(EditProfileContract.Event.OnProfileImageChange(uri.toString()))
         }
     }
+    // 서버 닉네임 로드가 필드 생성보다 늦게 도착하므로, 로드 완료 시 필드에 반영한다.
+    LaunchedEffect(state.originalNickname) {
+        if (state.originalNickname.isNotEmpty() && nicknameState.text.isEmpty()) {
+            nicknameState.setTextAndPlaceCursorAtEnd(state.originalNickname)
+        }
+    }
+
     LaunchedEffect(nicknameState) {
         snapshotFlow { nicknameState.text.toString() }
             .collect { viewModel.onEvent(EditProfileContract.Event.OnNicknameChange(it)) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                EditProfileContract.SideEffect.NavigateBack -> {
-                    onBack()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            EditProfileContract.SideEffect.NavigateBack -> {
+                onBack()
+            }
 
-                is EditProfileContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is EditProfileContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -142,6 +149,9 @@ private fun EditProfileScreen(
                         .size(120.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop,
+                    placeholderRes = R.drawable.img_profile,
+                    // 서버가 동일 URL에 이미지를 덮어쓰므로 캐시를 우회해 최신 이미지를 로드
+                    bypassCache = true,
                 )
 
                 Box(
@@ -187,15 +197,21 @@ private fun EditProfileScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            // 하단 여백 확보
+            Spacer(modifier = Modifier.height(30.dp))
+        }
 
-            if (state.isEditingNickname || state.hasChanged) {
+        if (state.isEditingNickname || state.hasChanged) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
                 MoballButton(
                     text = "이걸로 할래요",
                     onClick = onSave,
                     enabled = state.hasChanged && !state.isLoading,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

@@ -1,9 +1,14 @@
 package org.app.data.mapper
 
 import org.app.core.util.TimeUtils
+import org.app.data.model.BusinessHour
+import org.app.data.model.KboTeam
+import org.app.data.model.PubDetail
 import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
+import org.app.data.model.PubMenu
 import org.app.data.model.PubPage
+import org.app.data.model.PubStatus
 import org.app.data.model.PubTeam
 import org.app.data.remote.dto.GetPubsMapResponse
 import org.app.data.remote.dto.GetPubsResponse
@@ -11,11 +16,6 @@ import org.app.data.remote.dto.PubDetailResponse
 import org.app.data.remote.dto.PubListItemResponse
 import org.app.data.remote.dto.PubMapItemResponse
 import org.app.data.remote.dto.SupportedTeamResponse
-import org.app.presentation.pubdetail.model.BusinessHour
-import org.app.presentation.pubdetail.model.KboTeam
-import org.app.presentation.pubdetail.model.PubDetail
-import org.app.presentation.pubdetail.model.PubMenu
-import org.app.presentation.pubdetail.model.PubStatus
 
 fun GetPubsResponse.toPubPage(): PubPage =
     PubPage(
@@ -100,11 +100,11 @@ fun PubMapItem.toPartialDetail(): PubDetail =
         favoriteCount = favoriteCount,
         description = null,
         imageUrls = imageUrls,
-        teams = emptyList(),
+        teams = supportedTeams.map { KboTeam(it.teamId, it.shortName, it.name) },
         facilityCodes = facilityCodes,
-        styleCodes = emptyList(),
-        themeCodes = emptyList(),
-        foodCodes = emptyList(),
+        styleCodes = styleCodes,
+        themeCodes = themeCodes,
+        foodCodes = foodCodes,
         businessHours = emptyList(),
         menus = emptyList(),
     )
@@ -118,11 +118,11 @@ fun PubMapItem.toPubListItem(): PubListItem =
         thumbnailUrl = imageUrls.firstOrNull(),
         favoriteCount = favoriteCount,
         businessStatus = status.label,
-        supportedTeams = supportedTeams.map { PubTeam(0L, it, null) },
+        supportedTeams = supportedTeams,
         facilityCodes = facilityCodes,
-        styleCodes = emptyList(),
-        themeCodes = emptyList(),
-        foodCodes = emptyList(),
+        styleCodes = styleCodes,
+        themeCodes = themeCodes,
+        foodCodes = foodCodes,
     )
 
 fun PubMapItemResponse.toPubMapItem(): PubMapItem =
@@ -133,9 +133,12 @@ fun PubMapItemResponse.toPubMapItem(): PubMapItem =
         longitude = longitude,
         status = PubStatus.from(status),
         favoriteCount = favoriteCount,
-        imageUrls = imageUrls ?: emptyList(),
-        supportedTeams = supportedTeams ?: emptyList(),
+        imageUrls = imageUrls ?: listOfNotNull(thumbnailUrl),
+        supportedTeams = supportedTeams?.map { it.toPubTeam() } ?: emptyList(),
         facilityCodes = facilityCodes ?: emptyList(),
+        styleCodes = styleCodes ?: emptyList(),
+        themeCodes = themeCodes ?: emptyList(),
+        foodCodes = foodCodes ?: emptyList(),
         openTime = TimeUtils.parseUtcToKst(openTime),
         closeTime = TimeUtils.parseUtcToKst(closeTime),
         groupSeatMaxPeople = groupSeatMaxPeople,

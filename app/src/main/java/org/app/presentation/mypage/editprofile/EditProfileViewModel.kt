@@ -1,14 +1,9 @@
 package org.app.presentation.mypage.editprofile
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.UserRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -18,13 +13,9 @@ class EditProfileViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
-    ) : ViewModel() {
-        private val _state = MutableStateFlow(EditProfileContract.State())
-        val state = _state.asStateFlow()
-
-        private val _sideEffect = MutableSharedFlow<EditProfileContract.SideEffect>()
-        val sideEffect = _sideEffect.asSharedFlow()
-
+    ) : BaseViewModel<EditProfileContract.State, EditProfileContract.Event, EditProfileContract.SideEffect>(
+            EditProfileContract.State(),
+        ) {
         init {
             loadUser()
         }
@@ -34,10 +25,12 @@ class EditProfileViewModel
                 userRepository
                     .getUser()
                     .onSuccess { user ->
-                        _state.update {
-                            it.copy(
+                        setState {
+                            copy(
                                 originalNickname = user.nickname,
                                 nickname = user.nickname,
+                                originalProfileImageUrl = user.profileImageUrl,
+                                profileImageUrl = user.profileImageUrl,
                             )
                         }
                     }.onFailure { error ->
@@ -46,7 +39,7 @@ class EditProfileViewModel
             }
         }
 
-        fun onEvent(event: EditProfileContract.Event) {
+        override fun onEvent(event: EditProfileContract.Event) {
             when (event) {
                 is EditProfileContract.Event.OnNicknameChange -> {
                     val nicknameError = when {
@@ -54,15 +47,15 @@ class EditProfileViewModel
                         event.nickname.isBlank() -> "닉네임을 입력해주세요."
                         else -> null
                     }
-                    _state.update { it.copy(nickname = event.nickname, nicknameError = nicknameError) }
+                    setState { copy(nickname = event.nickname, nicknameError = nicknameError) }
                 }
 
                 is EditProfileContract.Event.OnProfileImageChange -> {
-                    _state.update { it.copy(profileImageUrl = event.uri) }
+                    setState { copy(profileImageUrl = event.uri) }
                 }
 
                 EditProfileContract.Event.OnEditNicknameClick -> {
-                    _state.update { it.copy(isEditingNickname = true) }
+                    setState { copy(isEditingNickname = true) }
                 }
 
                 EditProfileContract.Event.OnSaveClick -> {
@@ -72,31 +65,44 @@ class EditProfileViewModel
         }
 
         private fun save() {
-            if (_state.value.isLoading) return
+            if (currentState.isLoading) return
             viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
-                val trimmedNickname = _state.value.nickname.trim()
-                if (trimmedNickname.isBlank()) {
-                    _state.update { it.copy(isLoading = false) }
-                    _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("닉네임을 입력해 주세요."))
+                setState { copy(isLoading = true) }
+
+                val trimmedNickname = currentState.nickname.trim()
+                // 빈 닉네임은 "변경"으로 취급하지 않는다 — 사진만 바꾸는 저장을 막지 않기 위함
+                val nicknameChanged = trimmedNickname.isNotBlank() &&
+                    trimmedNickname != currentState.originalNickname
+                val pickedImageUri = currentState.profileImageUrl
+                    ?.takeIf { it != currentState.originalProfileImageUrl }
+
+                if (!nicknameChanged && pickedImageUri == null) {
+                    setState { copy(isLoading = false) }
+                    if (trimmedNickname.isBlank()) {
+                        postSideEffect(EditProfileContract.SideEffect.ShowToast("닉네임을 입력해 주세요."))
+                    }
                     return@launch
                 }
-                val nickname = trimmedNickname.takeIf { it != _state.value.originalNickname }
-                    ?: run {
-                        _state.update { it.copy(isLoading = false) }
-                        return@launch
-                    }
 
+                // 닉네임·프로필 이미지를 multipart 한 번에 전송 (미전달 필드는 서버가 기존 값 유지)
                 userRepository
-                    .patchUser(nickname = nickname)
-                    .onSuccess {
-                        _state.update { it.copy(isLoading = false) }
-                        _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("정보가 수정됐어요."))
-                        _sideEffect.emit(EditProfileContract.SideEffect.NavigateBack)
+                    .patchUser(
+                        nickname = trimmedNickname.takeIf { nicknameChanged },
+                        profileImageUri = pickedImageUri,
+                    ).onSuccess {
+                        setState {
+                            copy(
+                                isLoading = false,
+                                originalNickname = if (nicknameChanged) trimmedNickname else originalNickname,
+                                originalProfileImageUrl = profileImageUrl,
+                            )
+                        }
+                        postSideEffect(EditProfileContract.SideEffect.ShowToast("정보가 수정됐어요."))
+                        postSideEffect(EditProfileContract.SideEffect.NavigateBack)
                         Timber.d("내 정보 수정 성공")
                     }.onFailure { error ->
-                        _state.update { it.copy(isLoading = false) }
-                        _sideEffect.emit(EditProfileContract.SideEffect.ShowToast("수정 실패: ${error.message}"))
+                        setState { copy(isLoading = false) }
+                        postSideEffect(EditProfileContract.SideEffect.ShowToast("수정에 실패했습니다. 잠시 후 다시 시도해주세요."))
                         Timber.e("내 정보 수정 실패: $error")
                     }
             }

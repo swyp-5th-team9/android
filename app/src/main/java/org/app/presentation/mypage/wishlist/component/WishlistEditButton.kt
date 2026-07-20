@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ fun WishlistEditButton(
                     color = MoballTheme.colors.borderNormal,
                     shape = RoundedCornerShape(12.dp),
                 ).noRippleClickable(onClick = onCancel)
-                .padding(vertical = 15.dp),
+                .heightIn(min = 56.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -60,7 +61,7 @@ fun WishlistEditButton(
                 .weight(3f)
                 .background(deleteContainerColor, RoundedCornerShape(12.dp))
                 .noRippleClickable { if (hasSelection) onDelete() }
-                .padding(vertical = 15.dp),
+                .heightIn(min = 56.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(

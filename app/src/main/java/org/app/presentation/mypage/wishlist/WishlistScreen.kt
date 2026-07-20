@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -48,29 +48,28 @@ fun WishlistRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var heartDeleteId by remember { mutableStateOf<Long?>(null) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.refresh()
+                viewModel.onEvent(WishlistContract.Event.OnRefresh)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                WishlistContract.SideEffect.NavigateBack -> onBack()
-                is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
-                is WishlistContract.SideEffect.ShowToast -> {
-                    android.widget.Toast
-                        .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
-                        .show()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            WishlistContract.SideEffect.NavigateBack -> onBack()
+            is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
+            is WishlistContract.SideEffect.ShowToast -> {
+                android.widget.Toast
+                    .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -82,7 +81,7 @@ fun WishlistRoute(
         onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
         onDeleteClick = { showDeleteDialog = true },
         onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
-        onHeartClick = { favoriteId -> viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId)) },
+        onHeartClick = { favoriteId -> heartDeleteId = favoriteId },
         modifier = modifier,
     )
 
@@ -95,6 +94,19 @@ fun WishlistRoute(
                 showDeleteDialog = false
             },
             onDismiss = { showDeleteDialog = false },
+            iconRes = R.drawable.ic_trash_full,
+        )
+    }
+
+    heartDeleteId?.let { favoriteId ->
+        MoballDialog(
+            title = "펍 즐겨찾기 삭제",
+            subtitle = "즐겨찾기 목록에서 삭제할까요?",
+            onConfirm = {
+                viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId))
+                heartDeleteId = null
+            },
+            onDismiss = { heartDeleteId = null },
             iconRes = R.drawable.ic_trash_full,
         )
     }

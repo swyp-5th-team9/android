@@ -53,6 +53,10 @@ interface PubFilterContract {
             val regions: List<String>,
             val openNow: Boolean?,
             val businessDay: String?,
+            val facilityCodes: List<String>,
+            val styleCodes: List<String>,
+            val themeCodes: List<String>,
+            val foodCodes: List<String>,
         ) : SideEffect
 
         data class ShowToast(
@@ -152,54 +156,60 @@ private fun defaultSections(): List<PubFilterSection> =
                 PubFilterOption("kiwoom", "키움"),
             ),
         ),
+        // optionId = 서버 화이트리스트 코드(그대로 styleCodes 파라미터로 전달)
         PubFilterSection(
             sectionId = "style_broadcast",
             title = "경기 상영 스타일",
             options = listOf(
-                PubFilterOption("large_screen", "대형 스크린"),
-                PubFilterOption("single_tv", "단일 TV"),
-                PubFilterOption("multi_tv", "멀티 TV"),
-                PubFilterOption("broadcast_sound", "중계 사운드"),
+                PubFilterOption("BIG_SCREEN", "대형 스크린"),
+                PubFilterOption("SINGLE_TV", "단일 TV"),
+                PubFilterOption("MULTI_TV", "멀티 TV"),
+                PubFilterOption("LOUD_SPEAKER", "중계 사운드"),
             ),
         ),
+        // optionId = 서버 화이트리스트 코드(그대로 facilityCodes 파라미터로 전달)
         PubFilterSection(
             sectionId = "style_facility",
             title = "시설 / 서비스",
             options = listOf(
-                PubFilterOption("group_seat", "단체석"),
-                PubFilterOption("wide_space", "넓은 공간"),
-                PubFilterOption("outdoor_seat", "야외좌석"),
-                PubFilterOption("parking", "주차"),
-                PubFilterOption("reservation", "예약가능"),
-                PubFilterOption("rental", "대관가능"),
+                PubFilterOption("GROUP_SEAT", "단체석"),
+                PubFilterOption("SPACIOUS_AREA", "넓은 공간"),
+                PubFilterOption("OUTDOOR_SEAT", "야외좌석"),
+                PubFilterOption("PARKING", "주차"),
+                PubFilterOption("RESERVATION", "예약가능"),
+                PubFilterOption("PRIVATE_BOOKING", "대관가능"),
             ),
         ),
+        // optionId = 서버 화이트리스트 코드(그대로 themeCodes 파라미터로 전달)
         PubFilterSection(
             sectionId = "style_theme",
             title = "테마",
             options = listOf(
-                PubFilterOption("exotic", "이국적인"),
-                PubFilterOption("wide_space_theme", "넓은 공간"),
-                PubFilterOption("special_menu", "특별한 메뉴"),
-                PubFilterOption("fresh", "신선한"),
-                PubFilterOption("comfortable_seat", "편한 좌석"),
+                PubFilterOption("EXOTIC", "이국적인"),
+                PubFilterOption("SPACIOUS_VIEW", "넓은 공간"),
+                PubFilterOption("SPECIAL_MENU", "특별한 메뉴"),
+                PubFilterOption("FRESH", "신선한"),
+                PubFilterOption("COMFY_SEAT", "편한 좌석"),
             ),
         ),
+        // optionId = 서버 화이트리스트 코드(그대로 foodCodes 파라미터로 전달)
+        // 라벨·순서는 시안(=서버 스펙) 기준
         PubFilterSection(
             sectionId = "food",
             title = "음식 / 주류",
             options = listOf(
-                PubFilterOption("chicken", "치킨"),
-                PubFilterOption("pizza", "피자"),
-                PubFilterOption("taco", "타코"),
-                PubFilterOption("fries", "감자튀김"),
-                PubFilterOption("snack", "분식"),
-                PubFilterOption("grill", "구이 요리"),
-                PubFilterOption("dried_snack", "마른안주"),
-                PubFilterOption("beer", "맥주"),
-                PubFilterOption("cocktail", "칵테일"),
-                PubFilterOption("highball", "하이볼"),
-                PubFilterOption("soju", "소주"),
+                PubFilterOption("CHICKEN", "치킨"),
+                PubFilterOption("PIZZA", "피자"),
+                PubFilterOption("TACO", "타코"),
+                PubFilterOption("FRY", "튀김"),
+                PubFilterOption("STEW", "찌개/탕"),
+                PubFilterOption("GRILLED", "구이/볶음"),
+                PubFilterOption("BUNSIK", "분식"),
+                PubFilterOption("DRY_SNACK", "마른안주"),
+                PubFilterOption("SOJU", "소주"),
+                PubFilterOption("BEER", "맥주"),
+                PubFilterOption("COCKTAIL", "칵테일"),
+                PubFilterOption("HIGHBALL", "하이볼"),
             ),
         ),
     )

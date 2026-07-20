@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
@@ -21,6 +22,7 @@ import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
+import org.app.presentation.onboarding.signup.navigation.SignUpComplete
 import org.app.presentation.onboarding.signup.navigation.SignUpNickname
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.onboarding.splash.navigation.Splash
@@ -71,6 +73,16 @@ private fun MainNavHost(
     appState: MainAppState,
     innerPadding: PaddingValues,
 ) {
+    // 로그인·온보딩 완료 등 어두운 배경 화면은 배경을 화면 끝(시스템바 뒤)까지 그리도록 innerPadding을 적용하지 않는다.
+    // (해당 화면들은 각자 콘텐츠에 systemBarsPadding을 적용)
+    val currentEntry by appState.navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+    val fullBleedPrefixes = listOfNotNull(
+        Login::class.qualifiedName,
+        SignUpComplete::class.qualifiedName,
+    )
+    val isFullBleed = currentRoute != null && fullBleedPrefixes.any { currentRoute.startsWith(it) }
+
     NavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -78,7 +90,7 @@ private fun MainNavHost(
         popExitTransition = { ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
-        modifier = Modifier.padding(innerPadding),
+        modifier = if (isFullBleed) Modifier.fillMaxSize() else Modifier.padding(innerPadding),
     ) {
         splashGraph(
             navigateToHome = {

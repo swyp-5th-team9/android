@@ -1,7 +1,6 @@
 package org.app.presentation.home.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +11,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -110,9 +113,10 @@ fun HomeFilterBottomSheet(
     onDismiss: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
-    val selectedTeamIds = remember { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
-    val selectedRegions = remember { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
-    var currentTab by remember { mutableStateOf(initialTab) }
+    // initial* 값이 바뀌면 편집 상태를 재초기화하도록 key를 명시한다.
+    val selectedTeamIds = remember(initialTeamIds) { mutableStateListOf<Long>().also { it.addAll(initialTeamIds) } }
+    val selectedRegions = remember(initialRegions) { mutableStateListOf<String>().also { it.addAll(initialRegions) } }
+    var currentTab by remember(initialTab) { mutableStateOf(initialTab) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -143,9 +147,11 @@ fun HomeFilterBottomSheet(
                         selectedTeamIds.clear()
                         selectedTeamIds.add(0L)
                     }
+
                     teamId in selectedTeamIds -> {
                         selectedTeamIds.remove(teamId)
                     }
+
                     else -> {
                         selectedTeamIds.remove(0L)
                         selectedTeamIds.add(teamId)
@@ -158,9 +164,11 @@ fun HomeFilterBottomSheet(
                         selectedRegions.clear()
                         selectedRegions.add("SEOUL_ALL")
                     }
+
                     regionCode in selectedRegions -> {
                         selectedRegions.remove(regionCode)
                     }
+
                     else -> {
                         selectedRegions.remove("SEOUL_ALL")
                         selectedRegions.add(regionCode)
@@ -173,7 +181,6 @@ fun HomeFilterBottomSheet(
                     .map { (_, name) -> name }
                 onApply(selectedTeamIds.toList(), names, selectedRegions.toList())
             },
-            modifier = Modifier.navigationBarsPadding(),
         )
     }
 }
@@ -190,18 +197,24 @@ private fun FilterBottomSheetContent(
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.8f).dp
+    Column(
+        modifier = modifier
+            .heightIn(max = maxSheetHeight)
+            // 시트 하단 "적용하기" 버튼이 시스템 내비게이션 바(하단바)와 겹치지 않도록 하단 인셋 확보
+            .navigationBarsPadding(),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
             FilterBottomSheetTab.entries.forEach { tab ->
                 val label = if (tab == FilterBottomSheetTab.TEAM) "응원팀" else "지역"
                 val isActive = tab == currentTab
-                Column(
+                Box(
                     modifier = Modifier
                         .weight(1f)
+                        .heightIn(min = 52.dp)
                         .noRippleClickable { onTabChange(tab) },
-                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = label,
@@ -211,10 +224,13 @@ private fun FilterBottomSheetContent(
                         } else {
                             MoballTheme.colors.textTertiary
                         },
-                        modifier = Modifier.padding(vertical = 14.dp),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(bottom = 2.dp),
                     )
                     Box(
                         modifier = Modifier
+                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
                             .height(2.dp)
                             .background(
@@ -225,34 +241,37 @@ private fun FilterBottomSheetContent(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            Spacer(Modifier.height(32.dp))
 
-        when (currentTab) {
-            FilterBottomSheetTab.TEAM ->
-                TeamFilterContent(
-                    favoriteTeamIds = userFavoriteTeamIds,
-                    selectedTeamIds = selectedTeamIds,
-                    onToggleTeam = onToggleTeam,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+            when (currentTab) {
+                FilterBottomSheetTab.TEAM ->
+                    TeamFilterContent(
+                        favoriteTeamIds = userFavoriteTeamIds,
+                        selectedTeamIds = selectedTeamIds,
+                        onToggleTeam = onToggleTeam,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
 
-            FilterBottomSheetTab.REGION ->
-                RegionFilterContent(
-                    selectedRegions = selectedRegions,
-                    onToggleRegion = onToggleRegion,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+                FilterBottomSheetTab.REGION ->
+                    RegionFilterContent(
+                        selectedRegions = selectedRegions,
+                        onToggleRegion = onToggleRegion,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
-
-        Spacer(Modifier.height(24.dp))
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = MoballTheme.colors.borderNormal,
-                ).padding(horizontal = 16.dp, vertical = 25.dp),
+                .padding(horizontal = 16.dp, vertical = 25.dp),
         ) {
             MoballButton(
                 text = "적용하기",
@@ -320,17 +339,25 @@ private fun RegionFilterContent(
             }
         }
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MoballTheme.colors.backgroundSurface)
+                .padding(16.dp),
         ) {
-            REGIONS.forEach { (code, label) ->
-                PubFilterSubRegionChip(
-                    label = label,
-                    isSelected = code in selectedRegions,
-                    onClick = { onToggleRegion(code) },
-                )
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                REGIONS.forEach { (code, label) ->
+                    PubFilterSubRegionChip(
+                        label = label,
+                        isSelected = code in selectedRegions,
+                        onClick = { onToggleRegion(code) },
+                    )
+                }
             }
         }
     }

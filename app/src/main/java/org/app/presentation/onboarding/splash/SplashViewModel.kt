@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
 import javax.inject.Inject
@@ -19,8 +20,9 @@ class SplashViewModel
     constructor(
         private val authRepository: AuthRepository,
     ) : ViewModel() {
-        private val _sideEffect = MutableSharedFlow<SplashContract.SideEffect>()
-        val sideEffect = _sideEffect.asSharedFlow()
+        // Channel 기반: init 블록에서 send하는 시점에 구독자가 없어도 유실되지 않는다.
+        private val _sideEffect = Channel<SplashContract.SideEffect>(Channel.BUFFERED)
+        val sideEffect: Flow<SplashContract.SideEffect> = _sideEffect.receiveAsFlow()
 
         init {
             viewModelScope.launch {
@@ -32,7 +34,7 @@ class SplashViewModel
                 } else {
                     SplashContract.SideEffect.NavigateToLogin
                 }
-                _sideEffect.emit(destination)
+                _sideEffect.send(destination)
             }
         }
     }

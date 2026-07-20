@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,8 +44,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moball.app.BuildConfig
 import com.moball.app.R
 import kotlinx.coroutines.launch
+import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
@@ -79,43 +81,41 @@ fun MyPageRoute(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.refresh()
+                viewModel.onEvent(MyPageContract.Event.OnRefresh)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                MyPageContract.SideEffect.NavigateToLogin -> {
-                    navigateToLogin()
-                }
+    CollectSideEffect(viewModel.sideEffect) { effect ->
+        when (effect) {
+            MyPageContract.SideEffect.NavigateToLogin -> {
+                navigateToLogin()
+            }
 
-                MyPageContract.SideEffect.NavigateToEditProfile -> {
-                    navigateToEditProfile()
-                }
+            MyPageContract.SideEffect.NavigateToEditProfile -> {
+                navigateToEditProfile()
+            }
 
-                MyPageContract.SideEffect.NavigateToReport -> {
-                    navigateToReport()
-                }
+            MyPageContract.SideEffect.NavigateToReport -> {
+                navigateToReport()
+            }
 
-                MyPageContract.SideEffect.NavigateToWithdraw -> {
-                    navigateToWithdraw()
-                }
+            MyPageContract.SideEffect.NavigateToWithdraw -> {
+                navigateToWithdraw()
+            }
 
-                MyPageContract.SideEffect.NavigateToWishlist -> {
-                    navigateToWishlist()
-                }
+            MyPageContract.SideEffect.NavigateToWishlist -> {
+                navigateToWishlist()
+            }
 
-                is MyPageContract.SideEffect.NavigateToPubDetail -> {
-                    navigateToPubDetail(effect.pubId)
-                }
+            is MyPageContract.SideEffect.NavigateToPubDetail -> {
+                navigateToPubDetail(effect.pubId)
+            }
 
-                is MyPageContract.SideEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+            is MyPageContract.SideEffect.ShowToast -> {
+                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -146,7 +146,10 @@ private fun MyPageScreen(
     onDismissTeamSheet: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val email = "appswyp5th9team@gmail.com"
+    val uriHandler = LocalUriHandler.current
+    val email = "moyeoball@gmail.com"
+    val privacyPolicyUrl =
+        "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
     Column(
         modifier = modifier
@@ -222,9 +225,8 @@ private fun MyPageScreen(
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_warning_info,
                                 title = "약관 및 정책",
-                                subtitle = "이용약관 · 개인정보처리방침",
-                                onClick = { // TODO 약관 및 정책 딥링크 연결
-                                },
+                                subtitle = "개인정보처리방침",
+                                onClick = { uriHandler.openUri(privacyPolicyUrl) },
                             ),
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_logout,
@@ -280,7 +282,7 @@ private fun MyPageScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "모여볼 v1.0.0",
+                        text = "모여볼 v${BuildConfig.VERSION_NAME}",
                         style = MoballTheme.typography.caption.regular12,
                         color = MoballTheme.colors.textTertiary,
                         textAlign = TextAlign.Center,

@@ -14,5 +14,6 @@ fun PostKakaoLoginResponse.toKakaoLoginToken(): SocialLoginToken {
         refreshToken = refresh,
         role = role,
         onboardingCompleted = onboardingCompleted,
+        restored = restored,
     )
 }
