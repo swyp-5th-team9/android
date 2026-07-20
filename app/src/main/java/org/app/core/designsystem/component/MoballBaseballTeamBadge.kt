@@ -10,7 +10,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
 
 @Composable
 fun MoballBaseballTeamBadge(

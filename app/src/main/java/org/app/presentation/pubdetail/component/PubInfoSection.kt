@@ -37,7 +37,7 @@ import org.app.data.model.BusinessHour
 import org.app.data.model.KboTeam
 import org.app.data.model.PubStatus
 import org.app.data.model.pubStatusLabel
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
 import java.time.LocalTime
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -1,10 +1,10 @@
 package org.app.presentation.home.pubfilter
 
 import org.app.data.model.TeamItem
+import org.app.domain.model.KboTeamType
 import org.app.presentation.home.model.PubFilterOption
 import org.app.presentation.home.model.PubFilterSection
 import org.app.presentation.home.model.SeoulRegion
-import org.app.presentation.pubdetail.model.KboTeamType
 
 interface PubFilterContract {
     data class State(

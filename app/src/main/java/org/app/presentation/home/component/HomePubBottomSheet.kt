@@ -55,12 +55,12 @@ import org.app.data.model.PubMapItem
 import org.app.data.model.PubStatus
 import org.app.data.model.PubTeam
 import org.app.data.model.pubStatusLabel
+import org.app.domain.model.KboTeamType
 import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.pubfilter.FacilityCode
 import org.app.presentation.home.pubfilter.FoodCode
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
-import org.app.presentation.pubdetail.model.KboTeamType
 import java.time.LocalDate
 import java.time.LocalTime
 

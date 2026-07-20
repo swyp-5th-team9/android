@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
 
 val KboTeamType.teamColor: Color
     @Composable

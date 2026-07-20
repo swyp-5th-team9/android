@@ -1,4 +1,4 @@
-package org.app.presentation.pubdetail.model
+package org.app.domain.model
 
 import androidx.annotation.DrawableRes
 import com.moball.app.R

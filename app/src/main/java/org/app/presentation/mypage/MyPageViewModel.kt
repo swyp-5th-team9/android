@@ -8,8 +8,8 @@ import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.AuthRepository
 import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.UserRepository
+import org.app.domain.model.KboTeamType
 import org.app.presentation.mypage.wishlist.WishlistItem
-import org.app.presentation.pubdetail.model.KboTeamType
 import timber.log.Timber
 import javax.inject.Inject
 

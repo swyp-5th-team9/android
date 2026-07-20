@@ -27,9 +27,9 @@ import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.domain.model.KboTeamType
 import org.app.presentation.onboarding.signup.component.OnboardingProgressBar
 import org.app.presentation.onboarding.signup.component.OnboardingTeamItem
-import org.app.presentation.pubdetail.model.KboTeamType
 
 @Composable
 fun SignUpTeamSelectionRoute(
