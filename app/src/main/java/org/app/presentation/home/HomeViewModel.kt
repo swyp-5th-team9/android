@@ -16,6 +16,9 @@ import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
 import org.app.presentation.home.model.PubMarkerType
 import org.app.presentation.home.model.RegionMapper
+import org.app.presentation.home.model.SeoulRegion
+import org.app.presentation.home.pubfilter.FacilityCode
+import org.app.presentation.home.pubfilter.FoodCode
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -151,7 +154,7 @@ class HomeViewModel
                     // "서울 전체"(SEOUL_ALL)는 특정 지점이 아니라 전체 조회이므로 카메라 이동 대상에서 제외
                     // (시청 좌표로 카메라가 튀는 문제 방지)
                     val points = event.regions
-                        .filter { it != "SEOUL_ALL" }
+                        .filter { it != SeoulRegion.SEOUL_ALL.code }
                         .mapNotNull { RegionMapper.getLatLng(it) }
                     if (points.isNotEmpty()) {
                         postSideEffect(HomeContract.SideEffect.MoveCameraToBounds(points))
@@ -510,25 +513,25 @@ private val HomeFilter.teamIdsForQuery: List<Long>?
  * "서울 전체"(SEOUL_ALL)는 전체 조회이므로 제외하고, 선택이 없으면 null.
  */
 private val HomeFilter.regionsForQuery: List<String>?
-    get() = (selectedRegions - "SEOUL_ALL").ifEmpty { null }
+    get() = (selectedRegions - SeoulRegion.SEOUL_ALL.code).ifEmpty { null }
 
 /** 퀵 필터 칩 토글 규칙 */
 private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
     when (filterKey) {
         "OPEN" -> copy(openNow = if (openNow == true) null else true)
 
-        "GROUP_SEAT" -> toggleFacility("GROUP_SEAT")
+        "GROUP_SEAT" -> toggleFacility(FacilityCode.GROUP_SEAT.code)
 
-        "PARKING" -> toggleFacility("PARKING")
+        "PARKING" -> toggleFacility(FacilityCode.PARKING.code)
 
-        "WIDE_SPACE" -> toggleFacility("SPACIOUS_AREA")
+        "WIDE_SPACE" -> toggleFacility(FacilityCode.SPACIOUS_AREA.code)
 
         "VARIOUS_DRINKS" ->
             copy(
                 foodCodes = if (foodCodes?.isNotEmpty() == true) {
                     emptyList()
                 } else {
-                    listOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+                    listOf(FoodCode.SOJU.code, FoodCode.BEER.code, FoodCode.COCKTAIL.code, FoodCode.HIGHBALL.code)
                 },
             )
 
