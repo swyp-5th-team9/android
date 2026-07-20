@@ -54,12 +54,12 @@ import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.component.MyPageAddSportsCard
+import org.app.presentation.mypage.component.MyPageFavoriteSection
 import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
-import org.app.presentation.mypage.component.MyPageWishlistSection
-import org.app.presentation.mypage.wishlist.WishlistItem
+import org.app.presentation.mypage.favorite.FavoritePubItem
 
 @Composable
 fun MyPageRoute(
@@ -67,7 +67,7 @@ fun MyPageRoute(
     navigateToEditProfile: () -> Unit,
     navigateToReport: () -> Unit,
     navigateToWithdraw: () -> Unit,
-    navigateToWishlist: () -> Unit,
+    navigateToFavorite: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
@@ -107,8 +107,8 @@ fun MyPageRoute(
                 navigateToWithdraw()
             }
 
-            MyPageContract.SideEffect.NavigateToWishlist -> {
-                navigateToWishlist()
+            MyPageContract.SideEffect.NavigateToFavorite -> {
+                navigateToFavorite()
             }
 
             is MyPageContract.SideEffect.NavigateToPubDetail -> {
@@ -192,9 +192,9 @@ private fun MyPageScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                MyPageWishlistSection(
-                    wishlistItems = state.wishlistItems,
-                    onWishlistClick = { onEvent(MyPageContract.Event.OnWishlistClick) },
+                MyPageFavoriteSection(
+                    favoriteItems = state.favoriteItems,
+                    onFavoriteClick = { onEvent(MyPageContract.Event.OnFavoriteClick) },
                     onPubClick = { pubId -> onEvent(MyPageContract.Event.OnPubClick(pubId)) },
                 )
             }
@@ -326,16 +326,16 @@ private fun MyPageScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun MyPageScreenWithWishlistPreview() {
+private fun MyPageScreenWithFavoritePreview() {
     MoballTheme {
         MyPageScreen(
             state = MyPageContract.State(
                 nickname = "닉네임",
                 supportedTeams = persistentListOf("한화", "KT", "삼성"),
-                wishlistItems = persistentListOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
+                favoriteItems = persistentListOf(
+                    FavoritePubItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
+                    FavoritePubItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
+                    FavoritePubItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
                 ),
             ),
             isTeamSheetVisible = false,

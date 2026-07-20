@@ -36,7 +36,7 @@ class PubDetailViewModel
                 is PubDetailContract.Event.OnBack ->
                     postSideEffect(PubDetailContract.SideEffect.NavigateBack)
 
-                is PubDetailContract.Event.OnWishlistToggle -> toggleWishlist()
+                is PubDetailContract.Event.OnFavoriteToggle -> toggleFavorite()
 
                 is PubDetailContract.Event.OnImagePageChanged ->
                     setState { copy(currentImageIndex = event.index) }
@@ -88,38 +88,38 @@ class PubDetailViewModel
             }
         }
 
-        private fun toggleWishlist() {
-            if (currentState.isWishlistLoading) return
+        private fun toggleFavorite() {
+            if (currentState.isFavoriteLoading) return
             val detail = currentState.pubDetail ?: return
 
             viewModelScope.launch {
-                setState { copy(isWishlistLoading = true) }
-                if (detail.isWishlisted) {
-                    removeWishlist()
+                setState { copy(isFavoriteLoading = true) }
+                if (detail.isFavoriteed) {
+                    removeFavorite()
                 } else {
-                    addWishlist()
+                    addFavorite()
                 }
             }
         }
 
-        private suspend fun addWishlist() {
+        private suspend fun addFavorite() {
             val detail = currentState.pubDetail ?: return
             favoriteRepository
                 .addFavorite(pubId)
                 .onSuccess { newId ->
                     setState {
                         copy(
-                            isWishlistLoading = false,
+                            isFavoriteLoading = false,
                             favoriteId = newId,
                             pubDetail = detail.copy(
-                                isWishlisted = true,
+                                isFavoriteed = true,
                                 favoriteCount = detail.favoriteCount + 1,
                             ),
                         )
                     }
                     postSideEffect(PubDetailContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
                 }.onFailure { error ->
-                    setState { copy(isWishlistLoading = false) }
+                    setState { copy(isFavoriteLoading = false) }
                     if (error.isHttpConflict()) {
                         loadPubDetail() // 이미 등록된 경우 상태 동기화
                         postSideEffect(PubDetailContract.SideEffect.ShowToast("이미 즐겨찾기한 펍입니다."))
@@ -129,7 +129,7 @@ class PubDetailViewModel
                 }
         }
 
-        private suspend fun removeWishlist() {
+        private suspend fun removeFavorite() {
             // ID가 없는 경우(홈에서 진입 등) 전체 목록에서 조회한다.
             val favoriteId = currentState.favoriteId
                 ?: favoriteRepository
@@ -139,7 +139,7 @@ class PubDetailViewModel
                     ?.favoriteId
 
             if (favoriteId == null) {
-                setState { copy(isWishlistLoading = false) }
+                setState { copy(isFavoriteLoading = false) }
                 loadPubDetail() // 상태 강제 동기화
                 return
             }
@@ -150,17 +150,17 @@ class PubDetailViewModel
                 .onSuccess {
                     setState {
                         copy(
-                            isWishlistLoading = false,
+                            isFavoriteLoading = false,
                             favoriteId = null,
                             pubDetail = detail.copy(
-                                isWishlisted = false,
+                                isFavoriteed = false,
                                 favoriteCount = (detail.favoriteCount - 1).coerceAtLeast(0),
                             ),
                         )
                     }
                     postSideEffect(PubDetailContract.SideEffect.ShowToast("즐겨찾기에서 해제되었습니다."))
                 }.onFailure {
-                    setState { copy(isWishlistLoading = false) }
+                    setState { copy(isFavoriteLoading = false) }
                     postSideEffect(PubDetailContract.SideEffect.ShowToast("즐겨찾기 해제에 실패했습니다."))
                 }
         }
@@ -182,7 +182,7 @@ class PubDetailViewModel
                         setState {
                             copy(
                                 isLoading = false,
-                                pubDetail = detail.copy(isWishlisted = favoriteItem != null),
+                                pubDetail = detail.copy(isFavoriteed = favoriteItem != null),
                                 favoriteId = favoriteItem?.favoriteId,
                             )
                         }

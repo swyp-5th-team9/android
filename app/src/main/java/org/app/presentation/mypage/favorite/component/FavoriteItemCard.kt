@@ -1,4 +1,4 @@
-package org.app.presentation.mypage.wishlist.component
+package org.app.presentation.mypage.favorite.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,11 +27,11 @@ import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
-import org.app.presentation.mypage.wishlist.WishlistItem
+import org.app.presentation.mypage.favorite.FavoritePubItem
 
 @Composable
-fun WishlistItemCard(
-    item: WishlistItem,
+fun FavoriteItemCard(
+    item: FavoritePubItem,
     isEditMode: Boolean,
     isSelected: Boolean,
     onCardClick: () -> Unit,
@@ -54,7 +54,7 @@ fun WishlistItemCard(
                 url = item.thumbnailImageUrl,
                 contentDescription = item.pubName ?: "",
                 contentScale = ContentScale.Crop,
-                placeholderRes = R.drawable.img_wishlist_item,
+                placeholderRes = R.drawable.img_favorite_item,
                 modifier = Modifier.matchParentSize(),
             )
 
@@ -117,10 +117,10 @@ fun WishlistItemCard(
 
 @Preview(name = "편집 모드 - 선택됨", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun WishlistItemCardEditSelectedPreview() {
+private fun FavoriteItemCardEditSelectedPreview() {
     MoballTheme {
-        WishlistItemCard(
-            item = WishlistItem(favoriteId = 1L, pubId = 12L, pubName = "야구펍 홍대점", address = "홍대"),
+        FavoriteItemCard(
+            item = FavoritePubItem(favoriteId = 1L, pubId = 12L, pubName = "야구펍 홍대점", address = "홍대"),
             isEditMode = true,
             isSelected = true,
             onCardClick = {},
@@ -132,10 +132,10 @@ private fun WishlistItemCardEditSelectedPreview() {
 
 @Preview(name = "편집 모드 - 미선택", showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-private fun WishlistItemCardEditUnselectedPreview() {
+private fun FavoriteItemCardEditUnselectedPreview() {
     MoballTheme {
-        WishlistItemCard(
-            item = WishlistItem(favoriteId = 2L, pubId = 15L, pubName = "롯데 응원 맛집", address = "잠실"),
+        FavoriteItemCard(
+            item = FavoritePubItem(favoriteId = 2L, pubId = 15L, pubName = "롯데 응원 맛집", address = "잠실"),
             isEditMode = true,
             isSelected = false,
             onCardClick = {},

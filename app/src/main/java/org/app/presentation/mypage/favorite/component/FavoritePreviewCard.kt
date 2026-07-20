@@ -1,4 +1,4 @@
-package org.app.presentation.mypage.wishlist.component
+package org.app.presentation.mypage.favorite.component
 
 import android.R.attr.maxLines
 import androidx.compose.foundation.background
@@ -23,7 +23,7 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 
 @Composable
-fun WishlistPreviewCard(
+fun FavoritePreviewCard(
     pubName: String?,
     imageUrl: String?,
     onClick: () -> Unit,
@@ -72,9 +72,9 @@ fun WishlistPreviewCard(
 
 @Preview(showBackground = true)
 @Composable
-private fun WishlistPreviewCardPreview() {
+private fun FavoritePreviewCardPreview() {
     MoballTheme {
-        WishlistPreviewCard(
+        FavoritePreviewCard(
             pubName = "버드나무 브루어리",
             imageUrl = null,
             onClick = {},

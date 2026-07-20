@@ -26,13 +26,13 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
-import org.app.presentation.mypage.wishlist.WishlistItem
-import org.app.presentation.mypage.wishlist.component.WishlistPreviewCard
+import org.app.presentation.mypage.favorite.FavoritePubItem
+import org.app.presentation.mypage.favorite.component.FavoritePreviewCard
 
 @Composable
-fun MyPageWishlistSection(
-    wishlistItems: List<WishlistItem>,
-    onWishlistClick: () -> Unit,
+fun MyPageFavoriteSection(
+    favoriteItems: List<FavoritePubItem>,
+    onFavoriteClick: () -> Unit,
     onPubClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -55,13 +55,13 @@ fun MyPageWishlistSection(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_standard),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.noRippleClickable { onWishlistClick() },
+                modifier = Modifier.noRippleClickable { onFavoriteClick() },
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (wishlistItems.isEmpty()) {
+        if (favoriteItems.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,14 +82,14 @@ fun MyPageWishlistSection(
                 Spacer(modifier = Modifier.height(74.dp))
             }
         } else {
-            val previewItems = remember(wishlistItems) { wishlistItems.take(5) }
+            val previewItems = remember(favoriteItems) { favoriteItems.take(5) }
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp),
             ) {
                 items(previewItems, key = { it.favoriteId }) { item ->
-                    WishlistPreviewCard(
+                    FavoritePreviewCard(
                         pubName = item.pubName,
                         imageUrl = item.thumbnailImageUrl,
                         onClick = { onPubClick(item.pubId.toString()) },
@@ -102,11 +102,11 @@ fun MyPageWishlistSection(
 
 @Preview(showBackground = true)
 @Composable
-private fun MyPageWishlistSectionEmptyPreview() {
+private fun MyPageFavoriteSectionEmptyPreview() {
     MoballTheme {
-        MyPageWishlistSection(
-            wishlistItems = emptyList(),
-            onWishlistClick = {},
+        MyPageFavoriteSection(
+            favoriteItems = emptyList(),
+            onFavoriteClick = {},
             onPubClick = {},
         )
     }
@@ -114,15 +114,15 @@ private fun MyPageWishlistSectionEmptyPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun MyPageWishlistSectionPreview() {
+private fun MyPageFavoriteSectionPreview() {
     MoballTheme {
-        MyPageWishlistSection(
-            wishlistItems = listOf(
-                WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
-                WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
-                WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
+        MyPageFavoriteSection(
+            favoriteItems = listOf(
+                FavoritePubItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
+                FavoritePubItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
+                FavoritePubItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),
             ),
-            onWishlistClick = {},
+            onFavoriteClick = {},
             onPubClick = {},
         )
     }

@@ -10,7 +10,7 @@ import org.app.data.repository.api.AuthRepository
 import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.UserRepository
 import org.app.domain.model.KboTeamType
-import org.app.presentation.mypage.wishlist.WishlistItem
+import org.app.presentation.mypage.favorite.FavoritePubItem
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -33,8 +33,8 @@ class MyPageViewModel
                 MyPageContract.Event.OnEditProfileClick ->
                     postSideEffect(MyPageContract.SideEffect.NavigateToEditProfile)
 
-                MyPageContract.Event.OnWishlistClick ->
-                    postSideEffect(MyPageContract.SideEffect.NavigateToWishlist)
+                MyPageContract.Event.OnFavoriteClick ->
+                    postSideEffect(MyPageContract.SideEffect.NavigateToFavorite)
 
                 MyPageContract.Event.OnReportClick ->
                     postSideEffect(MyPageContract.SideEffect.NavigateToReport)
@@ -76,7 +76,7 @@ class MyPageViewModel
                                     Timber.w("즐겨찾기 조회 실패: $error")
                                     emptyList()
                                 }.map {
-                                    WishlistItem(
+                                    FavoritePubItem(
                                         favoriteId = it.favoriteId,
                                         pubId = it.pubId,
                                         pubName = it.pubName,
@@ -91,7 +91,7 @@ class MyPageViewModel
                                 nickname = user.nickname,
                                 profileImageUrl = user.profileImageUrl,
                                 supportedTeams = user.favoriteTeams.map { team -> team.teamName }.toImmutableList(),
-                                wishlistItems = favorites.toImmutableList(),
+                                favoriteItems = favorites.toImmutableList(),
                             )
                         }
                     }.onFailure { error ->

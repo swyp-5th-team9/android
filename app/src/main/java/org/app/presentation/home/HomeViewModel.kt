@@ -325,11 +325,11 @@ class HomeViewModel
                 pubRepository
                     .getPubDetail(pubId)
                     .onSuccess { detail ->
-                        val isWishlisted = currentState.favoritePubIds.contains(pubId)
+                        val isFavoriteed = currentState.favoritePubIds.contains(pubId)
                         setState {
                             copy(
                                 isPubDetailLoading = false,
-                                selectedPubDetail = detail.copy(isWishlisted = isWishlisted),
+                                selectedPubDetail = detail.copy(isFavoriteed = isFavoriteed),
                             )
                         }
                     }.onFailure { error ->
@@ -379,11 +379,11 @@ class HomeViewModel
             updateSelectedDetail: Boolean,
         ) {
             if (currentState.isPubFavoriteLoading) return
-            val isWishlisted = currentState.favoritePubIds.contains(pubId)
+            val isFavoriteed = currentState.favoritePubIds.contains(pubId)
 
             viewModelScope.launch {
                 setState { copy(isPubFavoriteLoading = true) }
-                if (isWishlisted) {
+                if (isFavoriteed) {
                     val favoriteId = currentState.favoriteIdMap[pubId]
                     if (favoriteId == null) {
                         loadFavoritePubIds()
@@ -428,7 +428,7 @@ class HomeViewModel
                 val delta = if (isFavorite) 1 else -1
                 val newDetail = selectedPubDetail?.takeIf { updateSelectedDetail && it.pubId == pubId }?.let {
                     it.copy(
-                        isWishlisted = isFavorite,
+                        isFavoriteed = isFavorite,
                         favoriteCount = (it.favoriteCount + delta).coerceAtLeast(0),
                     )
                 } ?: selectedPubDetail

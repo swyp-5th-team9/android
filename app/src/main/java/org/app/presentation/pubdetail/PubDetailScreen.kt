@@ -123,9 +123,9 @@ internal fun PubDetailScreen(
                     isHoursExpanded = state.isHoursExpanded,
                     onHoursToggle = { onEvent(PubDetailContract.Event.OnHoursToggle) },
                     onPhoneCall = { onEvent(PubDetailContract.Event.OnPhoneCall) },
-                    isWished = detail.isWishlisted,
+                    isWished = detail.isFavoriteed,
                     favoriteCount = detail.favoriteCount,
-                    onWishToggle = { onEvent(PubDetailContract.Event.OnWishlistToggle) },
+                    onWishToggle = { onEvent(PubDetailContract.Event.OnFavoriteToggle) },
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -207,7 +207,7 @@ private fun PubDetailScreenPreview() {
                         BusinessHour(7, null, null, true),
                     ),
                     menus = emptyList(),
-                    isWishlisted = false,
+                    isFavoriteed = false,
                 ),
             ),
             onEvent = {},

@@ -1,4 +1,4 @@
-package org.app.presentation.mypage.wishlist.component
+package org.app.presentation.mypage.favorite.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,7 +19,7 @@ import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 
 @Composable
-fun WishlistEditButton(
+fun FavoriteEditButton(
     hasSelection: Boolean,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
@@ -75,9 +75,9 @@ fun WishlistEditButton(
 
 @Preview
 @Composable
-private fun WishlistEditButtonPreview() {
+private fun FavoriteEditButtonPreview() {
     MoballTheme {
-        WishlistEditButton(
+        FavoriteEditButton(
             hasSelection = true,
             onCancel = {},
             onDelete = {},

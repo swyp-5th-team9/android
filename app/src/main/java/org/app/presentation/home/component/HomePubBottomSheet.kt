@@ -524,14 +524,14 @@ private fun PubDetailContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(
-                        if (detail?.isWishlisted == true) {
+                        if (detail?.isFavoriteed == true) {
                             R.drawable.ic_heart_fill
                         } else {
                             R.drawable.ic_heart
                         },
                     ),
-                    contentDescription = "찜",
-                    tint = if (detail?.isWishlisted == true) {
+                    contentDescription = "즐겨찾기",
+                    tint = if (detail?.isFavoriteed == true) {
                         MoballTheme.colors.iconPrimary
                     } else {
                         MoballTheme.colors.textSecondary
@@ -695,7 +695,7 @@ private fun HomePubDetailBottomSheetPreview() {
             ),
         ),
         menus = emptyList(),
-        isWishlisted = false,
+        isFavoriteed = false,
     )
 
     MoballTheme {
