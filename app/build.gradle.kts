@@ -101,6 +101,13 @@ android {
     }
 }
 
+// Compose 컴파일러 안정성/skippability 리포트 (build/compose_compiler 에 출력)
+// 측정 전용 — 릴리스 산출물에는 영향 없음. `./gradlew :app:assembleRelease` 후 리포트 확인.
+composeCompiler {
+    metricsDestination = layout.buildDirectory.dir("compose_compiler")
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
