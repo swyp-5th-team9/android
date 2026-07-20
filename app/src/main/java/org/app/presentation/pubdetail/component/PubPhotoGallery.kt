@@ -53,7 +53,6 @@ fun PubPhotoGallery(
             .fillMaxSize()
             .background(Color.Black),
     ) {
-        // Full-screen pager
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -73,7 +72,6 @@ fun PubPhotoGallery(
             }
         }
 
-        // Top bar: close + counter
         Row(
             modifier = Modifier
                 .fillMaxWidth()

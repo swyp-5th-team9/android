@@ -197,7 +197,6 @@ private fun EditProfileScreen(
                     )
                 }
             }
-            // 하단 여백 확보
             Spacer(modifier = Modifier.height(30.dp))
         }
 
