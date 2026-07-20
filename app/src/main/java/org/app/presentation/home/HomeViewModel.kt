@@ -33,6 +33,11 @@ private const val CLUSTER_ZOOM_THRESHOLD = 13.0
 /** 클러스터링 그리드 크기 (위경도 단위) */
 private const val CLUSTER_GRID_SIZE = 0.05
 
+// 외부 지도 앱 딥링크 스킴 및 웹 폴백
+private const val KAKAO_MAP_SCHEME = "kakaomap"
+private const val NAVER_MAP_SCHEME = "nmap"
+private const val NAVER_MAP_APP_NAME = "org.app"
+
 @HiltViewModel
 class HomeViewModel
     @Inject
@@ -169,8 +174,8 @@ class HomeViewModel
                         "https://map.kakao.com/link/map/${event.name},${event.lat},${event.lng}"
                     postSideEffect(
                         HomeContract.SideEffect.OpenMap(
-                            url = "kakaomap://look?p=${event.lat},${event.lng}",
-                            appScheme = "kakaomap",
+                            url = "$KAKAO_MAP_SCHEME://look?p=${event.lat},${event.lng}",
+                            appScheme = KAKAO_MAP_SCHEME,
                             webFallbackUrl = kakaoFallback,
                         ),
                     )
@@ -178,12 +183,12 @@ class HomeViewModel
 
                 is HomeContract.Event.OnNaverMapClick -> {
                     val naverUrl =
-                        "nmap://place?lat=${event.lat}&lng=${event.lng}" +
-                            "&name=${event.name}&appname=org.app"
+                        "$NAVER_MAP_SCHEME://place?lat=${event.lat}&lng=${event.lng}" +
+                            "&name=${event.name}&appname=$NAVER_MAP_APP_NAME"
                     postSideEffect(
                         HomeContract.SideEffect.OpenMap(
                             url = naverUrl,
-                            appScheme = "nmap",
+                            appScheme = NAVER_MAP_SCHEME,
                             webFallbackUrl = "https://map.naver.com/v5/search/${event.name}",
                         ),
                     )
