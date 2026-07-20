@@ -2,6 +2,10 @@ package org.app.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
@@ -104,7 +108,7 @@ class HomeViewModel
                     }
 
                 HomeContract.Event.OnPubListSheetDismiss ->
-                    setState { copy(showPubListSheet = false, selectedPubList = emptyList()) }
+                    setState { copy(showPubListSheet = false, selectedPubList = persistentListOf()) }
 
                 HomeContract.Event.OnFavoriteClick -> {
                     val detail = currentState.selectedPubDetail ?: return
@@ -205,7 +209,7 @@ class HomeViewModel
                     setState {
                         copy(
                             showPubListSheet = event.cluster.items.isNotEmpty(),
-                            selectedPubList = event.cluster.items,
+                            selectedPubList = event.cluster.items.toImmutableList(),
                         )
                     }
             }
@@ -230,7 +234,7 @@ class HomeViewModel
                         foodCodes = filter.foodCodes,
                         size = 50,
                     ).onSuccess { page ->
-                        setState { copy(pubListItems = page.content) }
+                        setState { copy(pubListItems = page.content.toImmutableList()) }
                         // 필터 결과(bbox 무관)가 비면 안내 토스트
                         if (showEmptyToast && page.content.isEmpty()) {
                             postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
@@ -246,8 +250,8 @@ class HomeViewModel
                     .onSuccess { user ->
                         setState {
                             copy(
-                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId },
-                                userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName },
+                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId }.toImmutableList(),
+                                userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName }.toImmutableList(),
                             )
                         }
                     }.onFailure { Timber.e("응원 구단 로드 실패: $it") }
@@ -261,7 +265,10 @@ class HomeViewModel
                     .onSuccess { items ->
                         val idMap = items.associate { it.pubId to it.favoriteId }
                         setState {
-                            copy(favoritePubIds = idMap.keys, favoriteIdMap = idMap).withOverlays()
+                            copy(
+                                favoritePubIds = idMap.keys.toImmutableSet(),
+                                favoriteIdMap = idMap.toImmutableMap(),
+                            ).withOverlays()
                         }
                     }.onFailure { Timber.e("찜 목록 로드 실패: $it") }
             }
@@ -290,7 +297,7 @@ class HomeViewModel
                         themeCodes = filter.themeCodes,
                         foodCodes = filter.foodCodes,
                     ).onSuccess { items ->
-                        setState { copy(isLoading = false, pubMapItems = items).withOverlays() }
+                        setState { copy(isLoading = false, pubMapItems = items.toImmutableList()).withOverlays() }
                         if (showEmptyToast && items.isEmpty()) {
                             postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
                         }
@@ -352,7 +359,7 @@ class HomeViewModel
                 pubRepository
                     .getPubDetail(pubId)
                     .onSuccess { detail ->
-                        setState { copy(listPubDetails = listPubDetails + (pubId to detail)) }
+                        setState { copy(listPubDetails = (listPubDetails + (pubId to detail)).toImmutableMap()) }
                     }
                 loadingListDetailIds.remove(pubId)
             }
@@ -429,19 +436,21 @@ class HomeViewModel
                 copy(
                     isPubFavoriteLoading = false,
                     selectedPubDetail = newDetail,
-                    favoritePubIds = if (isFavorite) favoritePubIds + pubId else favoritePubIds - pubId,
+                    favoritePubIds = (if (isFavorite) favoritePubIds + pubId else favoritePubIds - pubId)
+                        .toImmutableSet(),
                     favoriteIdMap = if (isFavorite && newFavoriteId != null) {
-                        favoriteIdMap + (pubId to newFavoriteId)
+                        (favoriteIdMap + (pubId to newFavoriteId)).toImmutableMap()
                     } else {
-                        favoriteIdMap - pubId
+                        (favoriteIdMap - pubId).toImmutableMap()
                     },
-                    pubMapItems = pubMapItems.map { item ->
-                        if (item.pubId == pubId) {
-                            item.copy(favoriteCount = (item.favoriteCount + delta).coerceAtLeast(0))
-                        } else {
-                            item
-                        }
-                    },
+                    pubMapItems = pubMapItems
+                        .map { item ->
+                            if (item.pubId == pubId) {
+                                item.copy(favoriteCount = (item.favoriteCount + delta).coerceAtLeast(0))
+                            } else {
+                                item
+                            }
+                        }.toImmutableList(),
                 ).withOverlays()
             }
         }
@@ -470,9 +479,15 @@ class HomeViewModel
          */
         private fun HomeContract.State.withOverlays(): HomeContract.State =
             if (zoom > CLUSTER_ZOOM_THRESHOLD) {
-                copy(pubMarkers = pubMapItems.toMarkers(favoritePubIds), pubClusters = emptyList())
+                copy(
+                    pubMarkers = pubMapItems.toMarkers(favoritePubIds).toImmutableList(),
+                    pubClusters = persistentListOf(),
+                )
             } else {
-                copy(pubMarkers = emptyList(), pubClusters = pubMapItems.toClusters())
+                copy(
+                    pubMarkers = persistentListOf(),
+                    pubClusters = pubMapItems.toClusters().toImmutableList(),
+                )
             }
 
         private fun List<PubMapItem>.toMarkers(favoriteIds: Set<Long>): List<PubMarker> =

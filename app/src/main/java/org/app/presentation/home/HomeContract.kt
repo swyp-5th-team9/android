@@ -1,5 +1,11 @@
 package org.app.presentation.home
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
 import org.app.data.model.PubDetail
 import org.app.data.model.PubListItem
 import org.app.data.model.PubMapItem
@@ -11,18 +17,18 @@ interface HomeContract {
     data class State(
         val isLoading: Boolean = false,
         val zoom: Double = DEFAULT_ZOOM,
-        val pubMarkers: List<PubMarker> = emptyList(),
-        val pubClusters: List<PubCluster> = emptyList(),
-        val pubMapItems: List<PubMapItem> = emptyList(),
-        val pubListItems: List<PubListItem> = emptyList(),
-        val selectedPubList: List<PubMapItem> = emptyList(),
+        val pubMarkers: ImmutableList<PubMarker> = persistentListOf(),
+        val pubClusters: ImmutableList<PubCluster> = persistentListOf(),
+        val pubMapItems: ImmutableList<PubMapItem> = persistentListOf(),
+        val pubListItems: ImmutableList<PubListItem> = persistentListOf(),
+        val selectedPubList: ImmutableList<PubMapItem> = persistentListOf(),
         // 리스트 바텀시트용 lazy 상세 캐시 (지도 API엔 영업시간이 없어, 보이는 항목만 상세를 받아 영업상태/시간 표시)
-        val listPubDetails: Map<Long, PubDetail> = emptyMap(),
+        val listPubDetails: ImmutableMap<Long, PubDetail> = persistentMapOf(),
         val filter: HomeFilter = HomeFilter(),
-        val userFavoriteTeamIds: List<Long> = emptyList(),
-        val userFavoriteTeamNames: List<String> = emptyList(),
-        val favoritePubIds: Set<Long> = emptySet(),
-        val favoriteIdMap: Map<Long, Long> = emptyMap(), // pubId -> favoriteId
+        val userFavoriteTeamIds: ImmutableList<Long> = persistentListOf(),
+        val userFavoriteTeamNames: ImmutableList<String> = persistentListOf(),
+        val favoritePubIds: ImmutableSet<Long> = persistentSetOf(),
+        val favoriteIdMap: ImmutableMap<Long, Long> = persistentMapOf(), // pubId -> favoriteId
         val showFilterBottomSheet: Boolean = false,
         val filterBottomSheetTab: FilterBottomSheetTab = FilterBottomSheetTab.TEAM,
         val showPubListSheet: Boolean = false,
