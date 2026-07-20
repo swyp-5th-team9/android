@@ -2,6 +2,8 @@ package org.app.presentation.home.homesearch
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -50,7 +52,7 @@ class HomeSearchViewModel
 
         private fun search(query: String) {
             if (query.isBlank()) {
-                setState { copy(results = emptyList(), isEmpty = false, isLoading = false) }
+                setState { copy(results = persistentListOf(), isEmpty = false, isLoading = false) }
                 return
             }
             viewModelScope.launch {
@@ -66,11 +68,11 @@ class HomeSearchViewModel
                             )
                         }
                         setState {
-                            copy(isLoading = false, results = results, isEmpty = results.isEmpty())
+                            copy(isLoading = false, results = results.toImmutableList(), isEmpty = results.isEmpty())
                         }
                     }.onFailure { error ->
                         Timber.e("검색 실패: $error")
-                        setState { copy(isLoading = false, results = emptyList(), isEmpty = true) }
+                        setState { copy(isLoading = false, results = persistentListOf(), isEmpty = true) }
                     }
             }
         }
