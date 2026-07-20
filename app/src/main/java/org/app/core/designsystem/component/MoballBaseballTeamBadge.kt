@@ -9,27 +9,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.presentation.pubdetail.model.KboTeamType
 
 @Composable
-fun MoballBaseBallTeamBadge(
+fun MoballBaseballTeamBadge(
     teamName: String,
     modifier: Modifier = Modifier,
 ) {
-    val teamIconRes = when (teamName) {
-        "LG" -> R.drawable.img_lg
-        "KT" -> R.drawable.img_kt
-        "삼성" -> R.drawable.img_samsung
-        "한화" -> R.drawable.img_hanwha
-        "KIA" -> R.drawable.img_kia
-        "두산" -> R.drawable.img_doosan
-        "NC" -> R.drawable.img_nc
-        "SSG" -> R.drawable.img_ssg
-        "롯데" -> R.drawable.img_lotte
-        "키움" -> R.drawable.img_kiwoom
-        else -> null
-    }
+    // 매칭 실패(ALL 포함) 시 logoRes가 null → 팀명 텍스트로 대체
+    val teamIconRes = KboTeamType.fromShortName(teamName).logoRes
 
     if (teamIconRes != null) {
         Image(
