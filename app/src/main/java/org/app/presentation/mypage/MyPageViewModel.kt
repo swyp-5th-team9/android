@@ -2,6 +2,7 @@ package org.app.presentation.mypage
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
@@ -89,8 +90,8 @@ class MyPageViewModel
                                 isLoading = false,
                                 nickname = user.nickname,
                                 profileImageUrl = user.profileImageUrl,
-                                supportedTeams = user.favoriteTeams.map { team -> team.teamName },
-                                wishlistItems = favorites,
+                                supportedTeams = user.favoriteTeams.map { team -> team.teamName }.toImmutableList(),
+                                wishlistItems = favorites.toImmutableList(),
                             )
                         }
                     }.onFailure { error ->
@@ -110,7 +111,7 @@ class MyPageViewModel
                 userRepository
                     .patchUser(teamIds = teamIds)
                     .onSuccess {
-                        setState { copy(isLoading = false, supportedTeams = teams) }
+                        setState { copy(isLoading = false, supportedTeams = teams.toImmutableList()) }
                     }.onFailure { error ->
                         setState { copy(isLoading = false) }
                         postSideEffect(MyPageContract.SideEffect.ShowToast("정보 수정에 실패했습니다."))

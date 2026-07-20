@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.BuildConfig
 import com.moball.app.R
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -312,7 +313,7 @@ private fun MyPageScreenPreview() {
         MyPageScreen(
             state = MyPageContract.State(
                 nickname = "닉네임",
-                supportedTeams = listOf("한화", "KT", "삼성"),
+                supportedTeams = persistentListOf("한화", "KT", "삼성"),
             ),
             isTeamSheetVisible = false,
             onEvent = {},
@@ -330,8 +331,8 @@ private fun MyPageScreenWithWishlistPreview() {
         MyPageScreen(
             state = MyPageContract.State(
                 nickname = "닉네임",
-                supportedTeams = listOf("한화", "KT", "삼성"),
-                wishlistItems = listOf(
+                supportedTeams = persistentListOf("한화", "KT", "삼성"),
+                wishlistItems = persistentListOf(
                     WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "버드나무 브루어리", address = "강릉"),
                     WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "데블스도어", address = "고속터미널"),
                     WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "플레이볼", address = "홍대"),

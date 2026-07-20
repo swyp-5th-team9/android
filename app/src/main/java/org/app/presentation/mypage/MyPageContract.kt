@@ -1,13 +1,15 @@
 package org.app.presentation.mypage
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.app.presentation.mypage.wishlist.WishlistItem
 
 interface MyPageContract {
     data class State(
         val nickname: String = "",
         val profileImageUrl: String? = null,
-        val supportedTeams: List<String> = emptyList(),
-        val wishlistItems: List<WishlistItem> = emptyList(),
+        val supportedTeams: ImmutableList<String> = persistentListOf(),
+        val wishlistItems: ImmutableList<WishlistItem> = persistentListOf(),
         val isLoading: Boolean = false,
     )
 
