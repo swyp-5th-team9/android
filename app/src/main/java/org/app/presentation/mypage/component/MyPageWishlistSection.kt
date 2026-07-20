@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -81,12 +82,13 @@ fun MyPageWishlistSection(
                 Spacer(modifier = Modifier.height(74.dp))
             }
         } else {
+            val previewItems = remember(wishlistItems) { wishlistItems.take(5) }
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp),
             ) {
-                items(wishlistItems.take(5)) { item ->
+                items(previewItems, key = { it.favoriteId }) { item ->
                     WishlistPreviewCard(
                         pubName = item.pubName,
                         imageUrl = item.thumbnailImageUrl,
