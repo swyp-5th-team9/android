@@ -3,6 +3,7 @@ package org.app.presentation.onboarding.signup
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.UserRepository
@@ -50,7 +51,7 @@ class SignUpViewModel
                         } else if (canSelectMoreTeams) {
                             ids.add(event.teamId)
                         }
-                        copy(selectedTeamIds = ids)
+                        copy(selectedTeamIds = ids.toImmutableSet())
                     }
                 }
 

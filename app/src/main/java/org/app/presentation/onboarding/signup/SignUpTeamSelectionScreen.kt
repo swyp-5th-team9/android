@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentSetOf
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
@@ -172,7 +173,7 @@ private fun TeamSelectionScreenSelectedPreview() {
         SignUpTeamSelectionScreen(
             state = SignUpContract.State(
                 nickname = "홍길동",
-                selectedTeamIds = setOf(1, 6),
+                selectedTeamIds = persistentSetOf(1, 6),
             ),
             onTeamToggled = {},
             onConfirmClick = {},
