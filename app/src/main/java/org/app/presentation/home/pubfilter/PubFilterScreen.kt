@@ -191,14 +191,14 @@ internal fun PubFilterScreen(
                         color = MoballTheme.colors.textPrimary,
                     )
 
-                    sectionMap["business"]?.let { s ->
+                    sectionMap[FilterSectionId.BUSINESS]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
                             onToggle = { id -> onEvent(PubFilterContract.Event.OnOptionToggle(s.sectionId, id)) },
                         )
                     }
-                    sectionMap["business_day"]?.let { s ->
+                    sectionMap[FilterSectionId.BUSINESS_DAY]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
@@ -217,7 +217,7 @@ internal fun PubFilterScreen(
                         style = MoballTheme.typography.heading3.bold20,
                         color = MoballTheme.colors.textPrimary,
                     )
-                    sectionMap["team"]?.let { s ->
+                    sectionMap[FilterSectionId.TEAM]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
@@ -241,21 +241,21 @@ internal fun PubFilterScreen(
                         color = MoballTheme.colors.textPrimary,
                     )
 
-                    sectionMap["style_broadcast"]?.let { s ->
+                    sectionMap[FilterSectionId.STYLE_BROADCAST]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
                             onToggle = { id -> onEvent(PubFilterContract.Event.OnOptionToggle(s.sectionId, id)) },
                         )
                     }
-                    sectionMap["style_facility"]?.let { s ->
+                    sectionMap[FilterSectionId.STYLE_FACILITY]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
                             onToggle = { id -> onEvent(PubFilterContract.Event.OnOptionToggle(s.sectionId, id)) },
                         )
                     }
-                    sectionMap["style_theme"]?.let { s ->
+                    sectionMap[FilterSectionId.STYLE_THEME]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
@@ -277,7 +277,7 @@ internal fun PubFilterScreen(
                         style = MoballTheme.typography.heading3.bold20,
                         color = MoballTheme.colors.textPrimary,
                     )
-                    sectionMap["food"]?.let { s ->
+                    sectionMap[FilterSectionId.FOOD]?.let { s ->
                         PubFilterSection(
                             section = s,
                             selectedOptionIds = state.selectedOptions[s.sectionId] ?: emptySet(),
