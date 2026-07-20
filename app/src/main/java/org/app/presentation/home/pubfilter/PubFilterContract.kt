@@ -1,5 +1,8 @@
 package org.app.presentation.home.pubfilter
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import org.app.data.model.TeamItem
 import org.app.domain.model.KboTeamType
 import org.app.presentation.home.model.PubFilterOption
@@ -9,8 +12,8 @@ import org.app.presentation.home.model.SeoulRegion
 interface PubFilterContract {
     data class State(
         /** GET /api/v1/teams 응답 — 로드 후 team 섹션을 동적으로 구성 */
-        val teams: List<TeamItem> = emptyList(),
-        val sections: List<PubFilterSection> = defaultSections(),
+        val teams: ImmutableList<TeamItem> = persistentListOf(),
+        val sections: ImmutableList<PubFilterSection> = defaultSections(),
         /** sectionId → Set<optionId> */
         val selectedOptions: Map<String, Set<String>> = emptyMap(),
         val isLoading: Boolean = false,
@@ -19,7 +22,7 @@ interface PubFilterContract {
             get() = selectedOptions.values.any { it.isNotEmpty() }
 
         /** teams 로드 후 team 섹션 옵션을 동적으로 교체한 섹션 목록 */
-        val resolvedSections: List<PubFilterSection>
+        val resolvedSections: ImmutableList<PubFilterSection>
             get() {
                 if (teams.isEmpty()) return sections
                 val teamSection = PubFilterSection(
@@ -28,7 +31,7 @@ interface PubFilterContract {
                     options = listOf(PubFilterOption("all", "KBO 전체")) +
                         teams.map { PubFilterOption(it.teamId.toString(), it.shortName) },
                 )
-                return sections.map { if (it.sectionId == FilterSectionId.TEAM) teamSection else it }
+                return sections.map { if (it.sectionId == FilterSectionId.TEAM) teamSection else it }.toImmutableList()
             }
     }
 
@@ -87,8 +90,8 @@ internal val CITIES: List<CityOption> = listOf(
     CityOption("busan", "부산", isEnabled = false),
 )
 
-private fun defaultSections(): List<PubFilterSection> =
-    listOf(
+private fun defaultSections(): ImmutableList<PubFilterSection> =
+    persistentListOf(
         PubFilterSection(
             sectionId = FilterSectionId.REGION,
             title = "지역",

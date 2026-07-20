@@ -2,6 +2,7 @@ package org.app.presentation.home.pubfilter
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.TeamRepository
@@ -114,10 +115,11 @@ class PubFilterViewModel
                                     },
                             )
                             copy(
-                                teams = teams,
-                                sections = sections.map { s ->
-                                    if (s.sectionId == FilterSectionId.TEAM) teamSection else s
-                                },
+                                teams = teams.toImmutableList(),
+                                sections = sections
+                                    .map { s ->
+                                        if (s.sectionId == FilterSectionId.TEAM) teamSection else s
+                                    }.toImmutableList(),
                             )
                         }
                     }.onFailure {
