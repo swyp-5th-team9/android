@@ -1,13 +1,15 @@
 package org.app.presentation.mypage.report
 
 import android.net.Uri
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 interface ReportContract {
     data class State(
         val pubId: Long? = null,
         val selectedCategory: ReportCategory = ReportCategory.PUB_INFO,
         val detailText: String = "",
-        val imageUris: List<Uri> = emptyList(),
+        val imageUris: ImmutableList<Uri> = persistentListOf(),
         val isSubmitting: Boolean = false,
         val detailError: String? = null,
     ) {
