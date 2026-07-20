@@ -264,7 +264,7 @@ private fun ReportScreen(
                     }
                 }
 
-                items(state.imageUris) { uri ->
+                items(state.imageUris, key = { it.toString() }) { uri ->
                     Box(modifier = Modifier.size(60.dp)) {
                         UrlImage(
                             url = uri.toString(),
