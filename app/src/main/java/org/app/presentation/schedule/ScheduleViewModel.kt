@@ -2,6 +2,7 @@ package org.app.presentation.schedule
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
@@ -80,7 +81,7 @@ class ScheduleViewModel
                 teamRepository
                     .getTeams(sportType = "KBO")
                     .onSuccess { teams ->
-                        setState { copy(teams = teams) }
+                        setState { copy(teams = teams.toImmutableList()) }
                     }.onFailure {
                         postSideEffect(ScheduleContract.SideEffect.ShowToast("팀 정보를 불러오는데 실패했습니다."))
                     }
@@ -97,7 +98,7 @@ class ScheduleViewModel
                         from = yearMonth.atDay(1).toString(),
                         to = yearMonth.atEndOfMonth().toString(),
                     ).onSuccess { games ->
-                        setState { copy(games = games, isLoading = false) }
+                        setState { copy(games = games.toImmutableList(), isLoading = false) }
                     }.onFailure {
                         setState { copy(isLoading = false) }
                         postSideEffect(ScheduleContract.SideEffect.ShowToast("경기 일정을 불러오는데 실패했습니다."))

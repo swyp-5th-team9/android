@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentListOf
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -176,7 +177,7 @@ private fun ScheduleScreenWithGamesPreview() {
         ScheduleScreen(
             state = ScheduleContract.State(
                 selectedDate = today,
-                games = listOf(
+                games = persistentListOf(
                     GameSchedule(
                         gameId = "1",
                         date = today,
