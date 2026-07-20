@@ -5,6 +5,8 @@
 같은 팀을 응원하는 팬들과 함께 야구를 즐길 수 있는 스포츠 펍을 지도 기반으로 탐색하고,
 KBO 경기 일정에 맞춰 내가 응원하는 구단 경기를 상영해주는 펍을 찾아볼 수 있는 안드로이드 앱입니다.
 
+<img width="483" height="232" alt="image" src="https://github.com/user-attachments/assets/d8f5fde9-2f69-49af-9ce6-a518b6563822" />
+
 <br>
 
 ### 🗺️ 주요 기능
@@ -77,7 +79,4 @@ app/src/main/java/org/app/
 <br>
 
 ## 👩‍💻 Developer
-
-| 이름 | 역할 |
-|------|------|
-| 한유빈 | Android(developer) |
+한유빈  Android(developer)
