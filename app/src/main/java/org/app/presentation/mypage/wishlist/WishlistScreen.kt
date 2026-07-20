@@ -156,6 +156,7 @@ private fun WishlistScreen(
                     )
                 }
             } else {
+                val rows = remember(state.items) { state.items.chunked(3) }
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
@@ -175,7 +176,7 @@ private fun WishlistScreen(
                         )
                     }
 
-                    items(state.items.chunked(3)) { rowItems ->
+                    items(rows, key = { row -> row.first().favoriteId }) { rowItems ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
