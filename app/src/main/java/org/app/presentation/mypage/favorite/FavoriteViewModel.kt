@@ -1,19 +1,22 @@
-package org.app.presentation.mypage.wishlist
+package org.app.presentation.mypage.favorite
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.FavoriteRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class WishlistViewModel
+class FavoriteViewModel
     @Inject
     constructor(
         private val favoriteRepository: FavoriteRepository,
-    ) : BaseViewModel<WishlistContract.State, WishlistContract.Event, WishlistContract.SideEffect>(
-            WishlistContract.State(),
+    ) : BaseViewModel<FavoriteContract.State, FavoriteContract.Event, FavoriteContract.SideEffect>(
+            FavoriteContract.State(),
         ) {
         private val pendingHeartIds = mutableSetOf<Long>()
         private var firstResumePending = true
@@ -22,21 +25,21 @@ class WishlistViewModel
             loadFavorites()
         }
 
-        override fun onEvent(event: WishlistContract.Event) {
+        override fun onEvent(event: FavoriteContract.Event) {
             when (event) {
-                WishlistContract.Event.OnRefresh -> {
+                FavoriteContract.Event.OnRefresh -> {
                     refresh()
                 }
 
-                WishlistContract.Event.OnEditClick -> {
-                    setState { copy(isEditMode = !isEditMode, selectedIds = emptySet()) }
+                FavoriteContract.Event.OnEditClick -> {
+                    setState { copy(isEditMode = !isEditMode, selectedIds = persistentSetOf()) }
                 }
 
-                WishlistContract.Event.OnCancelEdit -> {
-                    setState { copy(isEditMode = false, selectedIds = emptySet()) }
+                FavoriteContract.Event.OnCancelEdit -> {
+                    setState { copy(isEditMode = false, selectedIds = persistentSetOf()) }
                 }
 
-                WishlistContract.Event.OnDeleteSelected -> {
+                FavoriteContract.Event.OnDeleteSelected -> {
                     val favoriteIds = currentState.selectedIds.toList()
                     if (favoriteIds.isEmpty()) return
                     viewModelScope.launch {
@@ -46,31 +49,31 @@ class WishlistViewModel
                             .onSuccess {
                                 setState {
                                     copy(
-                                        items = items.filter { it.favoriteId !in favoriteIds },
-                                        selectedIds = emptySet(),
+                                        items = items.filter { it.favoriteId !in favoriteIds }.toImmutableList(),
+                                        selectedIds = persistentSetOf(),
                                         isEditMode = false,
                                         isLoading = false,
                                     )
                                 }
                                 postSideEffect(
-                                    WishlistContract.SideEffect.ShowToast("${favoriteIds.size}개의 펍이 삭제되었습니다."),
+                                    FavoriteContract.SideEffect.ShowToast("${favoriteIds.size}개의 펍이 삭제되었습니다."),
                                 )
                             }.onFailure { e ->
                                 setState { copy(isLoading = false) }
-                                postSideEffect(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
+                                postSideEffect(FavoriteContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
                             }
                     }
                 }
 
-                is WishlistContract.Event.OnToggleSelect -> {
+                is FavoriteContract.Event.OnToggleSelect -> {
                     setState {
                         val ids = selectedIds.toMutableSet()
                         if (event.favoriteId in ids) ids.remove(event.favoriteId) else ids.add(event.favoriteId)
-                        copy(selectedIds = ids)
+                        copy(selectedIds = ids.toImmutableSet())
                     }
                 }
 
-                is WishlistContract.Event.OnHeartClick -> {
+                is FavoriteContract.Event.OnHeartClick -> {
                     if (currentState.isEditMode) return
                     if (!pendingHeartIds.add(event.favoriteId)) return
                     viewModelScope.launch {
@@ -79,13 +82,18 @@ class WishlistViewModel
                                 .deleteFavorites(listOf(event.favoriteId))
                                 .onSuccess {
                                     setState {
-                                        copy(items = items.filter { it.favoriteId != event.favoriteId })
+                                        copy(
+                                            items = items
+                                                .filter {
+                                                    it.favoriteId != event.favoriteId
+                                                }.toImmutableList(),
+                                        )
                                     }
                                     postSideEffect(
-                                        WishlistContract.SideEffect.ShowToast("1개의 펍이 삭제되었습니다."),
+                                        FavoriteContract.SideEffect.ShowToast("1개의 펍이 삭제되었습니다."),
                                     )
                                 }.onFailure { e ->
-                                    postSideEffect(WishlistContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
+                                    postSideEffect(FavoriteContract.SideEffect.ShowToast(e.message ?: "삭제에 실패했습니다."))
                                 }
                         } finally {
                             pendingHeartIds.remove(event.favoriteId)
@@ -93,15 +101,15 @@ class WishlistViewModel
                     }
                 }
 
-                is WishlistContract.Event.OnPubClick -> {
+                is FavoriteContract.Event.OnPubClick -> {
                     if (currentState.isEditMode) {
                         val favoriteId = currentState.items
                             .find { it.pubId == event.pubId }
                             ?.favoriteId ?: return
-                        onEvent(WishlistContract.Event.OnToggleSelect(favoriteId))
+                        onEvent(FavoriteContract.Event.OnToggleSelect(favoriteId))
                     } else {
                         postSideEffect(
-                            WishlistContract.SideEffect.NavigateToPubDetail(event.pubId.toString()),
+                            FavoriteContract.SideEffect.NavigateToPubDetail(event.pubId.toString()),
                         )
                     }
                 }
@@ -125,20 +133,21 @@ class WishlistViewModel
                         setState {
                             copy(
                                 isLoading = false,
-                                items = favoriteItems.map { item ->
-                                    WishlistItem(
-                                        favoriteId = item.favoriteId,
-                                        pubId = item.pubId,
-                                        pubName = item.pubName,
-                                        address = item.address,
-                                        thumbnailImageUrl = item.thumbnailImageUrl,
-                                    )
-                                },
+                                items = favoriteItems
+                                    .map { item ->
+                                        FavoritePubItem(
+                                            favoriteId = item.favoriteId,
+                                            pubId = item.pubId,
+                                            pubName = item.pubName,
+                                            address = item.address,
+                                            thumbnailImageUrl = item.thumbnailImageUrl,
+                                        )
+                                    }.toImmutableList(),
                             )
                         }
                     }.onFailure { e ->
                         setState { copy(isLoading = false) }
-                        postSideEffect(WishlistContract.SideEffect.ShowToast(e.message ?: "목록을 불러오지 못했습니다."))
+                        postSideEffect(FavoriteContract.SideEffect.ShowToast(e.message ?: "목록을 불러오지 못했습니다."))
                     }
             }
         }

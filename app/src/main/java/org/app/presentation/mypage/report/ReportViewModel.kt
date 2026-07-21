@@ -3,6 +3,7 @@ package org.app.presentation.mypage.report
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.ReportRepository
@@ -38,11 +39,11 @@ class ReportViewModel
                         val merged = (imageUris + event.uris)
                             .distinct()
                             .take(ReportContract.State.MAX_IMAGES)
-                        copy(imageUris = merged)
+                        copy(imageUris = merged.toImmutableList())
                     }
 
                 is ReportContract.Event.OnImageRemoved ->
-                    setState { copy(imageUris = imageUris - event.uri) }
+                    setState { copy(imageUris = (imageUris - event.uri).toImmutableList()) }
 
                 ReportContract.Event.OnSubmit -> submit()
 

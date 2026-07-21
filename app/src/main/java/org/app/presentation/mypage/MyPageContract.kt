@@ -1,20 +1,22 @@
 package org.app.presentation.mypage
 
-import org.app.presentation.mypage.wishlist.WishlistItem
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import org.app.presentation.mypage.favorite.FavoritePubItem
 
 interface MyPageContract {
     data class State(
         val nickname: String = "",
         val profileImageUrl: String? = null,
-        val supportedTeams: List<String> = emptyList(),
-        val wishlistItems: List<WishlistItem> = emptyList(),
+        val supportedTeams: ImmutableList<String> = persistentListOf(),
+        val favoriteItems: ImmutableList<FavoritePubItem> = persistentListOf(),
         val isLoading: Boolean = false,
     )
 
     sealed interface Event {
         data object OnEditProfileClick : Event
 
-        data object OnWishlistClick : Event
+        data object OnFavoriteClick : Event
 
         data object OnReportClick : Event
 
@@ -45,7 +47,7 @@ interface MyPageContract {
 
         data object NavigateToWithdraw : SideEffect
 
-        data object NavigateToWishlist : SideEffect
+        data object NavigateToFavorite : SideEffect
 
         data class NavigateToPubDetail(
             val pubId: String,

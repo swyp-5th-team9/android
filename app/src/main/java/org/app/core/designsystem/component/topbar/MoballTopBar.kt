@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 /**
@@ -64,6 +65,7 @@ fun MoballTopBar(
                     contentDescription = null,
                     tint = MoballTheme.colors.iconPrimary,
                     modifier = Modifier
+                        .minTouchTarget()
                         .noRippleClickable(onClick = onBackClick),
                 )
             } else {
@@ -105,6 +107,7 @@ fun MoballTopBar(
                         tint = MoballTheme.colors.iconPrimary,
                         modifier = Modifier
                             .padding(end = 16.dp)
+                            .minTouchTarget()
                             .noRippleClickable(onClick = state.onCloseClick),
                     )
                 }
@@ -116,6 +119,7 @@ fun MoballTopBar(
                         color = MoballTheme.colors.textTertiary,
                         modifier = Modifier
                             .padding(end = 16.dp)
+                            .minTouchTarget()
                             .noRippleClickable(onClick = state.onSkipClick),
                     )
                 }
@@ -127,6 +131,7 @@ fun MoballTopBar(
                         color = MoballTheme.colors.textSecondary,
                         modifier = Modifier
                             .padding(end = 16.dp)
+                            .minTouchTarget()
                             .noRippleClickable(onClick = state.onMenuClick),
                     )
                 }

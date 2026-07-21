@@ -1,4 +1,4 @@
-package org.app.presentation.mypage.wishlist
+package org.app.presentation.mypage.favorite
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,20 +31,22 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.presentation.mypage.wishlist.component.WishlistEditButton
-import org.app.presentation.mypage.wishlist.component.WishlistItemCard
+import org.app.presentation.mypage.favorite.component.FavoriteEditButton
+import org.app.presentation.mypage.favorite.component.FavoriteItemCard
 
 @Composable
-fun WishlistRoute(
+fun FavoriteRoute(
     onBack: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WishlistViewModel = hiltViewModel(),
+    viewModel: FavoriteViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -55,7 +57,7 @@ fun WishlistRoute(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onEvent(WishlistContract.Event.OnRefresh)
+                viewModel.onEvent(FavoriteContract.Event.OnRefresh)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -64,9 +66,9 @@ fun WishlistRoute(
 
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
-            WishlistContract.SideEffect.NavigateBack -> onBack()
-            is WishlistContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
-            is WishlistContract.SideEffect.ShowToast -> {
+            FavoriteContract.SideEffect.NavigateBack -> onBack()
+            is FavoriteContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
+            is FavoriteContract.SideEffect.ShowToast -> {
                 android.widget.Toast
                     .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
                     .show()
@@ -74,13 +76,13 @@ fun WishlistRoute(
         }
     }
 
-    WishlistScreen(
+    FavoriteScreen(
         state = state,
         onBack = onBack,
-        onEditClick = { viewModel.onEvent(WishlistContract.Event.OnEditClick) },
-        onCancelEdit = { viewModel.onEvent(WishlistContract.Event.OnCancelEdit) },
+        onEditClick = { viewModel.onEvent(FavoriteContract.Event.OnEditClick) },
+        onCancelEdit = { viewModel.onEvent(FavoriteContract.Event.OnCancelEdit) },
         onDeleteClick = { showDeleteDialog = true },
-        onCardClick = { pubId -> viewModel.onEvent(WishlistContract.Event.OnPubClick(pubId)) },
+        onCardClick = { pubId -> viewModel.onEvent(FavoriteContract.Event.OnPubClick(pubId)) },
         onHeartClick = { favoriteId -> heartDeleteId = favoriteId },
         modifier = modifier,
     )
@@ -90,7 +92,7 @@ fun WishlistRoute(
             title = "펍 즐겨찾기 삭제",
             subtitle = "즐겨찾기 목록에서 삭제할까요?",
             onConfirm = {
-                viewModel.onEvent(WishlistContract.Event.OnDeleteSelected)
+                viewModel.onEvent(FavoriteContract.Event.OnDeleteSelected)
                 showDeleteDialog = false
             },
             onDismiss = { showDeleteDialog = false },
@@ -103,7 +105,7 @@ fun WishlistRoute(
             title = "펍 즐겨찾기 삭제",
             subtitle = "즐겨찾기 목록에서 삭제할까요?",
             onConfirm = {
-                viewModel.onEvent(WishlistContract.Event.OnHeartClick(favoriteId))
+                viewModel.onEvent(FavoriteContract.Event.OnHeartClick(favoriteId))
                 heartDeleteId = null
             },
             onDismiss = { heartDeleteId = null },
@@ -113,8 +115,8 @@ fun WishlistRoute(
 }
 
 @Composable
-private fun WishlistScreen(
-    state: WishlistContract.State,
+private fun FavoriteScreen(
+    state: FavoriteContract.State,
     onBack: () -> Unit,
     onEditClick: () -> Unit,
     onCancelEdit: () -> Unit,
@@ -156,6 +158,7 @@ private fun WishlistScreen(
                     )
                 }
             } else {
+                val rows = remember(state.items) { state.items.chunked(3) }
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
@@ -175,14 +178,14 @@ private fun WishlistScreen(
                         )
                     }
 
-                    items(state.items.chunked(3)) { rowItems ->
+                    items(rows, key = { row -> row.first().favoriteId }) { rowItems ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             rowItems.forEach { item ->
-                                WishlistItemCard(
+                                FavoriteItemCard(
                                     item = item,
                                     isEditMode = state.isEditMode,
                                     isSelected = item.favoriteId in state.selectedIds,
@@ -202,7 +205,7 @@ private fun WishlistScreen(
         }
 
         if (state.isEditMode) {
-            WishlistEditButton(
+            FavoriteEditButton(
                 hasSelection = state.hasSelection,
                 onCancel = onCancelEdit,
                 onDelete = onDeleteClick,
@@ -214,10 +217,10 @@ private fun WishlistScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun WishlistScreenEmptyPreview() {
+private fun FavoriteScreenEmptyPreview() {
     MoballTheme {
-        WishlistScreen(
-            state = WishlistContract.State(items = emptyList()),
+        FavoriteScreen(
+            state = FavoriteContract.State(items = persistentListOf()),
             onBack = {},
             onEditClick = {},
             onCancelEdit = {},
@@ -230,16 +233,16 @@ private fun WishlistScreenEmptyPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun WishlistScreenPreview() {
+private fun FavoriteScreenPreview() {
     MoballTheme {
-        WishlistScreen(
-            state = WishlistContract.State(
-                items = listOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
-                    WishlistItem(favoriteId = 4L, pubId = 14L, pubName = "펍 이름 4", address = "서초"),
-                    WishlistItem(favoriteId = 5L, pubId = 15L, pubName = "펍 이름 5", address = "이태원"),
+        FavoriteScreen(
+            state = FavoriteContract.State(
+                items = persistentListOf(
+                    FavoritePubItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
+                    FavoritePubItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
+                    FavoritePubItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
+                    FavoritePubItem(favoriteId = 4L, pubId = 14L, pubName = "펍 이름 4", address = "서초"),
+                    FavoritePubItem(favoriteId = 5L, pubId = 15L, pubName = "펍 이름 5", address = "이태원"),
                 ),
             ),
             onBack = {},
@@ -254,17 +257,17 @@ private fun WishlistScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun WishlistScreenEditPreview() {
+private fun FavoriteScreenEditPreview() {
     MoballTheme {
-        WishlistScreen(
-            state = WishlistContract.State(
-                items = listOf(
-                    WishlistItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
-                    WishlistItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
-                    WishlistItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
+        FavoriteScreen(
+            state = FavoriteContract.State(
+                items = persistentListOf(
+                    FavoritePubItem(favoriteId = 1L, pubId = 11L, pubName = "펍 이름 1", address = "강남"),
+                    FavoritePubItem(favoriteId = 2L, pubId = 12L, pubName = "펍 이름 2", address = "홍대"),
+                    FavoritePubItem(favoriteId = 3L, pubId = 13L, pubName = "펍 이름 3", address = "잠실"),
                 ),
                 isEditMode = true,
-                selectedIds = setOf(1L),
+                selectedIds = persistentSetOf(1L),
             ),
             onBack = {},
             onEditClick = {},

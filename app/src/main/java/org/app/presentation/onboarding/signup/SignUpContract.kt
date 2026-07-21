@@ -1,9 +1,12 @@
 package org.app.presentation.onboarding.signup
 
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
+
 interface SignUpContract {
     data class State(
         val nickname: String = "",
-        val selectedTeamIds: Set<Int> = emptySet(),
+        val selectedTeamIds: ImmutableSet<Int> = persistentSetOf(),
         val isLoading: Boolean = false,
         val nicknameError: String? = null,
     ) {

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -19,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
 import org.app.presentation.schedule.model.GameSchedule
 import org.app.presentation.schedule.model.GameStatus
 import timber.log.Timber
@@ -31,14 +32,14 @@ private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
 
 /**
  * 팀 ID → shortName → 팀명(부분 일치) 순으로 로고 drawable 매핑.
- * 전부 실패하면 진단 로그를 남기고 기본 로고를 반환한다.
+ * 전부 실패하면 진단 로그를 남기고 null(로고 없음)을 반환한다.
  */
 @DrawableRes
 fun teamLogoRes(
     teamId: Long,
     teamShortName: String,
     teamName: String = "",
-): Int {
+): Int? {
     val matched = KboTeamType.matchOrNull(
         id = teamId.toInt(),
         shortName = teamShortName,
@@ -51,7 +52,7 @@ fun teamLogoRes(
             teamShortName,
             teamName,
         )
-        return KboTeamType.ALL.logoRes
+        return null
     }
     return matched.logoRes
 }
@@ -79,9 +80,12 @@ fun ScheduleGameItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val homeLogoRes = remember(game.homeTeamId, game.homeTeamShortName, game.homeTeamName) {
+                teamLogoRes(game.homeTeamId, game.homeTeamShortName, game.homeTeamName)
+            }
             TeamSection(
                 teamName = game.homeTeamShortName,
-                teamLogoRes = teamLogoRes(game.homeTeamId, game.homeTeamShortName, game.homeTeamName),
+                teamLogoRes = homeLogoRes,
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             )
@@ -127,9 +131,12 @@ fun ScheduleGameItem(
                 }
             }
 
+            val awayLogoRes = remember(game.awayTeamId, game.awayTeamShortName, game.awayTeamName) {
+                teamLogoRes(game.awayTeamId, game.awayTeamShortName, game.awayTeamName)
+            }
             TeamSection(
                 teamName = game.awayTeamShortName,
-                teamLogoRes = teamLogoRes(game.awayTeamId, game.awayTeamShortName, game.awayTeamName),
+                teamLogoRes = awayLogoRes,
                 align = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             )
@@ -140,7 +147,7 @@ fun ScheduleGameItem(
 @Composable
 private fun TeamSection(
     teamName: String,
-    @DrawableRes teamLogoRes: Int,
+    @DrawableRes teamLogoRes: Int?,
     modifier: Modifier = Modifier,
     align: Alignment.Horizontal,
 ) {
@@ -148,11 +155,21 @@ private fun TeamSection(
         modifier = modifier,
         horizontalAlignment = align,
     ) {
-        Image(
-            painter = painterResource(teamLogoRes),
-            contentDescription = null,
-            modifier = Modifier.size(77.dp),
-        )
+        if (teamLogoRes != null) {
+            Image(
+                painter = painterResource(teamLogoRes),
+                contentDescription = null,
+                modifier = Modifier.size(77.dp),
+            )
+        } else {
+            // 로고 매핑 실패 시 팀명 텍스트로 대체
+            Text(
+                text = teamName,
+                style = MoballTheme.typography.heading5.bold18,
+                color = MoballTheme.colors.textPrimary,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 

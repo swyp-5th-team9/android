@@ -8,7 +8,7 @@ interface PubDetailContract {
         val pubDetail: PubDetail? = null,
         val isLoading: Boolean = false,
         val favoriteId: Long? = null, // 찜 등록 시 서버에서 받은 ID (삭제에 사용)
-        val isWishlistLoading: Boolean = false,
+        val isFavoriteLoading: Boolean = false,
         val currentImageIndex: Int = 0,
         val isHoursExpanded: Boolean = false,
         val showPhotoGallery: Boolean = false,
@@ -18,7 +18,7 @@ interface PubDetailContract {
     sealed interface Event {
         data object OnBack : Event
 
-        data object OnWishlistToggle : Event
+        data object OnFavoriteToggle : Event
 
         data class OnImagePageChanged(
             val index: Int,

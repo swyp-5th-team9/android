@@ -1,22 +1,22 @@
-package org.app.presentation.mypage.wishlist.navigation
+package org.app.presentation.mypage.favorite.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import org.app.presentation.mypage.wishlist.WishlistRoute
+import org.app.presentation.mypage.favorite.FavoriteRoute
 
 @Serializable
-data object Wishlist
+data object Favorite
 
-fun NavController.navigateToWishlist() = navigate(Wishlist)
+fun NavController.navigateToFavorite() = navigate(Favorite)
 
-fun NavGraphBuilder.wishlistScreen(
+fun NavGraphBuilder.favoriteScreen(
     onBack: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
 ) {
-    composable<Wishlist> {
-        WishlistRoute(
+    composable<Favorite> {
+        FavoriteRoute(
             onBack = onBack,
             navigateToPubDetail = navigateToPubDetail,
             // TODO: pubId 를 포함한 경로로 이동하는 로직 구현 필요

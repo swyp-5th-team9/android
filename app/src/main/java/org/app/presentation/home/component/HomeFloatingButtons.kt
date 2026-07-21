@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 /** 지도 위 오른쪽 하단 "제보하기" 버튼 */
@@ -30,6 +31,7 @@ fun HomeReportButton(
 ) {
     Row(
         modifier = modifier
+            .minTouchTarget()
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(100.dp))
             .clip(RoundedCornerShape(100.dp))
             .background(MoballTheme.colors.backgroundScrim)

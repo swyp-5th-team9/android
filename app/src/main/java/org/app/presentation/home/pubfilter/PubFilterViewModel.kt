@@ -2,11 +2,13 @@ package org.app.presentation.home.pubfilter
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.TeamRepository
 import org.app.presentation.home.model.PubFilterOption
 import org.app.presentation.home.model.PubFilterSection
+import org.app.presentation.home.model.SeoulRegion
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,7 +40,7 @@ class PubFilterViewModel
         private fun applyFilter() {
             val state = currentState
             val selectedOptions = state.selectedOptions
-            val selectedTeamOptionIds = selectedOptions["team"] ?: emptySet()
+            val selectedTeamOptionIds = selectedOptions[FilterSectionId.TEAM] ?: emptySet()
 
             if (state.teams.isEmpty() &&
                 "all" !in selectedTeamOptionIds &&
@@ -59,36 +61,25 @@ class PubFilterViewModel
                         .map { it.shortName }
             }
 
-            val selectedRegionIds = selectedOptions["region"] ?: emptySet()
+            val selectedRegionIds = selectedOptions[FilterSectionId.REGION] ?: emptySet()
             // optionId = 백엔드 enum 코드이므로 그대로 전달
             // SEOUL_ALL(서울 전체) 선택 시 region 파라미터 없음(null → 전체 조회)
             val regions = when {
-                "SEOUL_ALL" in selectedRegionIds || selectedRegionIds.isEmpty() -> emptyList()
+                SeoulRegion.SEOUL_ALL.code in selectedRegionIds || selectedRegionIds.isEmpty() -> emptyList()
                 else -> selectedRegionIds.toList()
             }
 
-            val openNow = if ("open" in (selectedOptions["business"] ?: emptySet())) true else null
+            val openNow = if ("open" in (selectedOptions[FilterSectionId.BUSINESS] ?: emptySet())) true else null
             val businessDayOptionId =
-                (selectedOptions["business_day"] ?: emptySet()).firstOrNull { it != "all_days" }
-            val businessDay = when (businessDayOptionId) {
-                "weekdays" -> "WEEKDAY"
-                "weekends" -> "WEEKEND"
-                "always_open" -> "EVERYDAY"
-                "mon" -> "MON"
-                "tue" -> "TUE"
-                "wed" -> "WED"
-                "thu" -> "THU"
-                "fri" -> "FRI"
-                "sat" -> "SAT"
-                "sun" -> "SUN"
-                else -> null
-            }
+                (selectedOptions[FilterSectionId.BUSINESS_DAY] ?: emptySet())
+                    .firstOrNull { it != BusinessDayFilter.ALL_DAYS.optionId }
+            val businessDay = BusinessDayFilter.serverCodeOf(businessDayOptionId)
 
             // 펍스타일 4종 섹션의 optionId는 서버 코드이므로 그대로 전달
-            val facilityCodes = (selectedOptions["style_facility"] ?: emptySet()).toList()
-            val styleCodes = (selectedOptions["style_broadcast"] ?: emptySet()).toList()
-            val themeCodes = (selectedOptions["style_theme"] ?: emptySet()).toList()
-            val foodCodes = (selectedOptions["food"] ?: emptySet()).toList()
+            val facilityCodes = (selectedOptions[FilterSectionId.STYLE_FACILITY] ?: emptySet()).toList()
+            val styleCodes = (selectedOptions[FilterSectionId.STYLE_BROADCAST] ?: emptySet()).toList()
+            val themeCodes = (selectedOptions[FilterSectionId.STYLE_THEME] ?: emptySet()).toList()
+            val foodCodes = (selectedOptions[FilterSectionId.FOOD] ?: emptySet()).toList()
 
             postSideEffect(
                 PubFilterContract.SideEffect.ApplyFilter(
@@ -113,7 +104,7 @@ class PubFilterViewModel
                     .onSuccess { teams ->
                         setState {
                             val teamSection = PubFilterSection(
-                                sectionId = "team",
+                                sectionId = FilterSectionId.TEAM,
                                 title = "응원팀",
                                 options = listOf(PubFilterOption("all", "KBO 전체")) +
                                     teams.map {
@@ -124,10 +115,11 @@ class PubFilterViewModel
                                     },
                             )
                             copy(
-                                teams = teams,
-                                sections = sections.map { s ->
-                                    if (s.sectionId == "team") teamSection else s
-                                },
+                                teams = teams.toImmutableList(),
+                                sections = sections
+                                    .map { s ->
+                                        if (s.sectionId == FilterSectionId.TEAM) teamSection else s
+                                    }.toImmutableList(),
                             )
                         }
                     }.onFailure {
@@ -142,8 +134,9 @@ class PubFilterViewModel
         ) {
             setState {
                 val currentSet = selectedOptions[sectionId] ?: emptySet()
+                val seoulAll = SeoulRegion.SEOUL_ALL.code
                 val newSet = when (sectionId) {
-                    "team" -> when {
+                    FilterSectionId.TEAM -> when {
                         optionId == "all" ->
                             if (currentSet == setOf("all")) {
                                 emptySet()
@@ -157,20 +150,20 @@ class PubFilterViewModel
                         }
                     }
 
-                    "business_day" ->
+                    FilterSectionId.BUSINESS_DAY ->
                         if (optionId in currentSet) {
                             emptySet()
                         } else {
                             setOf(optionId)
                         }
 
-                    "region" -> {
+                    FilterSectionId.REGION -> {
                         when {
-                            optionId == "SEOUL_ALL" ->
-                                if (currentSet == setOf("SEOUL_ALL")) emptySet() else setOf("SEOUL_ALL")
+                            optionId == seoulAll ->
+                                if (currentSet == setOf(seoulAll)) emptySet() else setOf(seoulAll)
 
                             else -> {
-                                val baseSet = currentSet - "SEOUL_ALL"
+                                val baseSet = currentSet - seoulAll
                                 if (optionId in baseSet) baseSet - optionId else baseSet + optionId
                             }
                         }

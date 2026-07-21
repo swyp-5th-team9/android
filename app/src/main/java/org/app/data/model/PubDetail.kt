@@ -29,7 +29,7 @@ data class PubDetail(
     val businessHours: List<BusinessHour>,
     val menus: List<PubMenu>,
     /** FavoriteRepository에서 별도로 채워지는 필드 */
-    val isWishlisted: Boolean = false,
+    val isFavoriteed: Boolean = false,
 )
 
 enum class PubStatus(

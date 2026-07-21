@@ -2,14 +2,15 @@ package org.app.presentation.mypage
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.AuthRepository
 import org.app.data.repository.api.FavoriteRepository
 import org.app.data.repository.api.UserRepository
-import org.app.presentation.mypage.wishlist.WishlistItem
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
+import org.app.presentation.mypage.favorite.FavoritePubItem
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,8 +33,8 @@ class MyPageViewModel
                 MyPageContract.Event.OnEditProfileClick ->
                     postSideEffect(MyPageContract.SideEffect.NavigateToEditProfile)
 
-                MyPageContract.Event.OnWishlistClick ->
-                    postSideEffect(MyPageContract.SideEffect.NavigateToWishlist)
+                MyPageContract.Event.OnFavoriteClick ->
+                    postSideEffect(MyPageContract.SideEffect.NavigateToFavorite)
 
                 MyPageContract.Event.OnReportClick ->
                     postSideEffect(MyPageContract.SideEffect.NavigateToReport)
@@ -75,7 +76,7 @@ class MyPageViewModel
                                     Timber.w("즐겨찾기 조회 실패: $error")
                                     emptyList()
                                 }.map {
-                                    WishlistItem(
+                                    FavoritePubItem(
                                         favoriteId = it.favoriteId,
                                         pubId = it.pubId,
                                         pubName = it.pubName,
@@ -89,8 +90,8 @@ class MyPageViewModel
                                 isLoading = false,
                                 nickname = user.nickname,
                                 profileImageUrl = user.profileImageUrl,
-                                supportedTeams = user.favoriteTeams.map { team -> team.teamName },
-                                wishlistItems = favorites,
+                                supportedTeams = user.favoriteTeams.map { team -> team.teamName }.toImmutableList(),
+                                favoriteItems = favorites.toImmutableList(),
                             )
                         }
                     }.onFailure { error ->
@@ -110,7 +111,7 @@ class MyPageViewModel
                 userRepository
                     .patchUser(teamIds = teamIds)
                     .onSuccess {
-                        setState { copy(isLoading = false, supportedTeams = teams) }
+                        setState { copy(isLoading = false, supportedTeams = teams.toImmutableList()) }
                     }.onFailure { error ->
                         setState { copy(isLoading = false) }
                         postSideEffect(MyPageContract.SideEffect.ShowToast("정보 수정에 실패했습니다."))

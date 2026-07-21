@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -41,6 +41,7 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -114,7 +115,7 @@ private fun ScheduleCalendarDialogContent(
                 .fillMaxWidth(),
             userScrollEnabled = false,
         ) {
-            items(days) { date ->
+            itemsIndexed(days, key = { index, date -> date?.toString() ?: "empty-$index" }) { _, date ->
                 if (date != null) {
                     DateCell(
                         date = date,
@@ -171,6 +172,7 @@ private fun CalendarHeader(
             contentDescription = "이전 달",
             tint = Color.Unspecified,
             modifier = Modifier
+                .minTouchTarget()
                 .size(24.dp)
                 .noRippleClickable(onClick = onPrevMonth),
         )
@@ -186,6 +188,7 @@ private fun CalendarHeader(
             contentDescription = "다음 달",
             tint = Color.Unspecified,
             modifier = Modifier
+                .minTouchTarget()
                 .size(24.dp)
                 .noRippleClickable(onClick = onNextMonth),
         )

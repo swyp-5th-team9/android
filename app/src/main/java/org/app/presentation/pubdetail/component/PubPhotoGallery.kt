@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -53,7 +54,6 @@ fun PubPhotoGallery(
             .fillMaxSize()
             .background(Color.Black),
     ) {
-        // Full-screen pager
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -73,7 +73,6 @@ fun PubPhotoGallery(
             }
         }
 
-        // Top bar: close + counter
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,6 +86,7 @@ fun PubPhotoGallery(
                 contentDescription = "닫기",
                 tint = Color.White,
                 modifier = Modifier
+                    .minTouchTarget()
                     .size(28.dp)
                     .noRippleClickable(onClose),
             )

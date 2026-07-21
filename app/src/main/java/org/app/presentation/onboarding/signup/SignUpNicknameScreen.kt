@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,8 +42,9 @@ fun SignUpNicknameRoute(
     val context = LocalContext.current
     val textFieldState = rememberTextFieldState(initialText = state.nickname)
 
-    LaunchedEffect(textFieldState.text) {
-        viewModel.onEvent(SignUpContract.Event.OnNicknameChanged(textFieldState.text.toString()))
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }
+            .collect { viewModel.onEvent(SignUpContract.Event.OnNicknameChanged(it)) }
     }
 
     CollectSideEffect(viewModel.sideEffect) { effect ->

@@ -42,7 +42,7 @@ import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
-import org.app.presentation.pubdetail.model.KboTeamType
+import org.app.domain.model.KboTeamType
 
 /** KBO 10개 구단 목록 (전구단 제외, 기존 표시 순서 유지) */
 private val KboTeams = listOf(
@@ -163,7 +163,7 @@ private fun TeamSelectBottomSheetContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            items(KboTeams) { team ->
+            items(KboTeams, key = { it }) { team ->
                 TeamSelectItem(
                     teamName = team,
                     isSelected = team in selectedTeams,

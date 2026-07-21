@@ -9,10 +9,10 @@ import kotlinx.serialization.Serializable
 import org.app.core.common.navigation.MainTabRoute
 import org.app.presentation.mypage.editprofile.navigation.editProfileScreen
 import org.app.presentation.mypage.editprofile.navigation.navigateToEditProfile
+import org.app.presentation.mypage.favorite.navigation.favoriteScreen
+import org.app.presentation.mypage.favorite.navigation.navigateToFavorite
 import org.app.presentation.mypage.report.navigation.navigateToReport
 import org.app.presentation.mypage.report.navigation.reportScreen
-import org.app.presentation.mypage.wishlist.navigation.navigateToWishlist
-import org.app.presentation.mypage.wishlist.navigation.wishlistScreen
 import org.app.presentation.mypage.withdraw.navigation.navigateToWithdraw
 import org.app.presentation.mypage.withdraw.navigation.withdrawScreen
 import org.app.presentation.pubdetail.navigation.navigateToPubDetail
@@ -30,7 +30,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToEditProfile = { navController.navigateToEditProfile() },
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
-                navigateToWishlist = { navController.navigateToWishlist() },
+                navigateToFavorite = { navController.navigateToFavorite() },
                 navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
             )
         }
@@ -40,7 +40,7 @@ fun NavGraphBuilder.myPageGraph(
             onBack = { navController.popBackStack() },
             navigateToLogin = navigateToLogin,
         )
-        wishlistScreen(
+        favoriteScreen(
             onBack = { navController.popBackStack() },
             navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
         )

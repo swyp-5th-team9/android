@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
 import org.app.data.model.PubDetail
@@ -55,14 +56,14 @@ import org.app.data.model.PubMapItem
 import org.app.data.model.PubStatus
 import org.app.data.model.PubTeam
 import org.app.data.model.pubStatusLabel
+import org.app.domain.model.KboTeamType
 import org.app.presentation.home.model.HomeFilter
+import org.app.presentation.home.pubfilter.FacilityCode
+import org.app.presentation.home.pubfilter.FoodCode
 import org.app.presentation.pubdetail.component.TeamBadge
 import org.app.presentation.pubdetail.component.TeamListBadge
-import org.app.presentation.pubdetail.model.KboTeamType
 import java.time.LocalDate
 import java.time.LocalTime
-
-private val DRINK_CODES = setOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
 
 @Composable
 private fun DragHandle() {
@@ -149,28 +150,28 @@ private fun PubListContent(
             item {
                 HomePubFilterChip(
                     label = "단체석",
-                    isSelected = filter.facilityCodes?.contains("GROUP_SEAT") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.GROUP_SEAT.code) == true,
                     onClick = { onFilterClick("GROUP_SEAT") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "주차",
-                    isSelected = filter.facilityCodes?.contains("PARKING") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.PARKING.code) == true,
                     onClick = { onFilterClick("PARKING") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "넓은",
-                    isSelected = filter.facilityCodes?.contains("SPACIOUS_AREA") == true,
+                    isSelected = filter.facilityCodes?.contains(FacilityCode.SPACIOUS_AREA.code) == true,
                     onClick = { onFilterClick("WIDE_SPACE") },
                 )
             }
             item {
                 HomePubFilterChip(
                     label = "다양한 술",
-                    isSelected = filter.foodCodes?.any { it in DRINK_CODES } == true,
+                    isSelected = filter.foodCodes?.any { it in FoodCode.DRINK_CODES } == true,
                     onClick = { onFilterClick("VARIOUS_DRINKS") },
                 )
             }
@@ -233,6 +234,7 @@ private fun PubListItem(
                 contentDescription = null,
                 tint = if (isFavorite) MoballTheme.colors.iconPrimary else MoballTheme.colors.textTertiary,
                 modifier = Modifier
+                    .minTouchTarget()
                     .size(24.dp)
                     .noRippleClickable(onFavoriteClick),
             )
@@ -522,14 +524,14 @@ private fun PubDetailContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(
-                        if (detail?.isWishlisted == true) {
+                        if (detail?.isFavoriteed == true) {
                             R.drawable.ic_heart_fill
                         } else {
                             R.drawable.ic_heart
                         },
                     ),
-                    contentDescription = "찜",
-                    tint = if (detail?.isWishlisted == true) {
+                    contentDescription = "즐겨찾기",
+                    tint = if (detail?.isFavoriteed == true) {
                         MoballTheme.colors.iconPrimary
                     } else {
                         MoballTheme.colors.textSecondary
@@ -602,6 +604,7 @@ private fun HomePubFilterChip(
 ) {
     Box(
         modifier = modifier
+            .minTouchTarget()
             .clip(CircleShape)
             .background(
                 color = if (isSelected) MoballTheme.colors.borderActive else MoballTheme.colors.backgroundBase,
@@ -693,7 +696,7 @@ private fun HomePubDetailBottomSheetPreview() {
             ),
         ),
         menus = emptyList(),
-        isWishlisted = false,
+        isFavoriteed = false,
     )
 
     MoballTheme {

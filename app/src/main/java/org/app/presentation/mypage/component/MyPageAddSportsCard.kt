@@ -20,8 +20,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
-import org.app.core.designsystem.component.MoballBaseBallTeamBadge
+import org.app.core.designsystem.component.MoballBaseballTeamBadge
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -44,6 +45,7 @@ fun MyPageAddSportsCard(
             tint = Color.Unspecified,
             modifier = Modifier
                 .align(Alignment.End)
+                .minTouchTarget()
                 .noRippleClickable(onAddClick),
         )
 
@@ -88,7 +90,7 @@ fun MyPageAddSportsCard(
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
-                        MoballBaseBallTeamBadge(teamName = team)
+                        MoballBaseballTeamBadge(teamName = team)
                     }
                 }
 

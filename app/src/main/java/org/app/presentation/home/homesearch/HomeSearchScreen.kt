@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
@@ -123,7 +124,7 @@ private fun HomeSearchScreenWithResultsPreview() {
     MoballTheme {
         HomeSearchScreen(
             state = HomeSearchContract.State(
-                results = listOf(
+                results = persistentListOf(
                     PubSearchResult("1", "시그니처 펍", "서울 마포구"),
                     PubSearchResult("2", "시그마 펍", "서울 강남구"),
                 ),

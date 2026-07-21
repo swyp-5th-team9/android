@@ -1,5 +1,7 @@
 package org.app.presentation.schedule
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.app.data.model.TeamItem
 import org.app.presentation.schedule.model.GameSchedule
 import java.time.LocalDate
@@ -8,9 +10,9 @@ import java.time.YearMonth
 interface ScheduleContract {
     data class State(
         /** GET /api/v1/teams 응답 — 팀 칩바에 사용 */
-        val teams: List<TeamItem> = emptyList(),
+        val teams: ImmutableList<TeamItem> = persistentListOf(),
         val selectedDate: LocalDate = LocalDate.now(),
-        val games: List<GameSchedule> = emptyList(),
+        val games: ImmutableList<GameSchedule> = persistentListOf(),
         val isLoading: Boolean = false,
         val showCalendarDialog: Boolean = false,
         val selectedTeamId: Long? = null, // null = 전체

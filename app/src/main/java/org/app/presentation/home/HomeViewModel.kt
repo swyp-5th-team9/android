@@ -2,6 +2,10 @@ package org.app.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
@@ -16,6 +20,9 @@ import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
 import org.app.presentation.home.model.PubMarkerType
 import org.app.presentation.home.model.RegionMapper
+import org.app.presentation.home.model.SeoulRegion
+import org.app.presentation.home.pubfilter.FacilityCode
+import org.app.presentation.home.pubfilter.FoodCode
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,6 +36,11 @@ private const val CLUSTER_ZOOM_THRESHOLD = 13.0
 
 /** 클러스터링 그리드 크기 (위경도 단위) */
 private const val CLUSTER_GRID_SIZE = 0.05
+
+// 외부 지도 앱 딥링크 스킴 및 웹 폴백
+private const val KAKAO_MAP_SCHEME = "kakaomap"
+private const val NAVER_MAP_SCHEME = "nmap"
+private const val NAVER_MAP_APP_NAME = "org.app"
 
 @HiltViewModel
 class HomeViewModel
@@ -96,7 +108,7 @@ class HomeViewModel
                     }
 
                 HomeContract.Event.OnPubListSheetDismiss ->
-                    setState { copy(showPubListSheet = false, selectedPubList = emptyList()) }
+                    setState { copy(showPubListSheet = false, selectedPubList = persistentListOf()) }
 
                 HomeContract.Event.OnFavoriteClick -> {
                     val detail = currentState.selectedPubDetail ?: return
@@ -151,7 +163,7 @@ class HomeViewModel
                     // "서울 전체"(SEOUL_ALL)는 특정 지점이 아니라 전체 조회이므로 카메라 이동 대상에서 제외
                     // (시청 좌표로 카메라가 튀는 문제 방지)
                     val points = event.regions
-                        .filter { it != "SEOUL_ALL" }
+                        .filter { it != SeoulRegion.SEOUL_ALL.code }
                         .mapNotNull { RegionMapper.getLatLng(it) }
                     if (points.isNotEmpty()) {
                         postSideEffect(HomeContract.SideEffect.MoveCameraToBounds(points))
@@ -166,8 +178,8 @@ class HomeViewModel
                         "https://map.kakao.com/link/map/${event.name},${event.lat},${event.lng}"
                     postSideEffect(
                         HomeContract.SideEffect.OpenMap(
-                            url = "kakaomap://look?p=${event.lat},${event.lng}",
-                            appScheme = "kakaomap",
+                            url = "$KAKAO_MAP_SCHEME://look?p=${event.lat},${event.lng}",
+                            appScheme = KAKAO_MAP_SCHEME,
                             webFallbackUrl = kakaoFallback,
                         ),
                     )
@@ -175,12 +187,12 @@ class HomeViewModel
 
                 is HomeContract.Event.OnNaverMapClick -> {
                     val naverUrl =
-                        "nmap://place?lat=${event.lat}&lng=${event.lng}" +
-                            "&name=${event.name}&appname=org.app"
+                        "$NAVER_MAP_SCHEME://place?lat=${event.lat}&lng=${event.lng}" +
+                            "&name=${event.name}&appname=$NAVER_MAP_APP_NAME"
                     postSideEffect(
                         HomeContract.SideEffect.OpenMap(
                             url = naverUrl,
-                            appScheme = "nmap",
+                            appScheme = NAVER_MAP_SCHEME,
                             webFallbackUrl = "https://map.naver.com/v5/search/${event.name}",
                         ),
                     )
@@ -197,7 +209,7 @@ class HomeViewModel
                     setState {
                         copy(
                             showPubListSheet = event.cluster.items.isNotEmpty(),
-                            selectedPubList = event.cluster.items,
+                            selectedPubList = event.cluster.items.toImmutableList(),
                         )
                     }
             }
@@ -222,7 +234,7 @@ class HomeViewModel
                         foodCodes = filter.foodCodes,
                         size = 50,
                     ).onSuccess { page ->
-                        setState { copy(pubListItems = page.content) }
+                        setState { copy(pubListItems = page.content.toImmutableList()) }
                         // 필터 결과(bbox 무관)가 비면 안내 토스트
                         if (showEmptyToast && page.content.isEmpty()) {
                             postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
@@ -238,8 +250,8 @@ class HomeViewModel
                     .onSuccess { user ->
                         setState {
                             copy(
-                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId },
-                                userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName },
+                                userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId }.toImmutableList(),
+                                userFavoriteTeamNames = user.favoriteTeams.map { t -> t.teamName }.toImmutableList(),
                             )
                         }
                     }.onFailure { Timber.e("응원 구단 로드 실패: $it") }
@@ -253,7 +265,10 @@ class HomeViewModel
                     .onSuccess { items ->
                         val idMap = items.associate { it.pubId to it.favoriteId }
                         setState {
-                            copy(favoritePubIds = idMap.keys, favoriteIdMap = idMap).withOverlays()
+                            copy(
+                                favoritePubIds = idMap.keys.toImmutableSet(),
+                                favoriteIdMap = idMap.toImmutableMap(),
+                            ).withOverlays()
                         }
                     }.onFailure { Timber.e("찜 목록 로드 실패: $it") }
             }
@@ -282,7 +297,7 @@ class HomeViewModel
                         themeCodes = filter.themeCodes,
                         foodCodes = filter.foodCodes,
                     ).onSuccess { items ->
-                        setState { copy(isLoading = false, pubMapItems = items).withOverlays() }
+                        setState { copy(isLoading = false, pubMapItems = items.toImmutableList()).withOverlays() }
                         if (showEmptyToast && items.isEmpty()) {
                             postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
                         }
@@ -310,11 +325,11 @@ class HomeViewModel
                 pubRepository
                     .getPubDetail(pubId)
                     .onSuccess { detail ->
-                        val isWishlisted = currentState.favoritePubIds.contains(pubId)
+                        val isFavoriteed = currentState.favoritePubIds.contains(pubId)
                         setState {
                             copy(
                                 isPubDetailLoading = false,
-                                selectedPubDetail = detail.copy(isWishlisted = isWishlisted),
+                                selectedPubDetail = detail.copy(isFavoriteed = isFavoriteed),
                             )
                         }
                     }.onFailure { error ->
@@ -344,7 +359,7 @@ class HomeViewModel
                 pubRepository
                     .getPubDetail(pubId)
                     .onSuccess { detail ->
-                        setState { copy(listPubDetails = listPubDetails + (pubId to detail)) }
+                        setState { copy(listPubDetails = (listPubDetails + (pubId to detail)).toImmutableMap()) }
                     }
                 loadingListDetailIds.remove(pubId)
             }
@@ -364,11 +379,11 @@ class HomeViewModel
             updateSelectedDetail: Boolean,
         ) {
             if (currentState.isPubFavoriteLoading) return
-            val isWishlisted = currentState.favoritePubIds.contains(pubId)
+            val isFavoriteed = currentState.favoritePubIds.contains(pubId)
 
             viewModelScope.launch {
                 setState { copy(isPubFavoriteLoading = true) }
-                if (isWishlisted) {
+                if (isFavoriteed) {
                     val favoriteId = currentState.favoriteIdMap[pubId]
                     if (favoriteId == null) {
                         loadFavoritePubIds()
@@ -413,7 +428,7 @@ class HomeViewModel
                 val delta = if (isFavorite) 1 else -1
                 val newDetail = selectedPubDetail?.takeIf { updateSelectedDetail && it.pubId == pubId }?.let {
                     it.copy(
-                        isWishlisted = isFavorite,
+                        isFavoriteed = isFavorite,
                         favoriteCount = (it.favoriteCount + delta).coerceAtLeast(0),
                     )
                 } ?: selectedPubDetail
@@ -421,19 +436,21 @@ class HomeViewModel
                 copy(
                     isPubFavoriteLoading = false,
                     selectedPubDetail = newDetail,
-                    favoritePubIds = if (isFavorite) favoritePubIds + pubId else favoritePubIds - pubId,
+                    favoritePubIds = (if (isFavorite) favoritePubIds + pubId else favoritePubIds - pubId)
+                        .toImmutableSet(),
                     favoriteIdMap = if (isFavorite && newFavoriteId != null) {
-                        favoriteIdMap + (pubId to newFavoriteId)
+                        (favoriteIdMap + (pubId to newFavoriteId)).toImmutableMap()
                     } else {
-                        favoriteIdMap - pubId
+                        (favoriteIdMap - pubId).toImmutableMap()
                     },
-                    pubMapItems = pubMapItems.map { item ->
-                        if (item.pubId == pubId) {
-                            item.copy(favoriteCount = (item.favoriteCount + delta).coerceAtLeast(0))
-                        } else {
-                            item
-                        }
-                    },
+                    pubMapItems = pubMapItems
+                        .map { item ->
+                            if (item.pubId == pubId) {
+                                item.copy(favoriteCount = (item.favoriteCount + delta).coerceAtLeast(0))
+                            } else {
+                                item
+                            }
+                        }.toImmutableList(),
                 ).withOverlays()
             }
         }
@@ -462,9 +479,15 @@ class HomeViewModel
          */
         private fun HomeContract.State.withOverlays(): HomeContract.State =
             if (zoom > CLUSTER_ZOOM_THRESHOLD) {
-                copy(pubMarkers = pubMapItems.toMarkers(favoritePubIds), pubClusters = emptyList())
+                copy(
+                    pubMarkers = pubMapItems.toMarkers(favoritePubIds).toImmutableList(),
+                    pubClusters = persistentListOf(),
+                )
             } else {
-                copy(pubMarkers = emptyList(), pubClusters = pubMapItems.toClusters())
+                copy(
+                    pubMarkers = persistentListOf(),
+                    pubClusters = pubMapItems.toClusters().toImmutableList(),
+                )
             }
 
         private fun List<PubMapItem>.toMarkers(favoriteIds: Set<Long>): List<PubMarker> =
@@ -510,27 +533,31 @@ private val HomeFilter.teamIdsForQuery: List<Long>?
  * "서울 전체"(SEOUL_ALL)는 전체 조회이므로 제외하고, 선택이 없으면 null.
  */
 private val HomeFilter.regionsForQuery: List<String>?
-    get() = (selectedRegions - "SEOUL_ALL").ifEmpty { null }
+    get() = (selectedRegions - SeoulRegion.SEOUL_ALL.code).ifEmpty { null }
 
 /** 퀵 필터 칩 토글 규칙 */
 private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
     when (filterKey) {
         "OPEN" -> copy(openNow = if (openNow == true) null else true)
 
-        "GROUP_SEAT" -> toggleFacility("GROUP_SEAT")
+        "GROUP_SEAT" -> toggleFacility(FacilityCode.GROUP_SEAT.code)
 
-        "PARKING" -> toggleFacility("PARKING")
+        "PARKING" -> toggleFacility(FacilityCode.PARKING.code)
 
-        "WIDE_SPACE" -> toggleFacility("SPACIOUS_AREA")
+        "WIDE_SPACE" -> toggleFacility(FacilityCode.SPACIOUS_AREA.code)
 
-        "VARIOUS_DRINKS" ->
+        "VARIOUS_DRINKS" -> {
+            // 술 코드만 정확히 토글 — 다른 음식(예: CHICKEN) 선택은 건드리지 않는다
+            val current = foodCodes ?: emptyList()
+            val hasDrinks = current.any { it in FoodCode.DRINK_CODES }
             copy(
-                foodCodes = if (foodCodes?.isNotEmpty() == true) {
-                    emptyList()
+                foodCodes = if (hasDrinks) {
+                    (current - FoodCode.DRINK_CODES).ifEmpty { null }
                 } else {
-                    listOf("SOJU", "BEER", "COCKTAIL", "HIGHBALL")
+                    (current + FoodCode.DRINK_CODES).distinct()
                 },
             )
+        }
 
         else -> this
     }
