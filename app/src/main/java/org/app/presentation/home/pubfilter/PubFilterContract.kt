@@ -2,7 +2,6 @@ package org.app.presentation.home.pubfilter
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import org.app.data.model.TeamItem
 import org.app.domain.model.KboTeamType
 import org.app.presentation.home.model.PubFilterOption
@@ -20,19 +19,6 @@ interface PubFilterContract {
     ) {
         val hasSelection: Boolean
             get() = selectedOptions.values.any { it.isNotEmpty() }
-
-        /** teams 로드 후 team 섹션 옵션을 동적으로 교체한 섹션 목록 */
-        val resolvedSections: ImmutableList<PubFilterSection>
-            get() {
-                if (teams.isEmpty()) return sections
-                val teamSection = PubFilterSection(
-                    sectionId = FilterSectionId.TEAM,
-                    title = "응원팀",
-                    options = listOf(PubFilterOption("all", "KBO 전체")) +
-                        teams.map { PubFilterOption(it.teamId.toString(), it.shortName) },
-                )
-                return sections.map { if (it.sectionId == FilterSectionId.TEAM) teamSection else it }.toImmutableList()
-            }
     }
 
     sealed interface Event {
@@ -110,7 +96,7 @@ private fun defaultSections(): ImmutableList<PubFilterSection> =
             title = "영업 요일",
             options = BusinessDayFilter.options,
         ),
-        // teams 로드 전 placeholder — 로드 후 State.resolvedSections가 서버 teamId로 교체
+        // teams 로드 전 placeholder — 로드 후 PubFilterViewModel.loadTeams()가 서버 teamId로 교체
         PubFilterSection(
             sectionId = FilterSectionId.TEAM,
             title = "응원팀",
