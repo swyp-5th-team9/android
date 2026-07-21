@@ -80,6 +80,12 @@ enum class FoodCode(
     BEER("BEER", "맥주"),
     COCKTAIL("COCKTAIL", "칵테일"),
     HIGHBALL("HIGHBALL", "하이볼"),
+    ;
+
+    companion object {
+        /** 주류 코드 집합 — "다양한 술" 퀵 필터의 토글/선택 판정 단일 출처 */
+        val DRINK_CODES: Set<String> = setOf(SOJU.code, BEER.code, COCKTAIL.code, HIGHBALL.code)
+    }
 }
 
 /**

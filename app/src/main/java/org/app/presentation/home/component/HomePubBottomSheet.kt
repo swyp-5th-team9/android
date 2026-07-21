@@ -65,8 +65,6 @@ import org.app.presentation.pubdetail.component.TeamListBadge
 import java.time.LocalDate
 import java.time.LocalTime
 
-private val DRINK_CODES = setOf(FoodCode.SOJU.code, FoodCode.BEER.code, FoodCode.COCKTAIL.code, FoodCode.HIGHBALL.code)
-
 @Composable
 private fun DragHandle() {
     Box(
@@ -173,7 +171,7 @@ private fun PubListContent(
             item {
                 HomePubFilterChip(
                     label = "다양한 술",
-                    isSelected = filter.foodCodes?.any { it in DRINK_CODES } == true,
+                    isSelected = filter.foodCodes?.any { it in FoodCode.DRINK_CODES } == true,
                     onClick = { onFilterClick("VARIOUS_DRINKS") },
                 )
             }

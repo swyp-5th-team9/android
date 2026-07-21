@@ -546,14 +546,18 @@ private fun HomeFilter.applyQuickFilter(filterKey: String): HomeFilter =
 
         "WIDE_SPACE" -> toggleFacility(FacilityCode.SPACIOUS_AREA.code)
 
-        "VARIOUS_DRINKS" ->
+        "VARIOUS_DRINKS" -> {
+            // 술 코드만 정확히 토글 — 다른 음식(예: CHICKEN) 선택은 건드리지 않는다
+            val current = foodCodes ?: emptyList()
+            val hasDrinks = current.any { it in FoodCode.DRINK_CODES }
             copy(
-                foodCodes = if (foodCodes?.isNotEmpty() == true) {
-                    emptyList()
+                foodCodes = if (hasDrinks) {
+                    (current - FoodCode.DRINK_CODES).ifEmpty { null }
                 } else {
-                    listOf(FoodCode.SOJU.code, FoodCode.BEER.code, FoodCode.COCKTAIL.code, FoodCode.HIGHBALL.code)
+                    (current + FoodCode.DRINK_CODES).distinct()
                 },
             )
+        }
 
         else -> this
     }
