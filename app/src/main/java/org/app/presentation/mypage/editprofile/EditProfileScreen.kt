@@ -49,6 +49,7 @@ import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.maxLength
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.editprofile.component.EditProfileNicknameCard
 
@@ -163,7 +164,9 @@ private fun EditProfileScreen(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_edit_pencil),
                         contentDescription = null,
                         tint = Color.Unspecified,
-                        modifier = Modifier.noRippleClickable(onClick = onPickImage),
+                        modifier = Modifier
+                            .minTouchTarget()
+                            .noRippleClickable(onClick = onPickImage),
                     )
                 }
             }

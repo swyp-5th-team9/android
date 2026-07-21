@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.pubfilter.CITIES
 import org.app.presentation.home.pubfilter.SEOUL_SUB_REGIONS
@@ -101,6 +102,7 @@ fun CityChip(
 
     Box(
         modifier = modifier
+            .minTouchTarget()
             .clip(RoundedCornerShape(100.dp))
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))

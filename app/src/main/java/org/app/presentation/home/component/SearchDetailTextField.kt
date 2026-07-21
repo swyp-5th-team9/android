@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R.drawable
 import org.app.core.designsystem.component.textfield.MoballBasicTextField
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -85,8 +86,9 @@ fun SearchDetailTextField(
                 imageVector = ImageVector.vectorResource(drawable.ic_search_close_circle),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.noRippleClickable
-                    { state.edit { delete(0, length) } },
+                modifier = Modifier
+                    .minTouchTarget()
+                    .noRippleClickable { state.edit { delete(0, length) } },
             )
         }
 

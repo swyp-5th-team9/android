@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.model.PubFilterOption
 import org.app.presentation.home.model.PubFilterSection
@@ -77,6 +78,7 @@ fun PubFilterOptionChip(
 
     Box(
         modifier = modifier
+            .minTouchTarget()
             .clip(CircleShape)
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))

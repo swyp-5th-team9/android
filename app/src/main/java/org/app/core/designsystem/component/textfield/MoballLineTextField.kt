@@ -35,6 +35,7 @@ import com.moball.app.R.drawable
 import org.app.core.designsystem.style.MoballTextFieldInputStyle
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.maxLength
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 /**
@@ -126,6 +127,7 @@ fun MoballLineTextField(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .padding(10.dp)
+                        .minTouchTarget()
                         .noRippleClickable {
                             state.edit { delete(0, length) }
                         },

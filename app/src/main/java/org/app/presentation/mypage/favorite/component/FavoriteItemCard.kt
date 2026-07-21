@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.favorite.FavoritePubItem
 
@@ -73,6 +74,7 @@ fun FavoriteItemCard(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 6.dp, bottom = 6.dp)
+                    .minTouchTarget()
                     .noRippleClickable {
                         if (!isEditMode) onHeartClick()
                     },

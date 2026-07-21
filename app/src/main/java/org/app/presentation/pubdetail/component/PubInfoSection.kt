@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
 import org.app.data.model.BusinessHour
@@ -94,7 +95,9 @@ fun PubInfoSection(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.noRippleClickable(onWishToggle),
+                modifier = Modifier
+                    .minTouchTarget()
+                    .noRippleClickable(onWishToggle),
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(
@@ -283,6 +286,7 @@ private fun BusinessHoursRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .minTouchTarget()
                 .noRippleClickable(onToggle),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -375,7 +379,15 @@ private fun InfoRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.noRippleClickable(onClick) else Modifier),
+            .then(
+                if (onClick != null) {
+                    Modifier
+                        .minTouchTarget()
+                        .noRippleClickable(onClick)
+                } else {
+                    Modifier
+                },
+            ),
         verticalAlignment = Alignment.Top,
     ) {
         Icon(

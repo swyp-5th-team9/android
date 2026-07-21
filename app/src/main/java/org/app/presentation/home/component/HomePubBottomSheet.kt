@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
 import org.app.data.model.PubDetail
@@ -235,6 +236,7 @@ private fun PubListItem(
                 contentDescription = null,
                 tint = if (isFavorite) MoballTheme.colors.iconPrimary else MoballTheme.colors.textTertiary,
                 modifier = Modifier
+                    .minTouchTarget()
                     .size(24.dp)
                     .noRippleClickable(onFavoriteClick),
             )
@@ -604,6 +606,7 @@ private fun HomePubFilterChip(
 ) {
     Box(
         modifier = modifier
+            .minTouchTarget()
             .clip(CircleShape)
             .background(
                 color = if (isSelected) MoballTheme.colors.borderActive else MoballTheme.colors.backgroundBase,

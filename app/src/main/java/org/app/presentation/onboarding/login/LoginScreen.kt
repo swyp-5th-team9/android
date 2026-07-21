@@ -37,6 +37,7 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.component.SocialLoginButton
@@ -183,6 +184,7 @@ private fun LoginScreen(
             },
             modifier = Modifier
                 .padding(bottom = 10.dp)
+                .minTouchTarget()
                 .noRippleClickable(onClick = onPrivacyPolicyClick),
         )
     }
