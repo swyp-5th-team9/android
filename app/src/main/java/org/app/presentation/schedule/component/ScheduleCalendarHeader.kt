@@ -69,7 +69,7 @@ fun ScheduleCalendarHeader(
                 elevation = 20.dp,
                 spotColor = Color(0x26000000),
                 ambientColor = Color(0x26000000),
-            ).background(MoballTheme.colors.backgroundBase),
+            ).background(MoballTheme.colors.staticWhite),
     ) {
         MonthNavigationRow(
             currentMonth = currentMonth,
@@ -103,7 +103,6 @@ private fun MonthNavigationRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
-        // 가운데: < 2026년 N월 > — 화면 폭과 무관하게 중앙 정렬
         Row(
             modifier = Modifier.align(Alignment.Center),
             verticalAlignment = Alignment.CenterVertically,
@@ -139,7 +138,6 @@ private fun MonthNavigationRow(
             )
         }
 
-        // 오른쪽 고정: 캘린더 아이콘
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_calender),
             contentDescription = null,
