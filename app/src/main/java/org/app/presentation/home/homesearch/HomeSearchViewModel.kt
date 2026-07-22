@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import org.app.core.analytics.AnalyticsEvent
+import org.app.core.analytics.AnalyticsHelper
+import org.app.core.analytics.AnalyticsParam
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.PubRepository
 import org.app.presentation.home.model.PubSearchResult
@@ -21,6 +24,7 @@ class HomeSearchViewModel
     @Inject
     constructor(
         private val pubRepository: PubRepository,
+        private val analyticsHelper: AnalyticsHelper,
     ) : BaseViewModel<HomeSearchContract.State, HomeSearchContract.Event, HomeSearchContract.SideEffect>(
             HomeSearchContract.State(),
         ) {
@@ -70,6 +74,10 @@ class HomeSearchViewModel
                         setState {
                             copy(isLoading = false, results = results.toImmutableList(), isEmpty = results.isEmpty())
                         }
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent.MAP_SEARCH,
+                            mapOf(AnalyticsParam.RESULT_COUNT to results.size),
+                        )
                     }.onFailure { error ->
                         Timber.e("검색 실패: $error")
                         setState { copy(isLoading = false, results = persistentListOf(), isEmpty = true) }

@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import org.app.core.analytics.AnalyticsEvent
+import org.app.core.analytics.AnalyticsHelper
+import org.app.core.analytics.AnalyticsParam
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.ReportRepository
 import timber.log.Timber
@@ -16,6 +19,7 @@ class ReportViewModel
     constructor(
         savedStateHandle: SavedStateHandle,
         private val reportRepository: ReportRepository,
+        private val analyticsHelper: AnalyticsHelper,
     ) : BaseViewModel<ReportContract.State, ReportContract.Event, ReportContract.SideEffect>(
             ReportContract.State(pubId = savedStateHandle.get<Long?>("pubId")),
         ) {
@@ -65,6 +69,10 @@ class ReportViewModel
                         imageUris = s.imageUris,
                     ).onSuccess {
                         Timber.d("제보 완료: reportId=${it.reportId}")
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent.REPORT_SUBMIT,
+                            mapOf(AnalyticsParam.CATEGORY to s.selectedCategory.apiValue),
+                        )
                         postSideEffect(ReportContract.SideEffect.ShowSuccessDialog)
                     }.onFailure { error ->
                         Timber.e(error, "제보 전송 실패")
