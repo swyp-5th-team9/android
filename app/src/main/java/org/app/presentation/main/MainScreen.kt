@@ -27,6 +27,7 @@ import org.app.presentation.onboarding.signup.navigation.SignUpNickname
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.onboarding.splash.navigation.Splash
 import org.app.presentation.onboarding.splash.navigation.splashGraph
+import org.app.presentation.pubdetail.navigation.PubDetail
 import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
@@ -83,6 +84,15 @@ private fun MainNavHost(
     )
     val isFullBleed = currentRoute != null && fullBleedPrefixes.any { currentRoute.startsWith(it) }
 
+    val managesOwnBottomInset = currentRoute != null &&
+        PubDetail::class.qualifiedName?.let { currentRoute.startsWith(it) } == true
+
+    val contentModifier = when {
+        isFullBleed -> Modifier.fillMaxSize()
+        managesOwnBottomInset -> Modifier.padding(top = innerPadding.calculateTopPadding())
+        else -> Modifier.padding(innerPadding)
+    }
+
     NavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -90,7 +100,7 @@ private fun MainNavHost(
         popExitTransition = { ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
-        modifier = if (isFullBleed) Modifier.fillMaxSize() else Modifier.padding(innerPadding),
+        modifier = contentModifier,
     ) {
         splashGraph(
             navigateToHome = {
