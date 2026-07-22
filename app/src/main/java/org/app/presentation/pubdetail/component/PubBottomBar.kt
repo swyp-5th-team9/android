@@ -37,7 +37,7 @@ fun PubBottomBar(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MoballTheme.colors.backgroundBase,
+        color = MoballTheme.colors.staticWhite,
         shadowElevation = 8.dp,
         tonalElevation = 0.dp,
     ) {

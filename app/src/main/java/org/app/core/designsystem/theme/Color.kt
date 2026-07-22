@@ -153,7 +153,7 @@ data class MoballColors(
 
 val defaultMoballColors = MoballColors(
     // Background
-    backgroundBase = backGround,
+    backgroundBase = white,
     backgroundSurface = coolNeutral130,
     backgroundScrim = coolNeutral800,
     // Border & Line

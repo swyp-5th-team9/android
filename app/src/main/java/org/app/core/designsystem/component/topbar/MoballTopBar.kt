@@ -1,5 +1,6 @@
 package org.app.core.designsystem.component.topbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,8 @@ fun MoballTopBar(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .height(IntrinsicSize.Min),
+            .height(IntrinsicSize.Min)
+            .background(MoballTheme.colors.staticWhite),
     ) {
         Row(
             modifier = Modifier

@@ -27,6 +27,7 @@ import org.app.presentation.onboarding.signup.navigation.SignUpNickname
 import org.app.presentation.onboarding.signup.navigation.signUpGraph
 import org.app.presentation.onboarding.splash.navigation.Splash
 import org.app.presentation.onboarding.splash.navigation.splashGraph
+import org.app.presentation.pubdetail.navigation.PubDetail
 import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
@@ -73,8 +74,6 @@ private fun MainNavHost(
     appState: MainAppState,
     innerPadding: PaddingValues,
 ) {
-    // 로그인·온보딩 완료 등 어두운 배경 화면은 배경을 화면 끝(시스템바 뒤)까지 그리도록 innerPadding을 적용하지 않는다.
-    // (해당 화면들은 각자 콘텐츠에 systemBarsPadding을 적용)
     val currentEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
     val fullBleedPrefixes = listOfNotNull(
@@ -83,6 +82,15 @@ private fun MainNavHost(
     )
     val isFullBleed = currentRoute != null && fullBleedPrefixes.any { currentRoute.startsWith(it) }
 
+    val managesOwnBottomInset = currentRoute != null &&
+        PubDetail::class.qualifiedName?.let { currentRoute.startsWith(it) } == true
+
+    val contentModifier = when {
+        isFullBleed -> Modifier.fillMaxSize()
+        managesOwnBottomInset -> Modifier.padding(top = innerPadding.calculateTopPadding())
+        else -> Modifier.padding(innerPadding)
+    }
+
     NavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -90,7 +98,7 @@ private fun MainNavHost(
         popExitTransition = { ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
-        modifier = if (isFullBleed) Modifier.fillMaxSize() else Modifier.padding(innerPadding),
+        modifier = contentModifier,
     ) {
         splashGraph(
             navigateToHome = {
