@@ -74,8 +74,6 @@ private fun MainNavHost(
     appState: MainAppState,
     innerPadding: PaddingValues,
 ) {
-    // 로그인·온보딩 완료 등 어두운 배경 화면은 배경을 화면 끝(시스템바 뒤)까지 그리도록 innerPadding을 적용하지 않는다.
-    // (해당 화면들은 각자 콘텐츠에 systemBarsPadding을 적용)
     val currentEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
     val fullBleedPrefixes = listOfNotNull(
