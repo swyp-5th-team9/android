@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
+import org.app.core.analytics.AnalyticsEvent
+import org.app.core.analytics.AnalyticsHelper
+import org.app.core.analytics.AnalyticsParam
 import org.app.core.common.base.BaseViewModel
 import org.app.data.repository.api.UserRepository
 import javax.inject.Inject
@@ -14,6 +17,7 @@ class SignUpViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
+        private val analyticsHelper: AnalyticsHelper,
         savedStateHandle: SavedStateHandle,
     ) : BaseViewModel<SignUpContract.State, SignUpContract.Event, SignUpContract.SideEffect>(
             SignUpContract.State(nickname = savedStateHandle.get<String>("nickname") ?: ""),
@@ -80,6 +84,10 @@ class SignUpViewModel
                     .postOnboarding(nickname = nickname, teamIds = teamIds)
                     .onSuccess {
                         setState { copy(isLoading = false) }
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent.ONBOARDING_COMPLETE,
+                            mapOf(AnalyticsParam.TEAM_COUNT to teamIds.size),
+                        )
                         postSideEffect(SignUpContract.SideEffect.NavigateToComplete)
                     }.onFailure { error ->
                         setState { copy(isLoading = false) }

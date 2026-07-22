@@ -8,6 +8,9 @@ import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.app.core.analytics.AnalyticsEvent
+import org.app.core.analytics.AnalyticsHelper
+import org.app.core.analytics.AnalyticsParam
 import org.app.core.common.base.BaseViewModel
 import org.app.core.network.isHttpConflict
 import org.app.data.mapper.toPartialDetail
@@ -49,6 +52,7 @@ class HomeViewModel
         private val userRepository: UserRepository,
         private val pubRepository: PubRepository,
         private val favoriteRepository: FavoriteRepository,
+        private val analyticsHelper: AnalyticsHelper,
     ) : BaseViewModel<HomeContract.State, HomeContract.Event, HomeContract.SideEffect>(
             HomeContract.State(),
         ) {
@@ -158,6 +162,13 @@ class HomeViewModel
                         foodCodes = event.foodCodes,
                     )
                     setState { copy(filter = newFilter, showFilterBottomSheet = false) }
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent.FILTER_APPLY,
+                        mapOf(
+                            AnalyticsParam.TEAM_COUNT to event.teamIds.size,
+                            AnalyticsParam.REGION_COUNT to event.regions.size,
+                        ),
+                    )
 
                     // 선택된 지역들의 좌표를 모아 바운즈 이동 처리
                     // "서울 전체"(SEOUL_ALL)는 특정 지점이 아니라 전체 조회이므로 카메라 이동 대상에서 제외
@@ -174,6 +185,10 @@ class HomeViewModel
                 }
 
                 is HomeContract.Event.OnKakaoMapClick -> {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent.MAP_LINK_CLICK,
+                        mapOf(AnalyticsParam.MAP_TYPE to "kakao"),
+                    )
                     val kakaoFallback =
                         "https://map.kakao.com/link/map/${event.name},${event.lat},${event.lng}"
                     postSideEffect(
@@ -186,6 +201,10 @@ class HomeViewModel
                 }
 
                 is HomeContract.Event.OnNaverMapClick -> {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent.MAP_LINK_CLICK,
+                        mapOf(AnalyticsParam.MAP_TYPE to "naver"),
+                    )
                     val naverUrl =
                         "$NAVER_MAP_SCHEME://place?lat=${event.lat}&lng=${event.lng}" +
                             "&name=${event.name}&appname=$NAVER_MAP_APP_NAME"
@@ -332,6 +351,10 @@ class HomeViewModel
                                 selectedPubDetail = detail.copy(isFavoriteed = isFavoriteed),
                             )
                         }
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent.PUB_DETAIL_VIEW,
+                            mapOf(AnalyticsParam.PUB_ID to pubId),
+                        )
                     }.onFailure { error ->
                         Timber.e("펍 상세 로드 실패: $error")
                         setState {
@@ -408,6 +431,10 @@ class HomeViewModel
                                 isFavorite = true,
                                 updateSelectedDetail = updateSelectedDetail,
                                 newFavoriteId = newId,
+                            )
+                            analyticsHelper.logEvent(
+                                AnalyticsEvent.FAVORITE_ADD,
+                                mapOf(AnalyticsParam.PUB_ID to pubId),
                             )
                             postSideEffect(HomeContract.SideEffect.ShowToast("즐겨찾기에 등록되었습니다."))
                         }.onFailure { error ->
