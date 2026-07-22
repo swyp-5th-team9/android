@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
-    // TODO alias(libs.plugins.google.services)
+    alias(libs.plugins.google.services)
 }
 
 val properties = Properties().apply {
@@ -166,4 +166,8 @@ dependencies {
 
     // Naver Login
     implementation(libs.naver.login)
+
+    // Firebase (Analytics)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }

@@ -41,3 +41,6 @@ local.properties
 # 서명 키(keystore) — 보안상 절대 커밋 금지
 *.jks
 *.keystore
+
+# Firebase (google-services.json에 API 키 포함 — 로컬/CI에 각자 배치)
+google-services.json
