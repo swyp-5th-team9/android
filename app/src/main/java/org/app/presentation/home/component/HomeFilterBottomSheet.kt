@@ -1,5 +1,6 @@
 package org.app.presentation.home.component
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,7 @@ import org.app.presentation.home.pubfilter.CITIES
 import org.app.presentation.home.pubfilter.component.CityChip
 import org.app.presentation.home.pubfilter.component.PubFilterOptionChip
 import org.app.presentation.home.pubfilter.component.PubFilterSubRegionChip
+import org.app.presentation.home.pubfilter.component.UNSUPPORTED_REGION_MESSAGE
 
 /** 지역 필터 목록. 단일 출처는 [SeoulRegion]. */
 private val REGIONS: List<Pair<String, String>> =
@@ -296,6 +299,7 @@ private fun RegionFilterContent(
     onToggleRegion: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.padding(bottom = 16.dp),
@@ -306,7 +310,12 @@ private fun RegionFilterContent(
                     label = city.label,
                     isSelected = city.id == "seoul",
                     isEnabled = city.isEnabled,
-                    onClick = { /* MVP: 서울만 지원 */ },
+                    onClick = {
+                        // MVP: 서울만 지원. 그 외 지역은 안내 토스트만 표시.
+                        if (!city.isEnabled) {
+                            Toast.makeText(context, UNSUPPORTED_REGION_MESSAGE, Toast.LENGTH_SHORT).show()
+                        }
+                    },
                 )
             }
         }

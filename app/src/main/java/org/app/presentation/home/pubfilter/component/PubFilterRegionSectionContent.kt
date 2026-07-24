@@ -1,5 +1,6 @@
 package org.app.presentation.home.pubfilter.component
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,11 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.pubfilter.CITIES
 import org.app.presentation.home.pubfilter.SEOUL_SUB_REGIONS
+
+/** 서울 외 지역(경기·인천·부산 등) 선택 시 안내 문구 — MVP는 서울만 지원. */
+const val UNSUPPORTED_REGION_MESSAGE = "현재는 서울 지역만 지원하고 있어요"
 
 @Composable
 fun PubFilterRegionSectionContent(
@@ -39,13 +44,19 @@ fun PubFilterRegionSectionContent(
 
         Spacer(Modifier.height(24.dp))
 
+        val context = LocalContext.current
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CITIES.forEach { city ->
                 CityChip(
                     label = city.label,
                     isSelected = city.id == "seoul",
                     isEnabled = city.isEnabled,
-                    onClick = { /* MVP: 서울만 지원 */ },
+                    onClick = {
+                        // MVP: 서울만 지원. 그 외 지역은 안내 토스트만 표시.
+                        if (!city.isEnabled) {
+                            Toast.makeText(context, UNSUPPORTED_REGION_MESSAGE, Toast.LENGTH_SHORT).show()
+                        }
+                    },
                 )
             }
         }
@@ -104,7 +115,8 @@ fun CityChip(
             .clip(RoundedCornerShape(100.dp))
             .background(bgColor)
             .border(1.dp, borderColor, RoundedCornerShape(100.dp))
-            .then(if (isEnabled) Modifier.noRippleClickable(onClick) else Modifier)
+            // 비활성 도시도 클릭은 가능하게 두어 호출부에서 안내 토스트를 띄운다(시각 스타일만 비활성).
+            .noRippleClickable(onClick)
             .heightIn(min = 44.dp),
         contentAlignment = Alignment.Center,
     ) {
