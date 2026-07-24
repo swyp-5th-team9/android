@@ -41,7 +41,7 @@ fun MoballButton(
             .clip(RoundedCornerShape(12.dp))
             .background(resolvedBackgroundColor)
             .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
-            .heightIn(min = 48.dp),
+            .heightIn(min = 56.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
