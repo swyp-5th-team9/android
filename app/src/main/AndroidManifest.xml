@@ -20,7 +20,7 @@
         <activity
             android:name="org.app.presentation.main.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Moball"
+            android:theme="@style/Theme.Moball.Splash"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

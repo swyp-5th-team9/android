@@ -77,6 +77,7 @@ private fun MainNavHost(
     val currentEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
     val fullBleedPrefixes = listOfNotNull(
+        Splash::class.qualifiedName,
         Login::class.qualifiedName,
         SignUpComplete::class.qualifiedName,
     )

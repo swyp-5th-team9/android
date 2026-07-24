@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Moball" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- 시스템(Android 12+) 스플래시 화면. 이전 버전은 core-splashscreen 이 동일하게 백포트. -->
+    <style name="Theme.Moball.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Moball</item>
+    </style>
 </resources>

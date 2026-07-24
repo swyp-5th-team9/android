@@ -6,12 +6,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import org.app.core.designsystem.theme.MoballTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 시스템 스플래시(로고 + #303339 배경) 설치. super.onCreate 이전에 호출해야 하며,
+        // 이후 postSplashScreenTheme(Theme.Moball)로 자동 전환된다.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         // 내비게이션 바 스크림을 제거(투명)해 화면 배경색이 그대로 비치도록 한다.
         // (기본 enableEdgeToEdge는 3버튼 내비에 반투명 스크림을 씌워 배경색과 어긋남)
