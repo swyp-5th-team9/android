@@ -1,7 +1,11 @@
 package org.app.presentation.main
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
@@ -32,16 +37,22 @@ import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
-// 배경을 시스템바 뒤까지 어둡게 채우는(full-bleed) 화면들.
-// 이 화면들에선 Scaffold 컨테이너/윈도우 배경이 시스템바 영역에 흰색으로 비치지 않도록 처리한다.
 private val fullBleedRoutePrefixes = listOfNotNull(
     Splash::class.qualifiedName,
     Login::class.qualifiedName,
     SignUpComplete::class.qualifiedName,
 )
 
-// 스플래시 그라데이션 하단색 — full-bleed 화면의 Scaffold 컨테이너 색으로 사용해 내비바 영역 이음새를 없앤다.
 private val FullBleedContainerColor = Color(0xFF1C1C1C)
+
+private const val FULL_BLEED_FADE_MS = 280
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.involvesFullBleed(): Boolean =
+    listOf(initialState, targetState).any { entry ->
+        entry.destination.route?.let { route ->
+            fullBleedRoutePrefixes.any { route.startsWith(it) }
+        } == true
+    }
 
 @Composable
 fun MainScreen(
@@ -104,10 +115,10 @@ private fun MainNavHost(
     }
 
     NavHost(
-        enterTransition = { EnterTransition.None },
-        exitTransition = { ExitTransition.None },
-        popEnterTransition = { EnterTransition.None },
-        popExitTransition = { ExitTransition.None },
+        enterTransition = { if (involvesFullBleed()) fadeIn(tween(FULL_BLEED_FADE_MS)) else EnterTransition.None },
+        exitTransition = { if (involvesFullBleed()) fadeOut(tween(FULL_BLEED_FADE_MS)) else ExitTransition.None },
+        popEnterTransition = { if (involvesFullBleed()) fadeIn(tween(FULL_BLEED_FADE_MS)) else EnterTransition.None },
+        popExitTransition = { if (involvesFullBleed()) fadeOut(tween(FULL_BLEED_FADE_MS)) else ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
         modifier = contentModifier,
