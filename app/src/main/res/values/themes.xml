@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Moball" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Moball" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- 기본 흰색 windowBackground이 런처→앱 전환 시 흰 플래시로 보여 어두운 스플래시 색으로 맞춘다.
+             (첫 화면 스플래시가 어두운 배경이라 이음새 없이 전환) -->
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
 
     <!-- 시스템(Android 12+) 스플래시 화면. 이전 버전은 core-splashscreen 이 동일하게 백포트. -->
     <style name="Theme.Moball.Splash" parent="Theme.SplashScreen">

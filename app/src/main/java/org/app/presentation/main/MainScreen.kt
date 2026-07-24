@@ -32,6 +32,17 @@ import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
+// 배경을 시스템바 뒤까지 어둡게 채우는(full-bleed) 화면들.
+// 이 화면들에선 Scaffold 컨테이너/윈도우 배경이 시스템바 영역에 흰색으로 비치지 않도록 처리한다.
+private val fullBleedRoutePrefixes = listOfNotNull(
+    Splash::class.qualifiedName,
+    Login::class.qualifiedName,
+    SignUpComplete::class.qualifiedName,
+)
+
+// 스플래시 그라데이션 하단색 — full-bleed 화면의 Scaffold 컨테이너 색으로 사용해 내비바 영역 이음새를 없앤다.
+private val FullBleedContainerColor = Color(0xFF1C1C1C)
+
 @Composable
 fun MainScreen(
     appState: MainAppState,
@@ -39,6 +50,11 @@ fun MainScreen(
 ) {
     val isBottomBarVisible by appState.isBottomBarVisible.collectAsStateWithLifecycle()
     val currentTab by appState.currentTab.collectAsStateWithLifecycle()
+
+    val currentEntry by appState.navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+    val isDarkFullBleed = currentRoute != null &&
+        fullBleedRoutePrefixes.any { currentRoute.startsWith(it) }
 
     LaunchedEffect(viewModel) {
         viewModel.authEvent.collect {
@@ -58,7 +74,7 @@ fun MainScreen(
                 onTabSelected = appState::navigate,
             )
         },
-        containerColor = Color.White,
+        containerColor = if (isDarkFullBleed) FullBleedContainerColor else Color.White,
         modifier = Modifier
             .fillMaxSize(),
     ) { innerPadding ->
@@ -76,12 +92,7 @@ private fun MainNavHost(
 ) {
     val currentEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
-    val fullBleedPrefixes = listOfNotNull(
-        Splash::class.qualifiedName,
-        Login::class.qualifiedName,
-        SignUpComplete::class.qualifiedName,
-    )
-    val isFullBleed = currentRoute != null && fullBleedPrefixes.any { currentRoute.startsWith(it) }
+    val isFullBleed = currentRoute != null && fullBleedRoutePrefixes.any { currentRoute.startsWith(it) }
 
     val managesOwnBottomInset = currentRoute != null &&
         PubDetail::class.qualifiedName?.let { currentRoute.startsWith(it) } == true
