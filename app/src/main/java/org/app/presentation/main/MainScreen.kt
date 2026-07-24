@@ -62,10 +62,12 @@ fun MainScreen(
     val isBottomBarVisible by appState.isBottomBarVisible.collectAsStateWithLifecycle()
     val currentTab by appState.currentTab.collectAsStateWithLifecycle()
 
-    val currentEntry by appState.navController.currentBackStackEntryAsState()
-    val currentRoute = currentEntry?.destination?.route
-    val isDarkFullBleed = currentRoute != null &&
-        fullBleedRoutePrefixes.any { currentRoute.startsWith(it) }
+    val visibleEntries by appState.navController.visibleEntries.collectAsStateWithLifecycle()
+    val isDarkFullBleed = visibleEntries.any { entry ->
+        entry.destination.route?.let { route ->
+            fullBleedRoutePrefixes.any { route.startsWith(it) }
+        } == true
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.authEvent.collect {
