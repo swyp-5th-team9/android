@@ -291,44 +291,49 @@ internal fun PubFilterScreen(
 
         HorizontalDivider(color = MoballTheme.colors.borderNormal, thickness = 1.dp)
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MoballTheme.colors.backgroundBase)
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                .navigationBarsPadding(),
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MoballTheme.colors.backgroundBase)
-                    .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
-                    .then(
-                        if (state.hasSelection) {
-                            Modifier.noRippleClickable {
-                                onEvent(PubFilterContract.Event.OnReset)
-                            }
-                        } else {
-                            Modifier
-                        },
-                    ),
-                contentAlignment = Alignment.Center,
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MoballTheme.colors.backgroundBase)
+                        .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
+                        .then(
+                            if (state.hasSelection) {
+                                Modifier.noRippleClickable {
+                                    onEvent(PubFilterContract.Event.OnReset)
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                    )
+                }
+
+                MoballButton(
+                    text = "적용하기",
+                    onClick = { onEvent(PubFilterContract.Event.OnApply) },
+                    modifier = Modifier.weight(1f),
                 )
             }
-
-            MoballButton(
-                text = "적용하기",
-                onClick = { onEvent(PubFilterContract.Event.OnApply) },
-                modifier = Modifier.weight(1f),
-            )
         }
     }
 }
