@@ -428,7 +428,7 @@ private fun PubDetailContent(
                     Text(
                         text = detail.name,
                         style = MoballTheme.typography.heading3.bold20,
-                        color = MoballTheme.colors.textTitle,
+                        color = MoballTheme.colors.textPrimary,
                     )
 
                     if (detail.address.isNotEmpty()) {
