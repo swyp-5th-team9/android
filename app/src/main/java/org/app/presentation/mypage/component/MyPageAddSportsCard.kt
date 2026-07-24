@@ -53,7 +53,6 @@ fun MyPageAddSportsCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
                     .background(
                         color = Color(0xFFFAFAFB),
                         shape = RoundedCornerShape(16.dp),
@@ -61,8 +60,6 @@ fun MyPageAddSportsCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.height(30.dp))
-
                 Text(
                     text = "아직 응원하는 구단이 없어요",
                     style = MoballTheme.typography.body.regular14,
@@ -106,6 +103,17 @@ private fun MyPageAddSportsCardPreview() {
     MoballTheme {
         MyPageAddSportsCard(
             supportedTeams = listOf("KT", "삼성", "LG"),
+            onAddClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MyPageAddSportsCardEmptyPreview() {
+    MoballTheme {
+        MyPageAddSportsCard(
+            supportedTeams = emptyList(),
             onAddClick = {},
         )
     }
