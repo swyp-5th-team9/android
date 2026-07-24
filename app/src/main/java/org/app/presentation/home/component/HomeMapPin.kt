@@ -99,11 +99,18 @@ fun createClusterMarkerBitmap(
     return bitmap
 }
 
+// 클러스터 마커는 count 가 같으면 비트맵이 동일하므로 count 로 캐싱해
+// 카메라 이동(idle)마다 반복되는 Canvas 드로잉/비트맵 생성을 메인 스레드에서 줄인다.
+private val clusterOverlayImageCache = mutableMapOf<Int, OverlayImage>()
+
 /** OverlayImage for NaverMap cluster marker */
 fun clusterOverlayImage(
     context: Context,
     count: Int,
-): OverlayImage = OverlayImage.fromBitmap(createClusterMarkerBitmap(context, count))
+): OverlayImage =
+    clusterOverlayImageCache.getOrPut(count) {
+        OverlayImage.fromBitmap(createClusterMarkerBitmap(context, count))
+    }
 
 @Preview(showBackground = true, backgroundColor = 0xFFBFC6CF)
 @Composable

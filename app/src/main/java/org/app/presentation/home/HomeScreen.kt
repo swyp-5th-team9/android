@@ -378,6 +378,10 @@ fun HomeScreen(
     }
 }
 
+// 마커 아이콘은 종류별로 동일하므로 매 마커마다 재생성하지 않고 한 번만 만들어 재사용한다.
+private val matchPinImage by lazy { OverlayImage.fromResource(R.drawable.img_pin) }
+private val favoritePinImage by lazy { OverlayImage.fromResource(R.drawable.img_favorite) }
+
 private fun renderPubMarkers(
     context: Context,
     map: NaverMap,
@@ -387,24 +391,18 @@ private fun renderPubMarkers(
 ) {
     // PNG 마커는 원본 픽셀 크기로 렌더되므로, 원래 벡터(dp) 크기를 명시해 확대되지 않게 한다.
     val density = context.resources.displayMetrics.density
+    val markerSize = (68 * density).toInt()
     currentMarkers.forEach { it.map = null }
     currentMarkers.clear()
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            when (pubMarker.type) {
-                PubMarkerType.MATCH -> {
-                    icon = OverlayImage.fromResource(R.drawable.img_pin)
-                    width = (68 * density).toInt()
-                    height = (68 * density).toInt()
-                }
-
-                PubMarkerType.FAVORITE -> {
-                    icon = OverlayImage.fromResource(R.drawable.img_favorite)
-                    width = (68 * density).toInt()
-                    height = (68 * density).toInt()
-                }
+            icon = when (pubMarker.type) {
+                PubMarkerType.MATCH -> matchPinImage
+                PubMarkerType.FAVORITE -> favoritePinImage
             }
+            width = markerSize
+            height = markerSize
             this.map = map
             setOnClickListener {
                 onMarkerClick(pubMarker.pubId)
