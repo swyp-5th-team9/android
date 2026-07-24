@@ -43,8 +43,6 @@ fun PubBottomBar(
         tonalElevation = 0.dp,
     ) {
         Column(
-            // 내비바 인셋을 버튼 패딩에서 분리해 바 하단에만 둔다.
-            // (버튼 Row는 위아래 25dp 대칭 유지 → 위/아래 간격 동일)
             modifier = Modifier.navigationBarsPadding(),
         ) {
             Row(
