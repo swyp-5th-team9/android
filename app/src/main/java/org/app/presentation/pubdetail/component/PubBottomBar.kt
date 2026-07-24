@@ -2,12 +2,10 @@ package org.app.presentation.pubdetail.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,49 +40,45 @@ fun PubBottomBar(
         shadowElevation = 8.dp,
         tonalElevation = 0.dp,
     ) {
-        Column(
-            modifier = Modifier.navigationBarsPadding(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 25.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 25.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (hasPhoneNumber) {
-                    Surface(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(
-                                width = 1.dp,
-                                color = MoballTheme.colors.borderStrong,
-                                shape = RoundedCornerShape(12.dp),
-                            ).noRippleClickable(onPhoneCall),
-                        color = MoballTheme.colors.backgroundBase,
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                            modifier = Modifier.padding(16.dp),
-                        )
-                    }
+            if (hasPhoneNumber) {
+                Surface(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            width = 1.dp,
+                            color = MoballTheme.colors.borderStrong,
+                            shape = RoundedCornerShape(12.dp),
+                        ).noRippleClickable(onPhoneCall),
+                    color = MoballTheme.colors.backgroundBase,
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.padding(16.dp),
+                    )
                 }
-
-                MapButton(
-                    text = "카카오맵",
-                    onClick = onKakaoMapClick,
-                    modifier = Modifier.weight(1f),
-                )
-                MapButton(
-                    text = "네이버지도",
-                    onClick = onNaverMapClick,
-                    modifier = Modifier.weight(1f),
-                )
             }
+
+            MapButton(
+                text = "카카오맵",
+                onClick = onKakaoMapClick,
+                modifier = Modifier.weight(1f),
+            )
+            MapButton(
+                text = "네이버지도",
+                onClick = onNaverMapClick,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
