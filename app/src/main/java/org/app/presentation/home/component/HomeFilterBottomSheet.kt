@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -172,11 +173,10 @@ private fun FilterBottomSheetContent(
     onApply: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.8f).dp
+    val sheetHeight = (LocalConfiguration.current.screenHeightDp * 0.72f).dp
     Column(
         modifier = modifier
-            .heightIn(max = maxSheetHeight)
-            // 시트 하단 "적용하기" 버튼이 시스템 내비게이션 바(하단바)와 겹치지 않도록 하단 인셋 확보
+            .height(sheetHeight)
             .navigationBarsPadding(),
     ) {
         Row(
@@ -218,7 +218,7 @@ private fun FilterBottomSheetContent(
 
         Column(
             modifier = Modifier
-                .weight(1f, fill = false)
+                .weight(1f)
                 .verticalScroll(rememberScrollState()),
         ) {
             Spacer(Modifier.height(32.dp))
@@ -242,6 +242,11 @@ private fun FilterBottomSheetContent(
 
             Spacer(Modifier.height(24.dp))
         }
+
+        HorizontalDivider(
+            color = MoballTheme.colors.borderNormal,
+            thickness = 1.dp,
+        )
 
         Box(
             modifier = Modifier

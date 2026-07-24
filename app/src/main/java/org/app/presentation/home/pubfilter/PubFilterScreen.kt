@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -291,49 +293,45 @@ internal fun PubFilterScreen(
 
         HorizontalDivider(color = MoballTheme.colors.borderNormal, thickness = 1.dp)
 
-        Column(
+        val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MoballTheme.colors.backgroundBase)
-                .navigationBarsPadding(),
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 8.dp + navBottom),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MoballTheme.colors.backgroundBase)
+                    .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
+                    .then(
+                        if (state.hasSelection) {
+                            Modifier.noRippleClickable {
+                                onEvent(PubFilterContract.Event.OnReset)
+                            }
+                        } else {
+                            Modifier
+                        },
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MoballTheme.colors.backgroundBase)
-                        .border(1.dp, MoballTheme.colors.borderNormal, RoundedCornerShape(12.dp))
-                        .then(
-                            if (state.hasSelection) {
-                                Modifier.noRippleClickable {
-                                    onEvent(PubFilterContract.Event.OnReset)
-                                }
-                            } else {
-                                Modifier
-                            },
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-                }
-
-                MoballButton(
-                    text = "적용하기",
-                    onClick = { onEvent(PubFilterContract.Event.OnApply) },
-                    modifier = Modifier.weight(1f),
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
                 )
             }
+
+            MoballButton(
+                text = "적용하기",
+                onClick = { onEvent(PubFilterContract.Event.OnApply) },
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }

@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
+import org.app.presentation.home.pubfilter.navigation.PubFilter
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
@@ -126,7 +127,10 @@ private fun MainNavHost(
     val isFullBleed = currentRoute != null && fullBleedRoutePrefixes.any { currentRoute.startsWith(it) }
 
     val managesOwnBottomInset = currentRoute != null &&
-        PubDetail::class.qualifiedName?.let { currentRoute.startsWith(it) } == true
+        listOfNotNull(
+            PubDetail::class.qualifiedName,
+            PubFilter::class.qualifiedName,
+        ).any { currentRoute.startsWith(it) }
 
     val contentModifier = when {
         isFullBleed -> Modifier.fillMaxSize()
