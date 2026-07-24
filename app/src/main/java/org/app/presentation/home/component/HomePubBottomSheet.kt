@@ -609,7 +609,8 @@ private fun HomePubFilterChip(
                 color = if (isSelected) Color.Transparent else MoballTheme.colors.borderStrong,
                 shape = CircleShape,
             ).noRippleClickable(onClick)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .heightIn(min = 32.dp)
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
