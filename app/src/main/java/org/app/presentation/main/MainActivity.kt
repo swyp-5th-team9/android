@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
         // 내비게이션 바 스크림을 제거(투명)해 화면 배경색이 그대로 비치도록 한다.
         // (기본 enableEdgeToEdge는 3버튼 내비에 반투명 스크림을 씌워 배경색과 어긋남)
         enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
         )
         setContent {

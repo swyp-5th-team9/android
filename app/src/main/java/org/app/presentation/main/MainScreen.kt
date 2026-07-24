@@ -1,5 +1,8 @@
 package org.app.presentation.main
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -15,6 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -45,6 +50,13 @@ private val fullBleedRoutePrefixes = listOfNotNull(
 
 private val FullBleedContainerColor = Color(0xFF1C1C1C)
 
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
+
 private const val FULL_BLEED_FADE_MS = 280
 
 private fun AnimatedContentTransitionScope<NavBackStackEntry>.involvesFullBleed(): Boolean =
@@ -67,6 +79,12 @@ fun MainScreen(
         entry.destination.route?.let { route ->
             fullBleedRoutePrefixes.any { route.startsWith(it) }
         } == true
+    }
+
+    val view = LocalView.current
+    LaunchedEffect(isDarkFullBleed) {
+        val window = view.context.findActivity()?.window ?: return@LaunchedEffect
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkFullBleed
     }
 
     LaunchedEffect(viewModel) {
