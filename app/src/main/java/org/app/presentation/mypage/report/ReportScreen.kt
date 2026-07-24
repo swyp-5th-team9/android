@@ -58,7 +58,6 @@ import org.app.core.designsystem.component.textfield.MoballAreaTextField
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.report.component.ReportCategoryChip
 
@@ -281,7 +280,6 @@ private fun ReportScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .offset(x = 6.dp, y = (-6).dp)
-                                .minTouchTarget()
                                 .size(24.dp)
                                 .noRippleClickable { onImageRemoved(uri) },
                         )

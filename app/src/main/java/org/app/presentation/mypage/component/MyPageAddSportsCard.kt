@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballBaseballTeamBadge
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -37,7 +36,8 @@ fun MyPageAddSportsCard(
             .background(
                 color = Color(0xFFFAFAFB),
                 shape = RoundedCornerShape(16.dp),
-            ).padding(vertical = 11.dp, horizontal = 20.dp),
+            )
+            .padding(all= 12.dp),
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
@@ -45,7 +45,6 @@ fun MyPageAddSportsCard(
             tint = Color.Unspecified,
             modifier = Modifier
                 .align(Alignment.End)
-                .minTouchTarget()
                 .noRippleClickable(onAddClick),
         )
 
@@ -107,7 +106,7 @@ fun MyPageAddSportsCard(
 private fun MyPageAddSportsCardPreview() {
     MoballTheme {
         MyPageAddSportsCard(
-            supportedTeams = listOf("KT", "삼성"),
+            supportedTeams = listOf("KT", "삼성","LG"),
             onAddClick = {},
         )
     }

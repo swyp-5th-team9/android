@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -112,7 +111,6 @@ private fun MonthNavigationRow(
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .minTouchTarget()
                     .size(24.dp)
                     .noRippleClickable(onClick = onPrevWeek),
             )
@@ -132,7 +130,6 @@ private fun MonthNavigationRow(
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .minTouchTarget()
                     .size(24.dp)
                     .noRippleClickable(onClick = onNextWeek),
             )

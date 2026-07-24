@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -62,7 +61,6 @@ fun MyPageProfileCard(
 
             Box(
                 modifier = Modifier
-                    .minTouchTarget()
                     .border(
                         width = 1.dp,
                         color = MoballTheme.colors.borderNormal,

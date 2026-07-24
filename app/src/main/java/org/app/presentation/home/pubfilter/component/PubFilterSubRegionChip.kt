@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -25,7 +24,6 @@ fun PubFilterSubRegionChip(
 ) {
     Box(
         modifier = modifier
-            .minTouchTarget()
             .clip(RoundedCornerShape(12.dp))
             .background(
                 if (isSelected) {

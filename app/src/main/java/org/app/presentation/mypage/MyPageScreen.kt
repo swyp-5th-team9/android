@@ -52,7 +52,6 @@ import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.component.MyPageAddSportsCard
 import org.app.presentation.mypage.component.MyPageFavoriteSection
@@ -247,7 +246,6 @@ private fun MyPageScreen(
                         textAlign = TextAlign.End,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .minTouchTarget()
                             .noRippleClickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
                         textDecoration = TextDecoration.Underline,
                     )
@@ -257,7 +255,6 @@ private fun MyPageScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .minTouchTarget()
                             .noRippleClickable { onCopyEmail(email) },
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,

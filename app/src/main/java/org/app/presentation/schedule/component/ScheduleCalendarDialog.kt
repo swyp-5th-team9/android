@@ -41,7 +41,6 @@ import androidx.compose.ui.window.DialogWindowProvider
 import com.moball.app.R
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -172,7 +171,6 @@ private fun CalendarHeader(
             contentDescription = "이전 달",
             tint = Color.Unspecified,
             modifier = Modifier
-                .minTouchTarget()
                 .size(24.dp)
                 .noRippleClickable(onClick = onPrevMonth),
         )
@@ -188,7 +186,6 @@ private fun CalendarHeader(
             contentDescription = "다음 달",
             tint = Color.Unspecified,
             modifier = Modifier
-                .minTouchTarget()
                 .size(24.dp)
                 .noRippleClickable(onClick = onNextMonth),
         )

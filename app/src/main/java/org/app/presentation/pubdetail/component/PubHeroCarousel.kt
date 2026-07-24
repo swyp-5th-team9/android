@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -79,7 +78,6 @@ fun PubHeroCarousel(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp, top = 16.dp)
-                .minTouchTarget()
                 .noRippleClickable(onBack),
             contentAlignment = Alignment.Center,
         ) {

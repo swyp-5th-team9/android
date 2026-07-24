@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -45,7 +44,6 @@ fun PubFilterTabRow(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .minTouchTarget()
                         .heightIn(min = 44.dp)
                         .noRippleClickable { onTabClick(idx) },
                     contentAlignment = Alignment.Center,
