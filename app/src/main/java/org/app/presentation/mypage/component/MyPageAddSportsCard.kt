@@ -36,8 +36,7 @@ fun MyPageAddSportsCard(
             .background(
                 color = Color(0xFFFAFAFB),
                 shape = RoundedCornerShape(16.dp),
-            )
-            .padding(all= 12.dp),
+            ).padding(all = 12.dp),
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
@@ -106,7 +105,7 @@ fun MyPageAddSportsCard(
 private fun MyPageAddSportsCardPreview() {
     MoballTheme {
         MyPageAddSportsCard(
-            supportedTeams = listOf("KT", "삼성","LG"),
+            supportedTeams = listOf("KT", "삼성", "LG"),
             onAddClick = {},
         )
     }
