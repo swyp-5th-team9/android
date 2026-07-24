@@ -2,6 +2,7 @@ package org.app.presentation.pubdetail.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,46 +42,51 @@ fun PubBottomBar(
         shadowElevation = 8.dp,
         tonalElevation = 0.dp,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 25.dp)
-                .navigationBarsPadding(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            // 내비바 인셋을 버튼 패딩에서 분리해 바 하단에만 둔다.
+            // (버튼 Row는 위아래 25dp 대칭 유지 → 위/아래 간격 동일)
+            modifier = Modifier.navigationBarsPadding(),
         ) {
-            if (hasPhoneNumber) {
-                Surface(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            width = 1.dp,
-                            color = MoballTheme.colors.borderStrong,
-                            shape = RoundedCornerShape(12.dp),
-                        ).noRippleClickable(onPhoneCall),
-                    color = MoballTheme.colors.backgroundBase,
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.padding(16.dp),
-                    )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 25.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (hasPhoneNumber) {
+                    Surface(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(
+                                width = 1.dp,
+                                color = MoballTheme.colors.borderStrong,
+                                shape = RoundedCornerShape(12.dp),
+                            ).noRippleClickable(onPhoneCall),
+                        color = MoballTheme.colors.backgroundBase,
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_phone),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.padding(16.dp),
+                        )
+                    }
                 }
-            }
 
-            MapButton(
-                text = "카카오맵",
-                onClick = onKakaoMapClick,
-                modifier = Modifier.weight(1f),
-            )
-            MapButton(
-                text = "네이버지도",
-                onClick = onNaverMapClick,
-                modifier = Modifier.weight(1f),
-            )
+                MapButton(
+                    text = "카카오맵",
+                    onClick = onKakaoMapClick,
+                    modifier = Modifier.weight(1f),
+                )
+                MapButton(
+                    text = "네이버지도",
+                    onClick = onNaverMapClick,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }
