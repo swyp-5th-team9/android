@@ -205,7 +205,6 @@ private fun PubListItem(
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
 ) {
-    // 화면에 보일 때 상세(businessHours)를 lazy 로드 요청 — 지도 API엔 영업시간이 없어서
     LaunchedEffect(item.pubId) { onAppear() }
 
     Column(
