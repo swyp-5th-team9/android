@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.app.data.repository.api.AuthRepository
 import javax.inject.Inject
 
-private const val SPLASH_DELAY_MS = 2000L
+private const val SPLASH_DELAY_MS = 3000L
 
 @HiltViewModel
 class SplashViewModel
