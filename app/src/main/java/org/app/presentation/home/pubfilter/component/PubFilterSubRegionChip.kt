@@ -42,7 +42,7 @@ fun PubFilterSubRegionChip(
         Text(
             text = label,
             style = MoballTheme.typography.heading7.semibold14,
-            color = MoballTheme.colors.textTertiary,
+            color = MoballTheme.colors.textPrimary,
             modifier = Modifier.padding(horizontal = 19.dp),
         )
     }
