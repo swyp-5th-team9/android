@@ -23,6 +23,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.data.model.BusinessHour
 import org.app.data.model.KboTeam
@@ -43,6 +44,7 @@ fun PubDetailRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
 
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
@@ -65,9 +67,7 @@ fun PubDetailRoute(
             }
 
             is PubDetailContract.SideEffect.ShowToast -> {
-                android.widget.Toast
-                    .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
-                    .show()
+                toastHostState.show(effect.message)
             }
         }
     }
