@@ -9,11 +9,13 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -26,6 +28,9 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
+import org.app.core.designsystem.component.LocalMoballToastHostState
+import org.app.core.designsystem.component.MoballToastHost
+import org.app.core.designsystem.component.rememberMoballToastHostState
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.home.pubfilter.navigation.PubFilter
@@ -97,23 +102,31 @@ fun MainScreen(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            MainBottomBar(
-                isVisible = isBottomBarVisible,
-                tabs = MainTab.entries.toImmutableList(),
-                currentTab = currentTab,
-                onTabSelected = appState::navigate,
-            )
-        },
-        containerColor = if (isDarkFullBleed) FullBleedContainerColor else Color.White,
-        modifier = Modifier
-            .fillMaxSize(),
-    ) { innerPadding ->
-        MainNavHost(
-            appState = appState,
-            innerPadding = innerPadding,
-        )
+    val toastHostState = rememberMoballToastHostState()
+
+    CompositionLocalProvider(LocalMoballToastHostState provides toastHostState) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                bottomBar = {
+                    MainBottomBar(
+                        isVisible = isBottomBarVisible,
+                        tabs = MainTab.entries.toImmutableList(),
+                        currentTab = currentTab,
+                        onTabSelected = appState::navigate,
+                    )
+                },
+                containerColor = if (isDarkFullBleed) FullBleedContainerColor else Color.White,
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) { innerPadding ->
+                MainNavHost(
+                    appState = appState,
+                    innerPadding = innerPadding,
+                )
+            }
+
+            MoballToastHost(hostState = toastHostState)
+        }
     }
 }
 
