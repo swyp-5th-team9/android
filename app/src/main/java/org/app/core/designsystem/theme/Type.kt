@@ -119,7 +119,7 @@ private fun moballTextStyle(
         letterSpacing = (-0.01).em,
         lineHeightStyle = LineHeightStyle(
             alignment = LineHeightStyle.Alignment.Center,
-            trim = LineHeightStyle.Trim.None,
+            trim = LineHeightStyle.Trim.Both,
         ),
     )
 

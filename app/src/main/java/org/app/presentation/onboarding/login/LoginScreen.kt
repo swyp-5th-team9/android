@@ -2,7 +2,6 @@ package org.app.presentation.onboarding.login
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -36,8 +35,8 @@ import com.moball.app.R
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.domain.model.SocialType
 import org.app.presentation.onboarding.login.component.SocialLoginButton
@@ -53,6 +52,7 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -69,7 +69,7 @@ fun LoginRoute(
             LoginContract.SideEffect.NavigateToSignUp -> navigateToSignUp()
 
             is LoginContract.SideEffect.ShowToast ->
-                Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(sideEffect.message)
         }
     }
 
@@ -184,7 +184,6 @@ private fun LoginScreen(
             },
             modifier = Modifier
                 .padding(bottom = 10.dp)
-                .minTouchTarget()
                 .noRippleClickable(onClick = onPrivacyPolicyClick),
         )
     }

@@ -1,6 +1,5 @@
 package org.app.presentation.home.pubfilter
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -54,6 +54,7 @@ private fun tabIndexToItemIndex(tabIdx: Int) = tabIdx + 1
 fun PubFilterRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialSelectedOptions: Map<String, Set<String>> = emptyMap(),
     onApplyFilter: (
         teamIds: List<Long>,
         teamNames: List<String>,
@@ -68,7 +69,14 @@ fun PubFilterRoute(
     viewModel: PubFilterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
+
+    // 홈에서 넘어온 현재 적용 필터를 최초 1회 선택 상태로 복원
+    LaunchedEffect(Unit) {
+        if (initialSelectedOptions.isNotEmpty()) {
+            viewModel.onEvent(PubFilterContract.Event.OnSeed(initialSelectedOptions))
+        }
+    }
 
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
@@ -89,7 +97,7 @@ fun PubFilterRoute(
             }
 
             is PubFilterContract.SideEffect.ShowToast -> {
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
             }
         }
     }
@@ -296,7 +304,7 @@ internal fun PubFilterScreen(
                 .fillMaxWidth()
                 .background(MoballTheme.colors.backgroundBase)
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 25.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {

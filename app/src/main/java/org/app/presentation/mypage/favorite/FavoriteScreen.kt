@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -34,6 +33,7 @@ import com.moball.app.R
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
@@ -51,7 +51,7 @@ fun FavoriteRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var heartDeleteId by remember { mutableStateOf<Long?>(null) }
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
@@ -69,9 +69,7 @@ fun FavoriteRoute(
             FavoriteContract.SideEffect.NavigateBack -> onBack()
             is FavoriteContract.SideEffect.NavigateToPubDetail -> navigateToPubDetail(effect.pubId)
             is FavoriteContract.SideEffect.ShowToast -> {
-                android.widget.Toast
-                    .makeText(context, effect.message, android.widget.Toast.LENGTH_SHORT)
-                    .show()
+                toastHostState.show(effect.message)
             }
         }
     }

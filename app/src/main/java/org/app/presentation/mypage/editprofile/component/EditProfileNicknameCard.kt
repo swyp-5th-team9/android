@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -47,9 +46,7 @@ fun EditProfileNicknameCard(
             imageVector = ImageVector.vectorResource(R.drawable.ic_edit_nickname_pencil),
             contentDescription = null,
             tint = Color.Unspecified,
-            modifier = Modifier
-                .minTouchTarget()
-                .noRippleClickable(onClick = onEditClick),
+            modifier = Modifier.noRippleClickable(onClick = onEditClick),
         )
     }
 }

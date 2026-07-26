@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.favorite.FavoritePubItem
 import org.app.presentation.mypage.favorite.component.FavoritePreviewCard
@@ -57,7 +56,6 @@ fun MyPageFavoriteSection(
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .minTouchTarget()
                     .noRippleClickable { onFavoriteClick() },
             )
         }

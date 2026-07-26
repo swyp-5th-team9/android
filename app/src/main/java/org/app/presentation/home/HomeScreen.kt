@@ -7,7 +7,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +51,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
@@ -61,6 +61,7 @@ import org.app.presentation.home.component.HomePubListBottomSheet
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
 import org.app.presentation.home.component.clusterOverlayImage
+import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
 import org.app.presentation.home.model.PubMarkerType
@@ -71,12 +72,13 @@ private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 fun HomeRoute(
     onNavigateToPubDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToPubFilter: () -> Unit,
+    onNavigateToPubFilter: (HomeFilter) -> Unit,
     onNavigateToReport: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Screen에서 지도 준비 완료 시 올려주는(호이스팅) NaverMap 참조 — 카메라 이동 SideEffect 처리에 사용
@@ -85,7 +87,7 @@ fun HomeRoute(
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
             is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-            is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+            is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter(state.filter)
             is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
             is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
             is HomeContract.SideEffect.MoveCameraToBounds -> {
@@ -99,7 +101,7 @@ fun HomeRoute(
             }
 
             is HomeContract.SideEffect.ShowToast ->
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
 
             is HomeContract.SideEffect.OpenMap -> {
                 val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
@@ -326,6 +328,10 @@ fun HomeScreen(
                             regions,
                             state.filter.openNow,
                             state.filter.businessDay,
+                            state.filter.facilityCodes,
+                            state.filter.styleCodes,
+                            state.filter.themeCodes,
+                            state.filter.foodCodes,
                         ),
                     )
                 },
@@ -378,6 +384,10 @@ fun HomeScreen(
     }
 }
 
+// 마커 아이콘은 종류별로 동일하므로 매 마커마다 재생성하지 않고 한 번만 만들어 재사용한다.
+private val matchPinImage by lazy { OverlayImage.fromResource(R.drawable.img_pin) }
+private val favoritePinImage by lazy { OverlayImage.fromResource(R.drawable.img_favorite) }
+
 private fun renderPubMarkers(
     context: Context,
     map: NaverMap,
@@ -387,24 +397,18 @@ private fun renderPubMarkers(
 ) {
     // PNG 마커는 원본 픽셀 크기로 렌더되므로, 원래 벡터(dp) 크기를 명시해 확대되지 않게 한다.
     val density = context.resources.displayMetrics.density
+    val markerSize = (68 * density).toInt()
     currentMarkers.forEach { it.map = null }
     currentMarkers.clear()
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            when (pubMarker.type) {
-                PubMarkerType.MATCH -> {
-                    icon = OverlayImage.fromResource(R.drawable.img_pin)
-                    width = (68 * density).toInt()
-                    height = (68 * density).toInt()
-                }
-
-                PubMarkerType.FAVORITE -> {
-                    icon = OverlayImage.fromResource(R.drawable.img_favorite)
-                    width = (68 * density).toInt()
-                    height = (68 * density).toInt()
-                }
+            icon = when (pubMarker.type) {
+                PubMarkerType.MATCH -> matchPinImage
+                PubMarkerType.FAVORITE -> favoritePinImage
             }
+            width = markerSize
+            height = markerSize
             this.map = map
             setOnClickListener {
                 onMarkerClick(pubMarker.pubId)

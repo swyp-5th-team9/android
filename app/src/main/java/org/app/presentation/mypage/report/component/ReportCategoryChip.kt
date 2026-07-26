@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -31,7 +30,6 @@ fun ReportCategoryChip(
 
     Box(
         modifier = modifier
-            .minTouchTarget()
             .background(bgColor, CircleShape)
             .border(1.dp, borderColor, CircleShape)
             .noRippleClickable(onClick = onClick)

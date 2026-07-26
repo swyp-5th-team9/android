@@ -1,7 +1,6 @@
 package org.app.presentation.mypage
 
 import android.content.ClipData
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -49,10 +47,10 @@ import com.moball.app.R
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.topbar.MoballTopBar
 import org.app.core.designsystem.component.topbar.TopBarState
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.mypage.component.MyPageAddSportsCard
 import org.app.presentation.mypage.component.MyPageFavoriteSection
@@ -73,7 +71,7 @@ fun MyPageRoute(
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
@@ -117,7 +115,7 @@ fun MyPageRoute(
             }
 
             is MyPageContract.SideEffect.ShowToast -> {
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
             }
         }
     }
@@ -247,7 +245,6 @@ private fun MyPageScreen(
                         textAlign = TextAlign.End,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .minTouchTarget()
                             .noRippleClickable { onEvent(MyPageContract.Event.OnWithdrawClick) },
                         textDecoration = TextDecoration.Underline,
                     )
@@ -257,7 +254,6 @@ private fun MyPageScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .minTouchTarget()
                             .noRippleClickable { onCopyEmail(email) },
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,

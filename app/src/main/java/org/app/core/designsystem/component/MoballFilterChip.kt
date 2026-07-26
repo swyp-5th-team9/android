@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R.drawable
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 private val ChipShape = RoundedCornerShape(100.dp)
@@ -44,9 +43,6 @@ fun MoballFilterChip(
 ) {
     Row(
         modifier = modifier
-            // 접근성: 배경/그림자보다 바깥에서 최소 48dp 터치 영역 확보(시각 크기는 유지)
-            .minTouchTarget()
-            // pill 외곽을 따라 그림자가 보이도록 shape 지정(미지정 시 사각형으로 그려져 거의 안 보임)
             .shadow(
                 elevation = 3.dp,
                 shape = ChipShape,

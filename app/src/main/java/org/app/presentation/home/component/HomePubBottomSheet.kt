@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import com.moball.app.R
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 import org.app.core.util.TimeUtils
 import org.app.data.model.PubDetail
@@ -206,7 +205,6 @@ private fun PubListItem(
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
 ) {
-    // 화면에 보일 때 상세(businessHours)를 lazy 로드 요청 — 지도 API엔 영업시간이 없어서
     LaunchedEffect(item.pubId) { onAppear() }
 
     Column(
@@ -234,7 +232,6 @@ private fun PubListItem(
                 contentDescription = null,
                 tint = if (isFavorite) MoballTheme.colors.iconPrimary else MoballTheme.colors.textTertiary,
                 modifier = Modifier
-                    .minTouchTarget()
                     .size(24.dp)
                     .noRippleClickable(onFavoriteClick),
             )
@@ -431,7 +428,7 @@ private fun PubDetailContent(
                     Text(
                         text = detail.name,
                         style = MoballTheme.typography.heading3.bold20,
-                        color = MoballTheme.colors.textTitle,
+                        color = MoballTheme.colors.textPrimary,
                     )
 
                     if (detail.address.isNotEmpty()) {
@@ -604,7 +601,6 @@ private fun HomePubFilterChip(
 ) {
     Box(
         modifier = modifier
-            .minTouchTarget()
             .clip(CircleShape)
             .background(
                 color = if (isSelected) MoballTheme.colors.borderActive else MoballTheme.colors.backgroundBase,
@@ -613,7 +609,8 @@ private fun HomePubFilterChip(
                 color = if (isSelected) Color.Transparent else MoballTheme.colors.borderStrong,
                 shape = CircleShape,
             ).noRippleClickable(onClick)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .heightIn(min = 32.dp)
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

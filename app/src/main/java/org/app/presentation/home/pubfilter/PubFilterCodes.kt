@@ -114,6 +114,10 @@ enum class BusinessDayFilter(
         /** optionId → 서버 코드. 매칭 실패/전체(all_days) 시 null */
         fun serverCodeOf(optionId: String?): String? = entries.firstOrNull { it.optionId == optionId }?.serverCode
 
+        /** 서버 코드 → optionId. 적용된 필터를 필터 화면에 복원(시드)할 때 사용 */
+        fun optionIdOf(serverCode: String?): String? =
+            if (serverCode == null) null else entries.firstOrNull { it.serverCode == serverCode }?.optionId
+
         val options: List<PubFilterOption> = entries.map { PubFilterOption(it.optionId, it.label) }
     }
 }

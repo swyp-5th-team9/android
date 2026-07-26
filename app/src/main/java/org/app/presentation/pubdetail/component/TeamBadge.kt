@@ -2,12 +2,14 @@ package org.app.presentation.pubdetail.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,17 +45,23 @@ fun TeamBadge(
 ) {
     val color = teamType.teamColor
     Surface(
-        modifier = modifier.heightIn(min = 28.dp),
-        shape = RoundedCornerShape(999.dp),
+        modifier = modifier,
+        shape = CircleShape,
         color = Color.Transparent,
         border = BorderStroke(width = 1.dp, color = color),
     ) {
-        Text(
-            text = teamType.fullName,
-            style = MoballTheme.typography.caption.medium12,
-            color = color,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        )
+        Box(
+            modifier = Modifier
+                .heightIn(min = 28.dp)
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = teamType.fullName,
+                style = MoballTheme.typography.caption.medium12,
+                color = color,
+            )
+        }
     }
 }
 
@@ -63,16 +71,22 @@ fun TeamListBadge(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.heightIn(min = 24.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(4.dp),
         color = MoballTheme.colors.teamListBadgeBg,
     ) {
-        Text(
-            text = text,
-            style = MoballTheme.typography.caption.medium12,
-            color = MoballTheme.colors.teamListBadgeText,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
+        Box(
+            modifier = Modifier
+                .heightIn(min = 24.dp)
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = text,
+                style = MoballTheme.typography.caption.medium12,
+                color = MoballTheme.colors.teamListBadgeText,
+            )
+        }
     }
 }
 

@@ -17,7 +17,6 @@ fun MoballBaseballTeamBadge(
     teamName: String,
     modifier: Modifier = Modifier,
 ) {
-    // 매칭 실패(ALL 포함) 시 logoRes가 null → 팀명 텍스트로 대체
     val teamIconRes = KboTeamType.fromShortName(teamName).logoRes
 
     if (teamIconRes != null) {

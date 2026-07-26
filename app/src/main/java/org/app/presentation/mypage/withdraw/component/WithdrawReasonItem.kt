@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.minTouchTarget
 import org.app.core.extension.noRippleClickable
 
 @Composable
@@ -27,7 +26,6 @@ fun WithdrawReasonItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .minTouchTarget()
             .background(MoballTheme.colors.backgroundBase)
             .noRippleClickable(onClick)
             .heightIn(min = 40.dp),

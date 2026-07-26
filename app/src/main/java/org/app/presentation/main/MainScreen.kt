@@ -1,23 +1,39 @@
 package org.app.presentation.main
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.collections.immutable.toImmutableList
+import org.app.core.designsystem.component.LocalMoballToastHostState
+import org.app.core.designsystem.component.MoballToastHost
+import org.app.core.designsystem.component.rememberMoballToastHostState
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
+import org.app.presentation.home.pubfilter.navigation.PubFilter
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
 import org.app.presentation.onboarding.login.navigation.Login
@@ -32,6 +48,30 @@ import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 import org.app.presentation.pubdetail.navigation.pubDetailGraph
 import org.app.presentation.schedule.navigation.scheduleGraph
 
+private val fullBleedRoutePrefixes = listOfNotNull(
+    Splash::class.qualifiedName,
+    Login::class.qualifiedName,
+    SignUpComplete::class.qualifiedName,
+)
+
+private val FullBleedContainerColor = Color(0xFF1C1C1C)
+
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
+
+private const val FULL_BLEED_FADE_MS = 280
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.involvesFullBleed(): Boolean =
+    listOf(initialState, targetState).any { entry ->
+        entry.destination.route?.let { route ->
+            fullBleedRoutePrefixes.any { route.startsWith(it) }
+        } == true
+    }
+
 @Composable
 fun MainScreen(
     appState: MainAppState,
@@ -39,6 +79,19 @@ fun MainScreen(
 ) {
     val isBottomBarVisible by appState.isBottomBarVisible.collectAsStateWithLifecycle()
     val currentTab by appState.currentTab.collectAsStateWithLifecycle()
+
+    val visibleEntries by appState.navController.visibleEntries.collectAsStateWithLifecycle()
+    val isDarkFullBleed = visibleEntries.any { entry ->
+        entry.destination.route?.let { route ->
+            fullBleedRoutePrefixes.any { route.startsWith(it) }
+        } == true
+    }
+
+    val view = LocalView.current
+    LaunchedEffect(isDarkFullBleed) {
+        val window = view.context.findActivity()?.window ?: return@LaunchedEffect
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkFullBleed
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.authEvent.collect {
@@ -49,23 +102,31 @@ fun MainScreen(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            MainBottomBar(
-                isVisible = isBottomBarVisible,
-                tabs = MainTab.entries.toImmutableList(),
-                currentTab = currentTab,
-                onTabSelected = appState::navigate,
-            )
-        },
-        containerColor = Color.White,
-        modifier = Modifier
-            .fillMaxSize(),
-    ) { innerPadding ->
-        MainNavHost(
-            appState = appState,
-            innerPadding = innerPadding,
-        )
+    val toastHostState = rememberMoballToastHostState()
+
+    CompositionLocalProvider(LocalMoballToastHostState provides toastHostState) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                bottomBar = {
+                    MainBottomBar(
+                        isVisible = isBottomBarVisible,
+                        tabs = MainTab.entries.toImmutableList(),
+                        currentTab = currentTab,
+                        onTabSelected = appState::navigate,
+                    )
+                },
+                containerColor = if (isDarkFullBleed) FullBleedContainerColor else Color.White,
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) { innerPadding ->
+                MainNavHost(
+                    appState = appState,
+                    innerPadding = innerPadding,
+                )
+            }
+
+            MoballToastHost(hostState = toastHostState)
+        }
     }
 }
 
@@ -76,14 +137,13 @@ private fun MainNavHost(
 ) {
     val currentEntry by appState.navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
-    val fullBleedPrefixes = listOfNotNull(
-        Login::class.qualifiedName,
-        SignUpComplete::class.qualifiedName,
-    )
-    val isFullBleed = currentRoute != null && fullBleedPrefixes.any { currentRoute.startsWith(it) }
+    val isFullBleed = currentRoute != null && fullBleedRoutePrefixes.any { currentRoute.startsWith(it) }
 
     val managesOwnBottomInset = currentRoute != null &&
-        PubDetail::class.qualifiedName?.let { currentRoute.startsWith(it) } == true
+        listOfNotNull(
+            PubDetail::class.qualifiedName,
+            PubFilter::class.qualifiedName,
+        ).any { currentRoute.startsWith(it) }
 
     val contentModifier = when {
         isFullBleed -> Modifier.fillMaxSize()
@@ -92,10 +152,10 @@ private fun MainNavHost(
     }
 
     NavHost(
-        enterTransition = { EnterTransition.None },
-        exitTransition = { ExitTransition.None },
-        popEnterTransition = { EnterTransition.None },
-        popExitTransition = { ExitTransition.None },
+        enterTransition = { if (involvesFullBleed()) fadeIn(tween(FULL_BLEED_FADE_MS)) else EnterTransition.None },
+        exitTransition = { if (involvesFullBleed()) fadeOut(tween(FULL_BLEED_FADE_MS)) else ExitTransition.None },
+        popEnterTransition = { if (involvesFullBleed()) fadeIn(tween(FULL_BLEED_FADE_MS)) else EnterTransition.None },
+        popExitTransition = { if (involvesFullBleed()) fadeOut(tween(FULL_BLEED_FADE_MS)) else ExitTransition.None },
         navController = appState.navController,
         startDestination = appState.startDestination,
         modifier = contentModifier,
