@@ -68,9 +68,7 @@ class HomeViewModel
         private val loadingListDetailIds = mutableSetOf<Long>()
 
         init {
-            loadUserFavoriteTeams()
-            loadMapPubs(currentState.filter)
-            loadPubList(currentState.filter)
+            loadInitialPubs()
             loadFavoritePubIds()
         }
 
@@ -259,6 +257,35 @@ class HomeViewModel
                             postSideEffect(HomeContract.SideEffect.ShowToast("해당 조건에 맞는 펍이 없습니다."))
                         }
                     }.onFailure { Timber.e("펍 목록 로드 실패: $it") }
+            }
+        }
+
+        // 홈 최초 진입: 응원 구단을 먼저 읽어 초기 구단 필터로 반영한 뒤, 그 필터로 펍을 조회한다.
+        private fun loadInitialPubs() {
+            viewModelScope.launch {
+                val initialFilter =
+                    userRepository
+                        .getUser()
+                        .onSuccess { user ->
+                            setState {
+                                copy(
+                                    userFavoriteTeamIds = user.favoriteTeams.map { t -> t.teamId }.toImmutableList(),
+                                    userFavoriteTeamNames = user.favoriteTeams
+                                        .map { t ->
+                                            t.teamName
+                                        }.toImmutableList(),
+                                    filter =
+                                        filter.copy(
+                                            selectedTeamIds = user.favoriteTeams.map { t -> t.teamId },
+                                            selectedTeamNames = user.favoriteTeams.map { t -> t.teamName },
+                                        ),
+                                )
+                            }
+                        }.onFailure { Timber.e("응원 구단 로드 실패: $it") }
+                        .let { currentState.filter }
+
+                loadMapPubs(initialFilter)
+                loadPubList(initialFilter)
             }
         }
 
