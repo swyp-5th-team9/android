@@ -327,6 +327,10 @@ fun HomeScreen(
                             regions,
                             state.filter.openNow,
                             state.filter.businessDay,
+                            state.filter.facilityCodes,
+                            state.filter.styleCodes,
+                            state.filter.themeCodes,
+                            state.filter.foodCodes,
                         ),
                     )
                 },

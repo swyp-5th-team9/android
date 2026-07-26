@@ -157,6 +157,9 @@ class PubFilterViewModel
                             setOf(optionId)
                         }
 
+                    FilterSectionId.BUSINESS ->
+                        if (optionId in currentSet) emptySet() else setOf(optionId)
+
                     FilterSectionId.REGION -> {
                         when {
                             optionId == seoulAll ->
