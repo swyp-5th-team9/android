@@ -1,5 +1,6 @@
 package org.app.presentation.home.pubfilter
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
@@ -30,6 +31,10 @@ class PubFilterViewModel
 
                 PubFilterContract.Event.OnReset ->
                     setState { copy(selectedOptions = emptyMap()) }
+
+                // 홈에서 넘어온 현재 적용 필터로 최초 1회 선택 복원(이미 선택이 있으면 유지)
+                is PubFilterContract.Event.OnSeed ->
+                    setState { if (selectedOptions.isEmpty()) copy(selectedOptions = event.selected) else this }
 
                 PubFilterContract.Event.OnApply -> applyFilter()
 
@@ -180,3 +185,49 @@ class PubFilterViewModel
             }
         }
     }
+
+/** 홈 → 필터 화면 진입 시 현재 적용된 필터를 넘기는 savedStateHandle 키. 단일 출처. */
+internal object PubFilterSeedKeys {
+    const val TEAM_IDS = "seed_team_ids"
+    const val REGIONS = "seed_regions"
+    const val OPEN_NOW = "seed_open_now"
+    const val BUSINESS_DAY = "seed_business_day"
+    const val FACILITY_CODES = "seed_facility_codes"
+    const val STYLE_CODES = "seed_style_codes"
+    const val THEME_CODES = "seed_theme_codes"
+    const val FOOD_CODES = "seed_food_codes"
+}
+
+/**
+ * 진입 시 넘어온 시드(현재 적용된 필터)를 필터 화면의 selectedOptions 로 복원한다.
+ * 시드가 없으면(직접 진입 등) 빈 맵을 반환한다.
+ */
+internal fun seededSelection(handle: SavedStateHandle): Map<String, Set<String>> {
+    val result = mutableMapOf<String, Set<String>>()
+
+    handle.get<ArrayList<Long>>(PubFilterSeedKeys.TEAM_IDS)?.takeIf { it.isNotEmpty() }?.let { ids ->
+        result[FilterSectionId.TEAM] = ids.map { it.toString() }.toSet()
+    }
+    handle.get<ArrayList<String>>(PubFilterSeedKeys.REGIONS)?.takeIf { it.isNotEmpty() }?.let {
+        result[FilterSectionId.REGION] = it.toSet()
+    }
+    if (handle.get<Boolean>(PubFilterSeedKeys.OPEN_NOW) == true) {
+        result[FilterSectionId.BUSINESS] = setOf("open")
+    }
+    BusinessDayFilter.optionIdOf(handle.get<String>(PubFilterSeedKeys.BUSINESS_DAY))?.let {
+        result[FilterSectionId.BUSINESS_DAY] = setOf(it)
+    }
+    handle.get<ArrayList<String>>(PubFilterSeedKeys.FACILITY_CODES)?.takeIf { it.isNotEmpty() }?.let {
+        result[FilterSectionId.STYLE_FACILITY] = it.toSet()
+    }
+    handle.get<ArrayList<String>>(PubFilterSeedKeys.STYLE_CODES)?.takeIf { it.isNotEmpty() }?.let {
+        result[FilterSectionId.STYLE_BROADCAST] = it.toSet()
+    }
+    handle.get<ArrayList<String>>(PubFilterSeedKeys.THEME_CODES)?.takeIf { it.isNotEmpty() }?.let {
+        result[FilterSectionId.STYLE_THEME] = it.toSet()
+    }
+    handle.get<ArrayList<String>>(PubFilterSeedKeys.FOOD_CODES)?.takeIf { it.isNotEmpty() }?.let {
+        result[FilterSectionId.FOOD] = it.toSet()
+    }
+    return result
+}

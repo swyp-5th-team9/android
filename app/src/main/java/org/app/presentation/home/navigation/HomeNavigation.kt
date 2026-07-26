@@ -103,7 +103,7 @@ fun NavGraphBuilder.homeGraph(
             HomeRoute(
                 onNavigateToPubDetail = navigateToPubDetail,
                 onNavigateToSearch = { navController.navigateToHomeSearch() },
-                onNavigateToPubFilter = { navController.navigateToPubFilter() },
+                onNavigateToPubFilter = { filter -> navController.navigateToPubFilter(filter) },
                 onNavigateToReport = { navController.navigate(HomeReport) },
                 viewModel = homeViewModel,
             )

@@ -28,6 +28,10 @@ interface PubFilterContract {
 
         data object OnApply : Event
 
+        data class OnSeed(
+            val selected: Map<String, Set<String>>,
+        ) : Event
+
         data class OnOptionToggle(
             val sectionId: String,
             val optionId: String,

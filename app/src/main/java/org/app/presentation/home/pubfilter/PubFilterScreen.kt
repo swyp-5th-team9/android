@@ -17,6 +17,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -52,6 +53,7 @@ private fun tabIndexToItemIndex(tabIdx: Int) = tabIdx + 1
 fun PubFilterRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialSelectedOptions: Map<String, Set<String>> = emptyMap(),
     onApplyFilter: (
         teamIds: List<Long>,
         teamNames: List<String>,
@@ -67,6 +69,13 @@ fun PubFilterRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val toastHostState = LocalMoballToastHostState.current
+
+    // 홈에서 넘어온 현재 적용 필터를 최초 1회 선택 상태로 복원
+    LaunchedEffect(Unit) {
+        if (initialSelectedOptions.isNotEmpty()) {
+            viewModel.onEvent(PubFilterContract.Event.OnSeed(initialSelectedOptions))
+        }
+    }
 
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {

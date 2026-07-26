@@ -61,6 +61,7 @@ import org.app.presentation.home.component.HomePubListBottomSheet
 import org.app.presentation.home.component.HomeReportButton
 import org.app.presentation.home.component.HomeSearchTextField
 import org.app.presentation.home.component.clusterOverlayImage
+import org.app.presentation.home.model.HomeFilter
 import org.app.presentation.home.model.PubCluster
 import org.app.presentation.home.model.PubMarker
 import org.app.presentation.home.model.PubMarkerType
@@ -71,7 +72,7 @@ private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 fun HomeRoute(
     onNavigateToPubDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToPubFilter: () -> Unit,
+    onNavigateToPubFilter: (HomeFilter) -> Unit,
     onNavigateToReport: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -86,7 +87,7 @@ fun HomeRoute(
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
             is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
-            is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter()
+            is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter(state.filter)
             is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
             is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
             is HomeContract.SideEffect.MoveCameraToBounds -> {
