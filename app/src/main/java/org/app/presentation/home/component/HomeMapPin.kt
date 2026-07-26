@@ -99,18 +99,23 @@ fun createClusterMarkerBitmap(
     return bitmap
 }
 
-// 클러스터 마커는 count 가 같으면 비트맵이 동일하므로 count 로 캐싱해
+// 클러스터 마커는 count·크기(px)가 같으면 비트맵이 동일하므로 (count, sizePx) 로 캐싱해
 // 카메라 이동(idle)마다 반복되는 Canvas 드로잉/비트맵 생성을 메인 스레드에서 줄인다.
-private val clusterOverlayImageCache = mutableMapOf<Int, OverlayImage>()
+// sizePx 는 디스플레이 density 에 따라 달라지므로 캐시 키에 함께 포함한다.
+private val clusterOverlayImageCache = mutableMapOf<Pair<Int, Int>, OverlayImage>()
 
 /** OverlayImage for NaverMap cluster marker */
 fun clusterOverlayImage(
     context: Context,
     count: Int,
-): OverlayImage =
-    clusterOverlayImageCache.getOrPut(count) {
-        OverlayImage.fromBitmap(createClusterMarkerBitmap(context, count))
+): OverlayImage {
+    val sizePx = context.resources.displayMetrics.density
+        .times(120)
+        .toInt()
+    return clusterOverlayImageCache.getOrPut(count to sizePx) {
+        OverlayImage.fromBitmap(createClusterMarkerBitmap(context, count, sizePx))
     }
+}
 
 @Preview(showBackground = true, backgroundColor = 0xFFBFC6CF)
 @Composable
