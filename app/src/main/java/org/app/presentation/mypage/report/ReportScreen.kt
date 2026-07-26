@@ -1,7 +1,6 @@
 package org.app.presentation.mypage.report
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,7 +42,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +49,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.UrlImage
@@ -67,7 +66,7 @@ fun ReportRoute(
     modifier: Modifier = Modifier,
     viewModel: ReportViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showSuccessDialog by remember { mutableStateOf(false) }
 
@@ -78,12 +77,7 @@ fun ReportRoute(
     ) { uris ->
         if (uris.isNotEmpty()) {
             if (uris.size > state.remainingImageSlots) {
-                Toast
-                    .makeText(
-                        context,
-                        "최대 ${ReportContract.State.MAX_IMAGES}장까지 첨부할 수 있습니다.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                toastHostState.show("최대 ${ReportContract.State.MAX_IMAGES}장까지 첨부할 수 있습니다.")
             }
             viewModel.onEvent(ReportContract.Event.OnImagesAdded(uris))
         }
@@ -103,7 +97,7 @@ fun ReportRoute(
             }
 
             is ReportContract.SideEffect.ShowToast -> {
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
             }
         }
     }

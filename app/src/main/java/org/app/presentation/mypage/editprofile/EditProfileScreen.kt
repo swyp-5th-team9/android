@@ -1,6 +1,5 @@
 package org.app.presentation.mypage.editprofile
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.UrlImage
 import org.app.core.designsystem.component.textfield.MoballLineTextField
@@ -58,7 +57,7 @@ fun EditProfileRoute(
     modifier: Modifier = Modifier,
     viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val nicknameState = rememberTextFieldState(state.nickname)
 
@@ -88,7 +87,7 @@ fun EditProfileRoute(
             }
 
             is EditProfileContract.SideEffect.ShowToast -> {
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
             }
         }
     }

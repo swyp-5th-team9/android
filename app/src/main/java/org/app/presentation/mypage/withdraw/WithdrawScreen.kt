@@ -1,6 +1,5 @@
 package org.app.presentation.mypage.withdraw
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -44,6 +42,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moball.app.R
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.component.MoballDialog
 import org.app.core.designsystem.component.textfield.MoballAreaTextField
@@ -60,7 +59,7 @@ fun WithdrawRoute(
     modifier: Modifier = Modifier,
     viewModel: WithdrawViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -87,7 +86,7 @@ fun WithdrawRoute(
             }
 
             is WithdrawContract.SideEffect.ShowToast -> {
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
             }
         }
     }
