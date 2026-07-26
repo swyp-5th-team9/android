@@ -7,7 +7,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PointF
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +51,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.common.util.CollectSideEffect
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
@@ -77,6 +77,7 @@ fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Screen에서 지도 준비 완료 시 올려주는(호이스팅) NaverMap 참조 — 카메라 이동 SideEffect 처리에 사용
@@ -99,7 +100,7 @@ fun HomeRoute(
             }
 
             is HomeContract.SideEffect.ShowToast ->
-                Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                toastHostState.show(effect.message)
 
             is HomeContract.SideEffect.OpenMap -> {
                 val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())

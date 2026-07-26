@@ -1,6 +1,5 @@
 package org.app.presentation.home.pubfilter.component
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.pubfilter.CITIES
@@ -44,7 +43,7 @@ fun PubFilterRegionSectionContent(
 
         Spacer(Modifier.height(24.dp))
 
-        val context = LocalContext.current
+        val toastHostState = LocalMoballToastHostState.current
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CITIES.forEach { city ->
                 CityChip(
@@ -54,7 +53,7 @@ fun PubFilterRegionSectionContent(
                     onClick = {
                         // MVP: 서울만 지원. 그 외 지역은 안내 토스트만 표시.
                         if (!city.isEnabled) {
-                            Toast.makeText(context, UNSUPPORTED_REGION_MESSAGE, Toast.LENGTH_SHORT).show()
+                            toastHostState.show(UNSUPPORTED_REGION_MESSAGE)
                         }
                     },
                 )

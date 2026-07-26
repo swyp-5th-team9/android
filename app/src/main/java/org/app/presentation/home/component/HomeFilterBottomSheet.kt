@@ -1,6 +1,5 @@
 package org.app.presentation.home.component
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,11 +39,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
+import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballButton
 import org.app.core.designsystem.theme.MoballTheme
 import org.app.core.extension.noRippleClickable
@@ -302,7 +301,7 @@ private fun RegionFilterContent(
     onToggleRegion: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
+    val toastHostState = LocalMoballToastHostState.current
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.padding(bottom = 16.dp),
@@ -316,7 +315,7 @@ private fun RegionFilterContent(
                     onClick = {
                         // MVP: 서울만 지원. 그 외 지역은 안내 토스트만 표시.
                         if (!city.isEnabled) {
-                            Toast.makeText(context, UNSUPPORTED_REGION_MESSAGE, Toast.LENGTH_SHORT).show()
+                            toastHostState.show(UNSUPPORTED_REGION_MESSAGE)
                         }
                     },
                 )
