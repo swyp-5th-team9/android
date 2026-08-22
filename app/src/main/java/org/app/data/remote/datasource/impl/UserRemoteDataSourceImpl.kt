@@ -13,6 +13,7 @@ import org.app.data.remote.datasource.api.UserRemoteDataSource
 import org.app.data.remote.dto.BaseResponse
 import org.app.data.remote.dto.DeleteUserRequest
 import org.app.data.remote.dto.GetUserResponse
+import org.app.data.remote.dto.PostFcmTokenRequest
 import org.app.data.remote.dto.PostOnboardingRequest
 import org.app.data.remote.service.UserService
 import timber.log.Timber
@@ -89,4 +90,7 @@ class UserRemoteDataSourceImpl
             reasonCode: String,
             detail: String?,
         ): BaseResponse<Unit> = userService.deleteUser(DeleteUserRequest(reasonCode = reasonCode, detail = detail))
+
+        override suspend fun postFcmToken(token: String): BaseResponse<Unit> =
+            userService.postFcmToken(PostFcmTokenRequest(token = token))
     }

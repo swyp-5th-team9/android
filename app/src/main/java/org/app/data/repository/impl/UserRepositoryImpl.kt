@@ -46,4 +46,9 @@ class UserRepositoryImpl
             suspendRunCatching {
                 userRemoteDataSource.deleteUser(reasonCode = reasonCode, detail = detail).checkSuccess()
             }
+
+        override suspend fun registerFcmToken(token: String): Result<Unit> =
+            suspendRunCatching {
+                userRemoteDataSource.postFcmToken(token).checkSuccess()
+            }
     }

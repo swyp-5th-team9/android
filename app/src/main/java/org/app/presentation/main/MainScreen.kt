@@ -31,6 +31,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballToastHost
 import org.app.core.designsystem.component.rememberMoballToastHostState
+import org.app.core.notification.RequestNotificationPermissionEffect
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.home.pubfilter.navigation.PubFilter
@@ -77,6 +78,9 @@ fun MainScreen(
     appState: MainAppState,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
+    // Android 13+ 알림 권한 요청 (진입 시 1회)
+    RequestNotificationPermissionEffect()
+
     val isBottomBarVisible by appState.isBottomBarVisible.collectAsStateWithLifecycle()
     val currentTab by appState.currentTab.collectAsStateWithLifecycle()
 

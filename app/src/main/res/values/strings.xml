@@ -4,4 +4,8 @@
     <string name="mypage">마이</string>
     <string name="schedule">경기 캘린더</string>
     <!--Home    -->
+    <!-- FCM 알림 채널 -->
+    <string name="default_notification_channel_id">moball_default_channel</string>
+    <string name="default_notification_channel_name">모여볼 알림</string>
+    <string name="default_notification_channel_description">경기 일정, 펍 소식 등 모여볼의 주요 알림</string>
 </resources>

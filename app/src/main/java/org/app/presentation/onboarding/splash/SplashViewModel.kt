@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.app.core.notification.FcmTokenRegistrar
 import org.app.data.repository.api.AuthRepository
 import javax.inject.Inject
 
@@ -19,6 +20,7 @@ class SplashViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
+        private val fcmTokenRegistrar: FcmTokenRegistrar,
     ) : ViewModel() {
         // Channel 기반: init 블록에서 send하는 시점에 구독자가 없어도 유실되지 않는다.
         private val _sideEffect = Channel<SplashContract.SideEffect>(Channel.BUFFERED)
@@ -30,6 +32,8 @@ class SplashViewModel
                 delay(SPLASH_DELAY_MS)
                 val loginResult: Result<Boolean> = isLoggedInDeferred.await()
                 val destination = if (loginResult.getOrElse { false }) {
+                    // 자동 로그인 성공(기존 유저) → FCM 토큰 재동기화
+                    fcmTokenRegistrar.syncToken()
                     SplashContract.SideEffect.NavigateToHome
                 } else {
                     SplashContract.SideEffect.NavigateToLogin

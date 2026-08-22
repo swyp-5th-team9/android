@@ -28,4 +28,7 @@ interface UserRepository {
         reasonCode: String,
         detail: String? = null,
     ): Result<Unit>
+
+    /** FCM 디바이스 토큰을 서버에 등록/갱신한다. */
+    suspend fun registerFcmToken(token: String): Result<Unit>
 }

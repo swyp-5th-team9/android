@@ -4,6 +4,7 @@ import okhttp3.MultipartBody
 import org.app.data.remote.dto.BaseResponse
 import org.app.data.remote.dto.DeleteUserRequest
 import org.app.data.remote.dto.GetUserResponse
+import org.app.data.remote.dto.PostFcmTokenRequest
 import org.app.data.remote.dto.PostOnboardingRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -32,5 +33,11 @@ interface UserService {
     @HTTP(method = "DELETE", path = "/api/v1/users/me", hasBody = true)
     suspend fun deleteUser(
         @Body body: DeleteUserRequest,
+    ): BaseResponse<Unit>
+
+    // TODO(#알림): 백엔드 엔드포인트 확정 시 경로/메서드 확인 (예시: POST /api/v1/users/me/fcm-token)
+    @POST("/api/v1/users/me/fcm-token")
+    suspend fun postFcmToken(
+        @Body body: PostFcmTokenRequest,
     ): BaseResponse<Unit>
 }
