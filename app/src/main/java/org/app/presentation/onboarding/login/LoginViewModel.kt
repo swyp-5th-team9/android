@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
+import org.app.core.notification.FcmTokenRegistrar
 import org.app.data.repository.api.AuthRepository
 import org.app.domain.model.SocialType
 import timber.log.Timber
@@ -14,6 +15,7 @@ class LoginViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
+        private val fcmTokenRegistrar: FcmTokenRegistrar,
     ) : BaseViewModel<LoginContract.State, LoginContract.Event, LoginContract.SideEffect>(
             LoginContract.State(),
         ) {
@@ -47,6 +49,8 @@ class LoginViewModel
                 loginResult
                     .onSuccess { socialLoginToken ->
                         setState { copy(isLoading = false) }
+                        // 로그인 성공(인증 완료) 후 FCM 토큰을 서버에 등록/갱신
+                        fcmTokenRegistrar.syncToken()
                         // 탈퇴 후 30일 이내 재로그인으로 계정이 복구된 경우 안내
                         if (socialLoginToken.restored == true) {
                             postSideEffect(
