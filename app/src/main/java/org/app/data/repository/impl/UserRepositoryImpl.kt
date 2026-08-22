@@ -49,7 +49,6 @@ class UserRepositoryImpl
 
         override suspend fun registerFcmToken(token: String): Result<Unit> =
             suspendRunCatching {
-                // TODO(#알림): 백엔드 FCM 토큰 엔드포인트 준비되면 아래 한 줄 주석 해제.
                 userRemoteDataSource.postFcmToken(token).checkSuccess()
             }
     }
