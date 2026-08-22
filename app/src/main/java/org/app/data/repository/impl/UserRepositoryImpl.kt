@@ -7,6 +7,7 @@ import org.app.data.remote.datasource.api.UserRemoteDataSource
 import org.app.data.remote.dto.checkSuccess
 import org.app.data.remote.dto.getDataOrThrow
 import org.app.data.repository.api.UserRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 class UserRepositoryImpl
@@ -45,5 +46,13 @@ class UserRepositoryImpl
         ): Result<Unit> =
             suspendRunCatching {
                 userRemoteDataSource.deleteUser(reasonCode = reasonCode, detail = detail).checkSuccess()
+            }
+
+        override suspend fun registerFcmToken(token: String): Result<Unit> =
+            suspendRunCatching {
+                // TODO(#알림): 백엔드 FCM 토큰 엔드포인트 준비되면 아래 한 줄 주석 해제.
+                //  현재는 no-op(로그만) — 미구현 엔드포인트 호출로 인한 실패를 막기 위함.
+                // userRemoteDataSource.postFcmToken(token).checkSuccess()
+                Timber.d("FCM 토큰 등록 대기(스캐폴드): %s", token.take(12) + "...")
             }
     }

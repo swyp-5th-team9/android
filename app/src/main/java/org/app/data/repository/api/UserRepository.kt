@@ -28,4 +28,12 @@ interface UserRepository {
         reasonCode: String,
         detail: String? = null,
     ): Result<Unit>
+
+    /**
+     * FCM 디바이스 토큰을 서버에 등록/갱신한다.
+     *
+     * TODO(#알림): 백엔드 엔드포인트가 준비되면 [UserRepositoryImpl.registerFcmToken]의
+     *  실제 호출 주석을 해제한다. 그 전까지는 no-op(성공 처리)으로 앱 흐름에 영향 없음.
+     */
+    suspend fun registerFcmToken(token: String): Result<Unit>
 }

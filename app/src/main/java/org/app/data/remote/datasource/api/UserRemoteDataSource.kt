@@ -21,4 +21,6 @@ interface UserRemoteDataSource {
         reasonCode: String,
         detail: String?,
     ): BaseResponse<Unit>
+
+    suspend fun postFcmToken(token: String): BaseResponse<Unit>
 }
