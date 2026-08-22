@@ -135,6 +135,7 @@ naver-login = { group = "com.navercorp.nid", name = "oauth", version.ref = "nave
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # Kakao
 kakao-sdk-user = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakao"}

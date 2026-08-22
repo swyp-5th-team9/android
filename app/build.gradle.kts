@@ -167,7 +167,8 @@ dependencies {
     // Naver Login
     implementation(libs.naver.login)
 
-    // Firebase (Analytics)
+    // Firebase (Analytics, Messaging)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 }
