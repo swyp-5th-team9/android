@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -35,6 +37,7 @@ fun PubHeroCarousel(
     imageUrls: List<String>,
     currentPage: Int,
     onBack: () -> Unit,
+    onShare: () -> Unit,
     onPageChanged: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -77,7 +80,7 @@ fun PubHeroCarousel(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = 16.dp, top = 16.dp)
+                .padding(start = 12.dp, top = 8.dp)
                 .noRippleClickable(onBack),
             contentAlignment = Alignment.Center,
         ) {
@@ -85,6 +88,23 @@ fun PubHeroCarousel(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_pubdetail_back),
                 contentDescription = null,
                 tint = Color.Unspecified,
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 16.dp, top = 12.dp)
+                .width(32.dp)
+                .height(40.dp)
+                .background(color = Color(0x99B8B8B8), shape = CircleShape)
+                .noRippleClickable(onShare),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_share),
+                contentDescription = "공유",
+                tint = MoballTheme.colors.staticWhite,
             )
         }
 
@@ -122,6 +142,7 @@ private fun PubHeroCarouselPreview() {
             imageUrls = emptyList(),
             currentPage = 0,
             onBack = {},
+            onShare = {},
             onPageChanged = {},
         )
     }
