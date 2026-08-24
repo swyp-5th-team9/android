@@ -85,6 +85,30 @@ class PubDetailViewModel
 
                 is PubDetailContract.Event.OnPhotoGalleryPageChanged ->
                     setState { copy(selectedPhotoIndex = event.index) }
+
+                is PubDetailContract.Event.OnShareClick ->
+                    setState { copy(showShareSheet = true) }
+
+                is PubDetailContract.Event.OnShareSheetDismiss ->
+                    setState { copy(showShareSheet = false) }
+
+                is PubDetailContract.Event.OnCopyLink -> {
+                    val detail = currentState.pubDetail ?: return
+                    // 시트는 열어둔 채 "복사됨" 상태를 노출한다(디자인).
+                    postSideEffect(
+                        PubDetailContract.SideEffect.CopyLinkToClipboard(PubShareLink.url(detail.pubId)),
+                    )
+                }
+
+                is PubDetailContract.Event.OnShareToOtherApps -> {
+                    val detail = currentState.pubDetail ?: return
+                    setState { copy(showShareSheet = false) }
+                    postSideEffect(
+                        PubDetailContract.SideEffect.ShareLinkToOtherApps(
+                            PubShareLink.shareText(pubName = detail.name, pubId = detail.pubId),
+                        ),
+                    )
+                }
             }
         }
 
