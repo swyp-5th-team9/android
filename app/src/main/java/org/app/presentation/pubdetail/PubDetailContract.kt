@@ -13,6 +13,7 @@ interface PubDetailContract {
         val isHoursExpanded: Boolean = false,
         val showPhotoGallery: Boolean = false,
         val selectedPhotoIndex: Int = 0,
+        val showShareSheet: Boolean = false,
     )
 
     sealed interface Event {
@@ -41,6 +42,14 @@ interface PubDetailContract {
         data class OnPhotoGalleryPageChanged(
             val index: Int,
         ) : Event
+
+        data object OnShareClick : Event
+
+        data object OnShareSheetDismiss : Event
+
+        data object OnCopyLink : Event
+
+        data object OnShareToOtherApps : Event
     }
 
     sealed interface SideEffect {
@@ -58,6 +67,16 @@ interface PubDetailContract {
 
         data class ShowToast(
             val message: String,
+        ) : SideEffect
+
+        /** 링크를 클립보드에 복사 */
+        data class CopyLinkToClipboard(
+            val link: String,
+        ) : SideEffect
+
+        /** 안드로이드 기본 공유 시트(ACTION_SEND)로 공유 */
+        data class ShareLinkToOtherApps(
+            val text: String,
         ) : SideEffect
     }
 }
