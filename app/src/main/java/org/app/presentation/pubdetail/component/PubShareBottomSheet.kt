@@ -93,11 +93,15 @@ private fun PubShareBottomSheetContent(
     ) {
         ShareOptionRow(
             icon = if (copied) {
+                ImageVector.vectorResource(R.drawable.ic_check)
+
+                ImageVector.vectorResource(
+                    R.drawable.ic_check,
+                )
+            } else {
                 ImageVector.vectorResource(
                     R.drawable.ic_link,
                 )
-            } else {
-                ImageVector.vectorResource(R.drawable.ic_check)
             },
             label = if (copied) "링크 복사됨" else "링크 복사",
             onClick = onCopyLink,
