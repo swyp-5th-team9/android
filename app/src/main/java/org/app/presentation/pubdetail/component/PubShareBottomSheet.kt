@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moball.app.R
@@ -77,7 +79,7 @@ fun PubShareBottomSheet(
     }
 }
 
-/** 시트 내용(옵션 목록). ModalBottomSheet 본문과 프리뷰에서 공용으로 쓴다. */
+/** 시트 내용(타이틀 + 옵션 목록). ModalBottomSheet 본문과 프리뷰에서 공용으로 쓴다. */
 @Composable
 private fun PubShareBottomSheetContent(
     copied: Boolean,
@@ -89,28 +91,44 @@ private fun PubShareBottomSheetContent(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(bottom = 12.dp),
+            .padding(bottom = 16.dp),
     ) {
-        ShareOptionRow(
-            icon = if (copied) {
-                ImageVector.vectorResource(R.drawable.ic_check)
+        Text(
+            text = "공유하기",
+            style = MoballTheme.typography.heading2.bold22,
+            color = MoballTheme.colors.textPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 20.dp),
+        )
 
-                ImageVector.vectorResource(
-                    R.drawable.ic_check,
-                )
-            } else {
-                ImageVector.vectorResource(
-                    R.drawable.ic_link,
-                )
-            },
-            label = if (copied) "링크 복사됨" else "링크 복사",
-            onClick = onCopyLink,
-        )
-        ShareOptionRow(
-            icon = ImageVector.vectorResource(R.drawable.ic_external_link),
-            label = "다른 앱에 공유",
-            onClick = onShareOther,
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MoballTheme.colors.backgroundSurface),
+        ) {
+            ShareOptionRow(
+                icon = if (copied) {
+                    ImageVector.vectorResource(R.drawable.ic_check)
+                } else {
+                    ImageVector.vectorResource(R.drawable.ic_link)
+                },
+                label = if (copied) "링크 복사됨" else "링크 복사",
+                onClick = onCopyLink,
+            )
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MoballTheme.colors.borderStrong,
+            )
+            ShareOptionRow(
+                icon = ImageVector.vectorResource(R.drawable.ic_external_link),
+                label = "다른 앱에 공유",
+                onClick = onShareOther,
+            )
+        }
     }
 }
 
@@ -125,7 +143,7 @@ private fun ShareOptionRow(
         modifier = modifier
             .fillMaxWidth()
             .noRippleClickable(onClick)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
