@@ -92,12 +92,18 @@ private fun PubShareBottomSheetContent(
             .padding(bottom = 12.dp),
     ) {
         ShareOptionRow(
-            icon = ImageVector.vectorResource(R.drawable.ic_copy),
-            label = if (copied) "링크가 복사되었어요" else "링크 복사",
+            icon = if (copied) {
+                ImageVector.vectorResource(
+                    R.drawable.ic_link,
+                )
+            } else {
+                ImageVector.vectorResource(R.drawable.ic_check)
+            },
+            label = if (copied) "링크 복사됨" else "링크 복사",
             onClick = onCopyLink,
         )
         ShareOptionRow(
-            icon = ImageVector.vectorResource(R.drawable.ic_share),
+            icon = ImageVector.vectorResource(R.drawable.ic_external_link),
             label = "다른 앱에 공유",
             onClick = onShareOther,
         )
