@@ -79,7 +79,6 @@ fun PubShareBottomSheet(
     }
 }
 
-/** 시트 내용(타이틀 + 옵션 목록). ModalBottomSheet 본문과 프리뷰에서 공용으로 쓴다. */
 @Composable
 private fun PubShareBottomSheetContent(
     copied: Boolean,
