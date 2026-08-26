@@ -1,0 +1,2 @@
+json_key_file("") # Google Play(supply) 배포 시 사용. Firebase 배포에는 불필요.
+package_name("com.moball.app")

@@ -1,0 +1,2 @@
+# fastlane 플러그인 목록. `bundle install` 시 함께 설치된다.
+gem "fastlane-plugin-firebase_app_distribution"
