@@ -37,6 +37,12 @@ val naverLoginClientName = properties.getProperty("naver_login_client_name")
     ?: System.getenv("NAVER_LOGIN_CLIENT_NAME")
     ?: ""
 
+// 릴리즈 서명(upload keystore) — local.properties 또는 CI 환경변수에서 읽는다. 키 파일/비밀번호는 git 커밋 금지.
+val releaseStoreFile = properties.getProperty("keystore.file") ?: System.getenv("KEYSTORE_FILE")
+val releaseStorePassword = properties.getProperty("keystore.password") ?: System.getenv("KEYSTORE_PASSWORD")
+val releaseKeyAlias = properties.getProperty("key.alias") ?: System.getenv("KEY_ALIAS")
+val releaseKeyPassword = properties.getProperty("key.password") ?: System.getenv("KEY_PASSWORD")
+
 android {
     namespace = "com.moball.app"
     compileSdk = libs.versions.compileSdk
@@ -45,7 +51,13 @@ android {
 
     signingConfigs {
         create("release") {
-            // TODO: Add signing config details
+            // keystore 정보가 갖춰졌을 때만 서명 설정. 없으면 릴리즈는 미서명으로 빌드된다.
+            if (releaseStoreFile != null && file(releaseStoreFile).exists()) {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
         }
     }
 
