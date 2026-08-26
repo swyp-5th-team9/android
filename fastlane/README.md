@@ -8,6 +8,7 @@
 |------|------|------|
 | `test` | ktlint + 단위 테스트 | `bundle exec fastlane android test` |
 | `beta` | 빌드 후 테스터에게 배포 (Firebase App Distribution) | `bundle exec fastlane android beta` |
+| `deploy` | 릴리즈 AAB 빌드 후 Google Play 업로드 (supply) | `bundle exec fastlane android deploy` |
 
 `beta` 옵션:
 
@@ -66,6 +67,52 @@ Firebase 콘솔 → App Distribution → **테스터 및 그룹** 에서 그룹�
 - **Firebase App ID**는 `app/google-services.json` 에서 자동으로 읽는다. 파일이 없는 환경(CI 등)에서는 `FIREBASE_APP_ID` 환경변수로 대체한다.
 - 현재 `beta`는 **debug 서명 APK**를 배포한다(별도 upload keystore 불필요). 릴리즈 서명(Play 앱 서명 + upload keystore)이 준비되면 `Fastfile`의 `build_type`을 `"Release"`로 바꾼다.
 - Google Play 스토어 직접 배포(`supply`)는 upload keystore + Play Console 서비스 계정이 준비되면 `Fastfile`의 주석 처리된 `deploy` 레인을 활성화한다. (#34 후속)
+
+## Google Play 배포(`deploy`) 세팅
+
+`deploy` 레인은 **릴리즈 서명된 AAB**를 빌드해 Google Play에 업로드한다(`supply`). 다음 2가지가 필요하다.
+
+### A) 업로드 keystore (릴리즈 서명)
+
+> ⚠️ 앱이 이미 Play에 출시돼 있으면 **최초 출시 때 서명한 그 upload keystore를 그대로** 써야 한다. 다른 키로 서명하면 Play가 업데이트를 거부한다. (새 키 생성 ❌)
+
+`local.properties` 에 keystore 정보를 추가한다 (이 파일은 git에 안 올라감):
+
+```properties
+keystore.file=/절대/경로/moball-upload.jks
+keystore.password=****
+key.alias=****
+key.password=****
+```
+
+> 값이 없으면 릴리즈는 **미서명**으로 빌드된다(=Play 업로드 불가). CI에서는 같은 이름의 환경변수(`KEYSTORE_FILE` 등)로 대체 가능.
+
+### B) Play Console 서비스 계정 (업로드 권한)
+
+Firebase 것과 **별개**다.
+
+1. [Play Console](https://play.google.com/console) → **설정 → API 액세스** → Google Cloud 프로젝트 연결
+2. 서비스 계정 생성 → JSON 키 다운로드
+3. Play Console에서 그 서비스 계정에 **앱 접근 권한**(최소 "출시 관리자"/"버전 업로드") 부여
+4. 환경변수로 경로 지정:
+
+```bash
+export PLAY_SERVICE_ACCOUNT_JSON="/절대/경로/play-service-account.json"
+```
+
+### 사용
+
+```bash
+# 내부 테스트 트랙(기본)에 업로드
+bundle exec fastlane android deploy
+
+# 트랙/상태 지정: track = internal(기본)/alpha/beta/production, status = completed(기본)/draft
+bundle exec fastlane android deploy track:internal
+bundle exec fastlane android deploy track:production status:draft
+```
+
+> ⚠️ **매 업로드마다 `versionCode`를 올려야 한다.** Play는 같은 versionCode 재업로드를 거부한다.
+> 현재는 `gradle/libs.versions.toml` 의 `versionCode` 를 수동으로 증가시킨다.
 
 ## 문제 해결
 
