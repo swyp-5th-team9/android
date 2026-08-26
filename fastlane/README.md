@@ -20,9 +20,22 @@ bundle exec fastlane android beta notes:"공유 기능 추가" groups:"testers,q
 
 ### 1) fastlane 설치
 
+시스템 gem 폴더 대신 **프로젝트 로컬(`vendor/bundle`)** 에 설치한다(권한 이슈 회피, `.gitignore` 처리됨).
+
 ```bash
 gem install bundler
+bundle config set --local path 'vendor/bundle'
 bundle install          # Gemfile + fastlane/Pluginfile 의 플러그인까지 설치
+```
+
+> **권한 오류**(`Permission denied @ rb_sysopen ... /opt/homebrew/.../plugins/rdoc_plugin.rb`)가 나면,
+> 위 `bundle config set --local path 'vendor/bundle'` 를 먼저 실행한 뒤 `bundle install` 하면 된다.
+> (Homebrew Ruby 전역 폴더에 쓰려다 막히는 문제 — 로컬 설치로 우회)
+
+설치 확인:
+
+```bash
+bundle exec fastlane lanes
 ```
 
 ### 2) Firebase App Distribution 인증 (서비스 계정)
