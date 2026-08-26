@@ -53,8 +53,9 @@ fun PubShareBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState()
     var copied by remember { mutableStateOf(false) }
+    var copyRequestId by remember { mutableStateOf(0) }
 
-    LaunchedEffect(copied) {
+    LaunchedEffect(copyRequestId) {
         if (copied) {
             delay(COPIED_RESET_MS)
             copied = false
@@ -73,6 +74,7 @@ fun PubShareBottomSheet(
             onCopyLink = {
                 onCopyLink()
                 copied = true
+                copyRequestId += 1
             },
             onShareOther = onShareOther,
         )
