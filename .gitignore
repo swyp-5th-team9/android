@@ -44,3 +44,14 @@ local.properties
 
 # Firebase (google-services.json에 API 키 포함 — 로컬/CI에 각자 배치)
 google-services.json
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+vendor/bundle/
+.bundle/
+
+# fastlane 서비스 계정 키 (절대 커밋 금지)
+*service-account*.json
