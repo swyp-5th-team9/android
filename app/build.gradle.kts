@@ -43,6 +43,14 @@ val releaseStorePassword = properties.getProperty("keystore.password") ?: System
 val releaseKeyAlias = properties.getProperty("key.alias") ?: System.getenv("KEY_ALIAS")
 val releaseKeyPassword = properties.getProperty("key.password") ?: System.getenv("KEY_PASSWORD")
 
+// 4개 값이 모두 채워지고 keystore 파일이 실제로 존재할 때만 릴리즈 서명을 구성/연결한다.
+// (일부만 채워진 채 signingConfig를 연결하면 AGP가 릴리즈 빌드에서 서명 검증 실패를 냄)
+val hasReleaseSigning = !releaseStoreFile.isNullOrBlank() &&
+    !releaseStorePassword.isNullOrBlank() &&
+    !releaseKeyAlias.isNullOrBlank() &&
+    !releaseKeyPassword.isNullOrBlank() &&
+    file(releaseStoreFile).isFile
+
 android {
     namespace = "com.moball.app"
     compileSdk = libs.versions.compileSdk
@@ -52,7 +60,7 @@ android {
     signingConfigs {
         create("release") {
             // keystore 정보가 갖춰졌을 때만 서명 설정. 없으면 릴리즈는 미서명으로 빌드된다.
-            if (releaseStoreFile != null && file(releaseStoreFile).exists()) {
+            if (hasReleaseSigning) {
                 storeFile = file(releaseStoreFile)
                 storePassword = releaseStorePassword
                 keyAlias = releaseKeyAlias
@@ -100,7 +108,10 @@ android {
             )
             buildConfigField("String", "BASE_URL", "\"${properties.getProperty("prod.base.url") ?: ""}\"")
             buildConfigField("Boolean", "USE_MOCK_SERVER", "false")
-            signingConfig = signingConfigs.getByName("release")
+            // keystore가 완전히 갖춰졌을 때만 릴리즈 서명 연결. 없으면 미서명으로 빌드(디버그/CI에서 검증 실패 방지).
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
