@@ -1,0 +1,81 @@
+require "json"
+
+# 문서: https://docs.fastlane.tools
+# 사용법은 fastlane/README.md 참고.
+
+default_platform(:android)
+
+# fastlane 실행 시 fastlane/README.md 자동 생성/덮어쓰기 방지 (직접 작성한 가이드 유지).
+skip_docs
+
+# google-services.json 에서 Firebase App ID를 읽어온다.
+# (google-services.json 은 .gitignore 대상이라 값을 코드에 하드코딩하지 않는다.)
+# CI 등에서 파일이 없으면 FIREBASE_APP_ID 환경변수로 대체 가능.
+def firebase_app_id
+  return ENV["FIREBASE_APP_ID"] unless ENV["FIREBASE_APP_ID"].to_s.empty?
+
+  path = File.expand_path("../app/google-services.json", __dir__)
+  unless File.exist?(path)
+    UI.user_error!("google-services.json 을 찾을 수 없습니다. FIREBASE_APP_ID 환경변수를 설정하거나 파일을 배치하세요: #{path}")
+  end
+  JSON.parse(File.read(path))["client"][0]["client_info"]["mobilesdk_app_id"]
+end
+
+platform :android do
+  desc "정적 분석(ktlint) + 단위 테스트 실행"
+  lane :test do
+    gradle(task: "ktlintCheck")
+    gradle(task: "testDebugUnitTest")
+  end
+
+  desc "테스터에게 배포 (Firebase App Distribution)\n" \
+       "옵션 예) fastlane android beta notes:\"수정 내용\" groups:\"모여볼\""
+  lane :beta do |options|
+    # 배포 전 품질 게이트
+    test
+
+    # 빌드 — 현재는 debug 서명 APK로 배포한다(별도 upload keystore 불필요).
+    # 업로드 keystore를 붙이면 아래 build_type 을 "Release"로 바꾸면 된다.
+    gradle(task: "clean")
+    gradle(task: "assemble", build_type: "Debug")
+
+    # Firebase App Distribution 업로드
+    firebase_app_distribution(
+      app: firebase_app_id,
+      android_artifact_type: "APK",
+      android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
+      service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_JSON"],
+      groups: options[:groups] || "모여볼", # Firebase App Distribution 그룹 alias (콘솔의 alias와 정확히 일치해야 함)
+      release_notes: options[:notes] || last_git_commit[:message],
+    )
+
+    UI.success("Firebase App Distribution 업로드 완료 🚀")
+  end
+
+  desc "Google Play 업로드 (supply)\n" \
+       "옵션 예) fastlane android deploy track:internal\n" \
+       "track: internal(기본)/alpha/beta/production, status: completed(기본)/draft"
+  lane :deploy do |options|
+    # 배포 전 품질 게이트
+    test
+
+    # 릴리즈 서명된 AAB 빌드 (Play 는 APK 가 아니라 AAB)
+    # ⚠️ local.properties 에 keystore.* 가 설정돼 있어야 서명된다.
+    gradle(task: "clean")
+    gradle(task: "bundle", build_type: "Release")
+
+    # Play Console 업로드 (스토어 리스팅/스크린샷은 건드리지 않고 바이너리만 올린다)
+    # 인증(json_key)은 fastlane/Appfile 의 PLAY_SERVICE_ACCOUNT_JSON 에서 읽는다.
+    upload_to_play_store(
+      track: options[:track] || "internal",
+      aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+      release_status: options[:status] || "completed",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+
+    UI.success("Google Play (#{options[:track] || "internal"} 트랙) 업로드 완료 🚀")
+  end
+end

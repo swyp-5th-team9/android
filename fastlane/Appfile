@@ -1,0 +1,5 @@
+# Google Play(supply) 인증용 서비스 계정 JSON — 환경변수 PLAY_SERVICE_ACCOUNT_JSON 로 경로 지정.
+# (Firebase App Distribution 배포에는 불필요)
+json_key_file(ENV["PLAY_SERVICE_ACCOUNT_JSON"]) if ENV["PLAY_SERVICE_ACCOUNT_JSON"]
+
+package_name("com.moball.app")
