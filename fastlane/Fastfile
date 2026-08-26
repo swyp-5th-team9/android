@@ -5,6 +5,9 @@ require "json"
 
 default_platform(:android)
 
+# fastlane 실행 시 fastlane/README.md 자동 생성/덮어쓰기 방지 (직접 작성한 가이드 유지).
+skip_docs
+
 # google-services.json 에서 Firebase App ID를 읽어온다.
 # (google-services.json 은 .gitignore 대상이라 값을 코드에 하드코딩하지 않는다.)
 # CI 등에서 파일이 없으면 FIREBASE_APP_ID 환경변수로 대체 가능.
@@ -26,7 +29,7 @@ platform :android do
   end
 
   desc "테스터에게 배포 (Firebase App Distribution)\n" \
-       "옵션 예) fastlane android beta notes:\"수정 내용\" groups:\"testers,qa\""
+       "옵션 예) fastlane android beta notes:\"수정 내용\" groups:\"모여볼\""
   lane :beta do |options|
     # 배포 전 품질 게이트
     test
@@ -42,7 +45,7 @@ platform :android do
       android_artifact_type: "APK",
       android_artifact_path: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH],
       service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_JSON"],
-      groups: options[:groups] || "testers",
+      groups: options[:groups] || "모여볼", # Firebase App Distribution 그룹 alias (콘솔의 alias와 정확히 일치해야 함)
       release_notes: options[:notes] || last_git_commit[:message],
     )
 

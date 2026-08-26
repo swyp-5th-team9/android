@@ -12,8 +12,8 @@
 `beta` 옵션:
 
 ```bash
-# 릴리즈 노트 / 대상 그룹 지정
-bundle exec fastlane android beta notes:"공유 기능 추가" groups:"testers,qa"
+# 릴리즈 노트 / 대상 그룹 지정 (groups 미지정 시 기본값 "모여볼")
+bundle exec fastlane android beta notes:"공유 기능 추가" groups:"모여볼"
 ```
 
 ## 최초 1회 세팅
@@ -53,16 +53,28 @@ export FIREBASE_SERVICE_ACCOUNT_JSON="/절대/경로/service-account.json"
 
 > 로컬에서 잠깐 테스트만 할 땐 `firebase login` 후 `FIREBASE_SERVICE_ACCOUNT_JSON` 없이 실행해도 된다(대화형 인증).
 
-### 3) 테스터 그룹 생성
+### 3) 테스터 그룹
 
-Firebase 콘솔 → App Distribution → **테스터 및 그룹** → `testers` 그룹 생성 후 테스터 추가.
-(다른 그룹명을 쓰면 `groups:` 옵션으로 지정)
+Firebase 콘솔 → App Distribution → **테스터 및 그룹** 에서 그룹을 만들고 테스터 이메일을 추가한다.
+
+> ⚠️ **`groups:` 값은 그룹의 표시 이름이 아니라 `alias`(별칭)와 정확히 일치해야 한다.**
+> 현재 프로젝트 그룹 alias는 **`모여볼`** 이고, `Fastfile`의 기본값도 이걸로 설정돼 있다.
+> (다른 그룹을 쓰려면 콘솔에서 alias를 확인해 `groups:"<alias>"` 로 지정)
 
 ## 참고
 
 - **Firebase App ID**는 `app/google-services.json` 에서 자동으로 읽는다. 파일이 없는 환경(CI 등)에서는 `FIREBASE_APP_ID` 환경변수로 대체한다.
 - 현재 `beta`는 **debug 서명 APK**를 배포한다(별도 upload keystore 불필요). 릴리즈 서명(Play 앱 서명 + upload keystore)이 준비되면 `Fastfile`의 `build_type`을 `"Release"`로 바꾼다.
 - Google Play 스토어 직접 배포(`supply`)는 upload keystore + Play Console 서비스 계정이 준비되면 `Fastfile`의 주석 처리된 `deploy` 레인을 활성화한다. (#34 후속)
+
+## 문제 해결
+
+- **`[!] Invalid request (Google::Apis::ClientError)`** — 업로드는 됐는데 "Distributing release"에서 실패하면, `groups:` 의 **그룹 alias가 콘솔과 불일치**하는 경우다. 콘솔에서 alias를 확인해 정확히 맞춘다. (현재 alias: `모여볼`)
+- **`fastlane requires your locale to be set to UTF-8`** / 한글 릴리즈 노트 깨짐 — 로케일을 UTF-8로 설정한다:
+  ```bash
+  export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+  ```
+- `fastlane/README.md` 는 `Fastfile` 상단의 `skip_docs` 로 자동 덮어쓰기를 막아둔 상태다(직접 작성한 가이드 유지).
 
 ## CI (GitHub Actions) 연동 예시
 
