@@ -1,5 +1,7 @@
 package org.app.presentation.pubdetail
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,7 @@ import org.app.presentation.pubdetail.component.PubHeroCarousel
 import org.app.presentation.pubdetail.component.PubInfoSection
 import org.app.presentation.pubdetail.component.PubPhotoGallery
 import org.app.presentation.pubdetail.component.PubPhotoSection
+import org.app.presentation.pubdetail.component.PubShareBottomSheet
 import java.time.LocalTime
 
 @Composable
@@ -68,6 +71,19 @@ fun PubDetailRoute(
 
             is PubDetailContract.SideEffect.ShowToast -> {
                 toastHostState.show(effect.message)
+            }
+
+            is PubDetailContract.SideEffect.CopyLinkToClipboard -> {
+                val clipboard = context.getSystemService(ClipboardManager::class.java)
+                clipboard?.setPrimaryClip(ClipData.newPlainText("모여볼 링크", effect.link))
+            }
+
+            is PubDetailContract.SideEffect.ShareLinkToOtherApps -> {
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, effect.text)
+                }
+                context.startActivity(Intent.createChooser(sendIntent, "공유하기"))
             }
         }
     }
@@ -106,6 +122,7 @@ internal fun PubDetailScreen(
                     imageUrls = detail.imageUrls,
                     currentPage = state.currentImageIndex,
                     onBack = { onEvent(PubDetailContract.Event.OnBack) },
+                    onShare = { onEvent(PubDetailContract.Event.OnShareClick) },
                     onPageChanged = { onEvent(PubDetailContract.Event.OnImagePageChanged(it)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -155,6 +172,14 @@ internal fun PubDetailScreen(
                 onClose = { onEvent(PubDetailContract.Event.OnPhotoGalleryClose) },
                 onPageChanged = { onEvent(PubDetailContract.Event.OnPhotoGalleryPageChanged(it)) },
                 modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        if (state.showShareSheet) {
+            PubShareBottomSheet(
+                onCopyLink = { onEvent(PubDetailContract.Event.OnCopyLink) },
+                onShareOther = { onEvent(PubDetailContract.Event.OnShareToOtherApps) },
+                onDismiss = { onEvent(PubDetailContract.Event.OnShareSheetDismiss) },
             )
         }
     }
