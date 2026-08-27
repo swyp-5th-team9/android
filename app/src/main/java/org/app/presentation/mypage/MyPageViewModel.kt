@@ -44,6 +44,9 @@ class MyPageViewModel
 
                 MyPageContract.Event.OnLogoutClick -> logout()
 
+                MyPageContract.Event.OnNotificationClick ->
+                    postSideEffect(MyPageContract.SideEffect.NavigateToNotification)
+
                 MyPageContract.Event.OnRefresh -> loadUser()
 
                 is MyPageContract.Event.OnApplyTeams -> applyTeams(event.teams)

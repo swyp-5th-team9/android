@@ -15,6 +15,8 @@ import org.app.presentation.mypage.report.navigation.navigateToReport
 import org.app.presentation.mypage.report.navigation.reportScreen
 import org.app.presentation.mypage.withdraw.navigation.navigateToWithdraw
 import org.app.presentation.mypage.withdraw.navigation.withdrawScreen
+import org.app.presentation.notification.navigation.navigateToNotification
+import org.app.presentation.notification.navigation.notificationScreen
 import org.app.presentation.pubdetail.navigation.navigateToPubDetail
 
 fun NavController.navigateToMyPage(navOptions: NavOptions? = null) = navigate(MyPageGraph, navOptions)
@@ -31,6 +33,7 @@ fun NavGraphBuilder.myPageGraph(
                 navigateToReport = { navController.navigateToReport() },
                 navigateToWithdraw = { navController.navigateToWithdraw() },
                 navigateToFavorite = { navController.navigateToFavorite() },
+                navigateToNotification = { navController.navigateToNotification() },
                 navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
             )
         }
@@ -44,6 +47,7 @@ fun NavGraphBuilder.myPageGraph(
             onBack = { navController.popBackStack() },
             navigateToPubDetail = { pubId: String -> navController.navigateToPubDetail(pubId) },
         )
+        notificationScreen(onBack = { navController.popBackStack() })
     }
 }
 

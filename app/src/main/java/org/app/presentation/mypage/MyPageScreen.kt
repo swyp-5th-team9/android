@@ -70,6 +70,7 @@ fun MyPageRoute(
     navigateToReport: () -> Unit,
     navigateToWithdraw: () -> Unit,
     navigateToFavorite: () -> Unit,
+    navigateToNotification: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
@@ -111,6 +112,10 @@ fun MyPageRoute(
 
             MyPageContract.SideEffect.NavigateToFavorite -> {
                 navigateToFavorite()
+            }
+
+            MyPageContract.SideEffect.NavigateToNotification -> {
+                navigateToNotification()
             }
 
             is MyPageContract.SideEffect.NavigateToPubDetail -> {
@@ -173,7 +178,7 @@ private fun MyPageScreen(
                         .padding(end = 16.dp)
                         .size(24.dp)
                         .noRippleClickable {
-                            // TODO(알림): 알림 목록 화면으로 이동 (화면 구현 후 연결)
+                            onEvent(MyPageContract.Event.OnNotificationClick)
                         },
                 )
             },
