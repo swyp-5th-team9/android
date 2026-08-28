@@ -3,6 +3,7 @@ package org.app.presentation.mypage
 import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,14 +23,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -57,6 +61,7 @@ import org.app.presentation.mypage.component.MyPageFavoriteSection
 import org.app.presentation.mypage.component.MyPageProfileCard
 import org.app.presentation.mypage.component.MyPageSettingCard
 import org.app.presentation.mypage.component.MyPageSettingItem
+import org.app.presentation.mypage.component.MyPageSettingToggle
 import org.app.presentation.mypage.component.MyPageTeamSelectBottomSheet
 import org.app.presentation.mypage.favorite.FavoritePubItem
 
@@ -67,6 +72,7 @@ fun MyPageRoute(
     navigateToReport: () -> Unit,
     navigateToWithdraw: () -> Unit,
     navigateToFavorite: () -> Unit,
+    navigateToNotification: () -> Unit,
     navigateToPubDetail: (pubId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
@@ -110,6 +116,10 @@ fun MyPageRoute(
                 navigateToFavorite()
             }
 
+            MyPageContract.SideEffect.NavigateToNotification -> {
+                navigateToNotification()
+            }
+
             is MyPageContract.SideEffect.NavigateToPubDetail -> {
                 navigateToPubDetail(effect.pubId)
             }
@@ -151,12 +161,35 @@ private fun MyPageScreen(
     val privacyPolicyUrl =
         "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
+    // TODO(알림): UI 전용 로컬 상태. 실제 시스템 알림 권한/서버 설정과 연동 예정.
+    var notificationEnabled by rememberSaveable { mutableStateOf(true) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MoballTheme.colors.backgroundBase),
     ) {
-        MoballTopBar(state = TopBarState.Default(title = "마이페이지"))
+        MoballTopBar(
+            state = TopBarState.Default(title = "마이페이지"),
+            trailingContent = {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(48.dp)
+                        .noRippleClickable {
+                            onEvent(MyPageContract.Event.OnNotificationClick)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_bell),
+                        contentDescription = "알림",
+                        tint = MoballTheme.colors.iconPrimary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            },
+        )
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -221,6 +254,15 @@ private fun MyPageScreen(
                                 title = "제보하기",
                                 subtitle = "잘못된 정보, 앱 오류 신고",
                                 onClick = { onEvent(MyPageContract.Event.OnReportClick) },
+                            ),
+                            MyPageSettingItem(
+                                iconRes = R.drawable.ic_bell,
+                                title = "알림 설정",
+                                subtitle = "권한 설정",
+                                toggle = MyPageSettingToggle(
+                                    checked = notificationEnabled,
+                                    onCheckedChange = { notificationEnabled = it },
+                                ),
                             ),
                             MyPageSettingItem(
                                 iconRes = R.drawable.ic_warning_info,

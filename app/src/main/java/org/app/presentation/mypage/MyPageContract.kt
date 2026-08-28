@@ -24,6 +24,8 @@ interface MyPageContract {
 
         data object OnLogoutClick : Event
 
+        data object OnNotificationClick : Event
+
         data class OnApplyTeams(
             val teams: List<String>,
         ) : Event
@@ -48,6 +50,8 @@ interface MyPageContract {
         data object NavigateToWithdraw : SideEffect
 
         data object NavigateToFavorite : SideEffect
+
+        data object NavigateToNotification : SideEffect
 
         data class NavigateToPubDetail(
             val pubId: String,

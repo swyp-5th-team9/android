@@ -1,6 +1,7 @@
 package org.app.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,18 +30,22 @@ fun MoballButton(
     enabled: Boolean = true,
     backgroundColor: Color = colors.accentPrimary,
     textColor: Color = colors.textPrimary,
+    borderColor: Color? = null,
     disabledBackgroundColor: Color = colors.iconDisabled,
     disabledTextColor: Color = colors.textQuaternary,
 ) {
     val resolvedBackgroundColor = if (enabled) backgroundColor else disabledBackgroundColor
     val resolvedTextColor = if (enabled) textColor else disabledTextColor
+    val buttonShape = RoundedCornerShape(12.dp)
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(buttonShape)
             .background(resolvedBackgroundColor)
-            .then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
+            .then(
+                if (borderColor != null) Modifier.border(1.dp, borderColor, buttonShape) else Modifier,
+            ).then(if (enabled) Modifier.noRippleClickable(onClick = onClick) else Modifier)
             .heightIn(min = 56.dp),
         contentAlignment = Alignment.Center,
     ) {

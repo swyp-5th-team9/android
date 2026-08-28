@@ -37,6 +37,7 @@ fun MoballTopBar(
     state: TopBarState,
     modifier: Modifier = Modifier,
     centerContent: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
 ) {
     Box(
         modifier = modifier
@@ -135,6 +136,8 @@ fun MoballTopBar(
 
                 else -> {}
             }
+
+            trailingContent?.invoke()
         }
     }
 }
