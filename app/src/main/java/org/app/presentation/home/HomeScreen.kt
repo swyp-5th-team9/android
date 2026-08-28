@@ -12,9 +12,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -53,6 +55,7 @@ import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.presentation.home.component.HomeAlertButton
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
@@ -74,6 +77,7 @@ fun HomeRoute(
     onNavigateToSearch: () -> Unit,
     onNavigateToPubFilter: (HomeFilter) -> Unit,
     onNavigateToReport: () -> Unit,
+    onNavigateToNotification: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -87,6 +91,7 @@ fun HomeRoute(
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
             is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+            is HomeContract.SideEffect.NavigateToNotification -> onNavigateToNotification()
             is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter(state.filter)
             is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
             is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
@@ -159,8 +164,6 @@ fun HomeScreen(
         hasLocationPermission = permissions.values.all { it }
     }
 
-    // 펍 상세 등 네비게이션 왕복 시 지도(MapView)가 재생성되므로, 카메라 위치를 저장해 복원한다.
-    // (rememberSaveable 은 백스택 복귀 시 값이 보존된다)
     var savedCameraLat by rememberSaveable { mutableStateOf(Double.NaN) }
     var savedCameraLng by rememberSaveable { mutableStateOf(Double.NaN) }
     var savedCameraZoom by rememberSaveable { mutableStateOf(Double.NaN) }
@@ -169,11 +172,9 @@ fun HomeScreen(
     LaunchedEffect(hasLocationPermission, naverMap) {
         val map = naverMap ?: return@LaunchedEffect
         if (hasSavedCamera) {
-            // 복귀 상황: 저장된 위치를 유지하고 현위치로 카메라가 튀지 않도록 추적만 표시(NoFollow)
             map.locationTrackingMode =
                 if (hasLocationPermission) LocationTrackingMode.NoFollow else LocationTrackingMode.None
         } else if (hasLocationPermission) {
-            // 최초 진입: 현위치로 카메라 이동
             map.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
@@ -283,10 +284,19 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .align(Alignment.TopCenter),
         ) {
-            HomeSearchTextField(
-                onSearchClick = { onEvent(HomeContract.Event.OnSearchBarClick) },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-            )
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HomeSearchTextField(
+                    onSearchClick = { onEvent(HomeContract.Event.OnSearchBarClick) },
+                    modifier = Modifier.weight(1f),
+                )
+                HomeAlertButton(
+                    onClick = { onEvent(HomeContract.Event.OnNotificationClick) },
+                )
+            }
             HomeFilterChipBar(
                 teamChipLabel = state.teamChipLabel,
                 regionChipLabel = state.regionChipLabel,
@@ -384,9 +394,10 @@ fun HomeScreen(
     }
 }
 
-// 마커 아이콘은 종류별로 동일하므로 매 마커마다 재생성하지 않고 한 번만 만들어 재사용한다.
 private val matchPinImage by lazy { OverlayImage.fromResource(R.drawable.img_pin) }
 private val favoritePinImage by lazy { OverlayImage.fromResource(R.drawable.img_favorite) }
+
+private const val FAVORITE_PIN_ASPECT = 180f / 190f
 
 private fun renderPubMarkers(
     context: Context,
@@ -395,7 +406,6 @@ private fun renderPubMarkers(
     currentMarkers: MutableList<Marker>,
     onMarkerClick: (String) -> Unit,
 ) {
-    // PNG 마커는 원본 픽셀 크기로 렌더되므로, 원래 벡터(dp) 크기를 명시해 확대되지 않게 한다.
     val density = context.resources.displayMetrics.density
     val markerSize = (68 * density).toInt()
     currentMarkers.forEach { it.map = null }
@@ -403,12 +413,19 @@ private fun renderPubMarkers(
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            icon = when (pubMarker.type) {
-                PubMarkerType.MATCH -> matchPinImage
-                PubMarkerType.FAVORITE -> favoritePinImage
+            when (pubMarker.type) {
+                PubMarkerType.MATCH -> {
+                    icon = matchPinImage
+                    width = markerSize
+                    height = markerSize
+                }
+
+                PubMarkerType.FAVORITE -> {
+                    icon = favoritePinImage
+                    height = markerSize
+                    width = (markerSize * FAVORITE_PIN_ASPECT).toInt()
+                }
             }
-            width = markerSize
-            height = markerSize
             this.map = map
             setOnClickListener {
                 onMarkerClick(pubMarker.pubId)

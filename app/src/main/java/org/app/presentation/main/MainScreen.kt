@@ -37,6 +37,7 @@ import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.home.pubfilter.navigation.PubFilter
 import org.app.presentation.main.component.MainBottomBar
 import org.app.presentation.mypage.myPageGraph
+import org.app.presentation.notification.navigation.notificationScreen
 import org.app.presentation.onboarding.login.navigation.Login
 import org.app.presentation.onboarding.login.navigation.loginGraph
 import org.app.presentation.onboarding.signup.navigation.SignUpComplete
@@ -211,6 +212,9 @@ private fun MainNavHost(
         )
         scheduleGraph()
         pubDetailGraph(
+            onBack = { appState.navController.popBackStack() },
+        )
+        notificationScreen(
             onBack = { appState.navController.popBackStack() },
         )
         myPageGraph(

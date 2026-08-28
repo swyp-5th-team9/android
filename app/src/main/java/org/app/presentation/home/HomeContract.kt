@@ -58,6 +58,8 @@ interface HomeContract {
     sealed interface Event {
         data object OnSearchBarClick : Event
 
+        data object OnNotificationClick : Event
+
         data object OnMenuFilterClick : Event
 
         data object OnTeamChipClick : Event
@@ -142,6 +144,8 @@ interface HomeContract {
 
     sealed interface SideEffect {
         data object NavigateToSearch : SideEffect
+
+        data object NavigateToNotification : SideEffect
 
         data object NavigateToPubFilter : SideEffect
 

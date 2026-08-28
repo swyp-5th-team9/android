@@ -77,6 +77,9 @@ class HomeViewModel
                 HomeContract.Event.OnSearchBarClick ->
                     postSideEffect(HomeContract.SideEffect.NavigateToSearch)
 
+                HomeContract.Event.OnNotificationClick ->
+                    postSideEffect(HomeContract.SideEffect.NavigateToNotification)
+
                 HomeContract.Event.OnMenuFilterClick ->
                     postSideEffect(HomeContract.SideEffect.NavigateToPubFilter)
 
