@@ -164,8 +164,6 @@ fun HomeScreen(
         hasLocationPermission = permissions.values.all { it }
     }
 
-    // 펍 상세 등 네비게이션 왕복 시 지도(MapView)가 재생성되므로, 카메라 위치를 저장해 복원한다.
-    // (rememberSaveable 은 백스택 복귀 시 값이 보존된다)
     var savedCameraLat by rememberSaveable { mutableStateOf(Double.NaN) }
     var savedCameraLng by rememberSaveable { mutableStateOf(Double.NaN) }
     var savedCameraZoom by rememberSaveable { mutableStateOf(Double.NaN) }
@@ -174,11 +172,9 @@ fun HomeScreen(
     LaunchedEffect(hasLocationPermission, naverMap) {
         val map = naverMap ?: return@LaunchedEffect
         if (hasSavedCamera) {
-            // 복귀 상황: 저장된 위치를 유지하고 현위치로 카메라가 튀지 않도록 추적만 표시(NoFollow)
             map.locationTrackingMode =
                 if (hasLocationPermission) LocationTrackingMode.NoFollow else LocationTrackingMode.None
         } else if (hasLocationPermission) {
-            // 최초 진입: 현위치로 카메라 이동
             map.locationTrackingMode = LocationTrackingMode.Follow
         }
     }
