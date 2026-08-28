@@ -3,6 +3,7 @@ package org.app.presentation.mypage
 import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -171,17 +172,22 @@ private fun MyPageScreen(
         MoballTopBar(
             state = TopBarState.Default(title = "마이페이지"),
             trailingContent = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_bell),
-                    contentDescription = "알림",
-                    tint = MoballTheme.colors.iconPrimary,
+                Box(
                     modifier = Modifier
-                        .padding(end = 16.dp)
-                        .size(24.dp)
+                        .padding(end = 8.dp)
+                        .size(48.dp)
                         .noRippleClickable {
                             onEvent(MyPageContract.Event.OnNotificationClick)
                         },
-                )
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_bell),
+                        contentDescription = "알림",
+                        tint = MoballTheme.colors.iconPrimary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             },
         )
 

@@ -3,19 +3,22 @@ package org.app.presentation.mypage.component
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.app.core.designsystem.theme.MoballTheme
-import org.app.core.extension.noRippleClickable
 
 // Figma Switch 컴포넌트 스펙: 트랙 80x36, 썸(원) 26, 수직 5, 가로 이동 6(off)→48(on)
 private val TrackWidth = 80.dp
@@ -51,7 +54,13 @@ fun NotificationSwitch(
             .size(width = TrackWidth, height = TrackHeight)
             .clip(RoundedCornerShape(20.dp))
             .background(trackColor)
-            .noRippleClickable { onCheckedChange(!checked) },
+            .toggleable(
+                value = checked,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            ),
     ) {
         Box(
             modifier = Modifier
