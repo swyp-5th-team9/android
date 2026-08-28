@@ -9,14 +9,19 @@ import android.content.pm.PackageManager
 import android.graphics.PointF
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +32,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -53,6 +62,7 @@ import com.naver.maps.map.util.FusedLocationSource
 import org.app.core.common.util.CollectSideEffect
 import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.theme.MoballTheme
+import org.app.core.extension.noRippleClickable
 import org.app.presentation.home.component.HomeFilterBottomSheet
 import org.app.presentation.home.component.HomeFilterChipBar
 import org.app.presentation.home.component.HomeMyLocationButton
@@ -74,6 +84,7 @@ fun HomeRoute(
     onNavigateToSearch: () -> Unit,
     onNavigateToPubFilter: (HomeFilter) -> Unit,
     onNavigateToReport: () -> Unit,
+    onNavigateToNotification: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -87,6 +98,7 @@ fun HomeRoute(
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
             is HomeContract.SideEffect.NavigateToSearch -> onNavigateToSearch()
+            is HomeContract.SideEffect.NavigateToNotification -> onNavigateToNotification()
             is HomeContract.SideEffect.NavigateToPubFilter -> onNavigateToPubFilter(state.filter)
             is HomeContract.SideEffect.NavigateToReport -> onNavigateToReport()
             is HomeContract.SideEffect.NavigateToPubDetail -> onNavigateToPubDetail(effect.pubId)
@@ -283,10 +295,19 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .align(Alignment.TopCenter),
         ) {
-            HomeSearchTextField(
-                onSearchClick = { onEvent(HomeContract.Event.OnSearchBarClick) },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-            )
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HomeSearchTextField(
+                    onSearchClick = { onEvent(HomeContract.Event.OnSearchBarClick) },
+                    modifier = Modifier.weight(1f),
+                )
+                HomeAlertButton(
+                    onClick = { onEvent(HomeContract.Event.OnNotificationClick) },
+                )
+            }
             HomeFilterChipBar(
                 teamChipLabel = state.teamChipLabel,
                 regionChipLabel = state.regionChipLabel,
@@ -385,8 +406,45 @@ fun HomeScreen(
 }
 
 // 마커 아이콘은 종류별로 동일하므로 매 마커마다 재생성하지 않고 한 번만 만들어 재사용한다.
+
+/** 홈 상단 검색바 우측의 알림 버튼 (56dp 흰색 원형, 검색바와 동일한 그림자) */
+@Composable
+private fun HomeAlertButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .shadow(
+                elevation = 3.dp,
+                shape = CircleShape,
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000),
+            ).shadow(
+                elevation = 4.dp,
+                shape = CircleShape,
+                spotColor = Color(0x14000000),
+                ambientColor = Color(0x14000000),
+            ).background(color = MoballTheme.colors.backgroundBase, shape = CircleShape)
+            .noRippleClickable(onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_bell),
+            contentDescription = "알림",
+            tint = MoballTheme.colors.iconPrimary,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+}
+
 private val matchPinImage by lazy { OverlayImage.fromResource(R.drawable.img_pin) }
 private val favoritePinImage by lazy { OverlayImage.fromResource(R.drawable.img_favorite) }
+
+// 찜 마커 원본(img_favorite 180x190)은 정사각이 아니라, 정사각으로 강제하면 가로로 찌그러진다.
+// 야구펍 마커(img_pin 204x204)와 높이를 맞추고 너비는 원본 비율을 유지한다.
+private const val FAVORITE_PIN_ASPECT = 180f / 190f
 
 private fun renderPubMarkers(
     context: Context,
@@ -403,12 +461,20 @@ private fun renderPubMarkers(
     markers.forEach { pubMarker ->
         val marker = Marker().apply {
             position = LatLng(pubMarker.latitude, pubMarker.longitude)
-            icon = when (pubMarker.type) {
-                PubMarkerType.MATCH -> matchPinImage
-                PubMarkerType.FAVORITE -> favoritePinImage
+            when (pubMarker.type) {
+                PubMarkerType.MATCH -> {
+                    icon = matchPinImage
+                    width = markerSize
+                    height = markerSize
+                }
+
+                PubMarkerType.FAVORITE -> {
+                    icon = favoritePinImage
+                    // 높이는 야구펍 마커와 동일, 너비만 원본 비율 유지(가로 찌그러짐 방지)
+                    height = markerSize
+                    width = (markerSize * FAVORITE_PIN_ASPECT).toInt()
+                }
             }
-            width = markerSize
-            height = markerSize
             this.map = map
             setOnClickListener {
                 onMarkerClick(pubMarker.pubId)

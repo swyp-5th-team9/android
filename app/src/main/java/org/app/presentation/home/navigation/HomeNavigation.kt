@@ -23,6 +23,7 @@ import org.app.presentation.home.homesearch.navigation.navigateToHomeSearch
 import org.app.presentation.home.pubfilter.navigation.navigateToPubFilter
 import org.app.presentation.home.pubfilter.navigation.pubFilterScreen
 import org.app.presentation.mypage.report.ReportRoute
+import org.app.presentation.notification.navigation.navigateToNotification
 
 fun NavController.navigateToHome(navOptions: NavOptions? = null) = navigate(HomeGraph, navOptions)
 
@@ -105,6 +106,7 @@ fun NavGraphBuilder.homeGraph(
                 onNavigateToSearch = { navController.navigateToHomeSearch() },
                 onNavigateToPubFilter = { filter -> navController.navigateToPubFilter(filter) },
                 onNavigateToReport = { navController.navigate(HomeReport) },
+                onNavigateToNotification = { navController.navigateToNotification() },
                 viewModel = homeViewModel,
             )
         }
