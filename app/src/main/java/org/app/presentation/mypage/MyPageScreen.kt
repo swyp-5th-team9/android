@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -160,7 +161,7 @@ private fun MyPageScreen(
         "https://puzzle-visor-003.notion.site/390b8196eb4880b881f7f5641e7fc72f?source=copy_link"
 
     // TODO(알림): UI 전용 로컬 상태. 실제 시스템 알림 권한/서버 설정과 연동 예정.
-    var notificationEnabled by remember { mutableStateOf(true) }
+    var notificationEnabled by rememberSaveable { mutableStateOf(true) }
 
     Column(
         modifier = modifier
