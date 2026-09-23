@@ -37,6 +37,7 @@ interface NotificationContract {
         data class NavigateToPubs(
             val teamIds: List<Long>,
             val businessDay: String?,
+            val moveToMyLocation: Boolean,
         ) : SideEffect
 
         data class ShowToast(

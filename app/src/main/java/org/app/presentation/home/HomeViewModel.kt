@@ -125,6 +125,9 @@ class HomeViewModel
                     loadFavoritePubIds()
                 }
 
+                HomeContract.Event.OnMoveToMyLocation ->
+                    postSideEffect(HomeContract.SideEffect.MoveCameraToMyLocation)
+
                 is HomeContract.Event.OnMapBoundsChanged -> {
                     currentSwLat = event.swLat
                     currentSwLng = event.swLng

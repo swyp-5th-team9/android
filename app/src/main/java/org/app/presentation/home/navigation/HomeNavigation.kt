@@ -101,6 +101,17 @@ fun NavGraphBuilder.homeGraph(
                 }
             }
 
+            val moveToMyLocation by savedStateHandle
+                .getStateFlow("home_move_to_my_location", false)
+                .collectAsStateWithLifecycle()
+
+            LaunchedEffect(moveToMyLocation) {
+                if (moveToMyLocation) {
+                    homeViewModel.onEvent(HomeContract.Event.OnMoveToMyLocation)
+                    savedStateHandle["home_move_to_my_location"] = false
+                }
+            }
+
             HomeRoute(
                 onNavigateToPubDetail = navigateToPubDetail,
                 onNavigateToSearch = { navController.navigateToHomeSearch() },

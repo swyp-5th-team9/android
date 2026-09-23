@@ -13,7 +13,7 @@ fun NavController.navigateToNotification() = navigate(Notification)
 
 fun NavGraphBuilder.notificationScreen(
     onBack: () -> Unit,
-    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?) -> Unit,
+    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?, moveToMyLocation: Boolean) -> Unit,
 ) {
     composable<Notification> {
         NotificationRoute(

@@ -95,7 +95,7 @@ fun MainScreen(
     LaunchedEffect(deepLink, currentTab) {
         val request = deepLink ?: return@LaunchedEffect
         if (currentTab == null) return@LaunchedEffect
-        appState.applyPubDeepLink(request.teamIds, request.businessDay)
+        appState.applyPubDeepLink(request.teamIds, request.businessDay, request.moveToMyLocation)
         onDeepLinkHandled()
     }
 
