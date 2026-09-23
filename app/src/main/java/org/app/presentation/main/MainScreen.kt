@@ -32,6 +32,7 @@ import org.app.core.designsystem.component.LocalMoballToastHostState
 import org.app.core.designsystem.component.MoballToastHost
 import org.app.core.designsystem.component.rememberMoballToastHostState
 import org.app.core.notification.RequestNotificationPermissionEffect
+import org.app.presentation.home.navigation.Home
 import org.app.presentation.home.navigation.HomeGraph
 import org.app.presentation.home.navigation.homeGraph
 import org.app.presentation.home.pubfilter.navigation.PubFilter
@@ -216,6 +217,23 @@ private fun MainNavHost(
         )
         notificationScreen(
             onBack = { appState.navController.popBackStack() },
+            onNavigateToPubs = { teamIds, businessDay ->
+                // 홈 탭으로 이동한 뒤, 홈이 관찰하는 savedStateHandle에 필터를 전달한다.
+                // (펍 필터 화면이 결과를 넘기는 것과 동일한 메커니즘)
+                appState.navigate(MainTab.HOME)
+                appState.navController.getBackStackEntry(Home).savedStateHandle.apply {
+                    set("pub_filter_team_ids", ArrayList(teamIds))
+                    set("pub_filter_team_names", ArrayList<String>())
+                    set("pub_filter_regions", ArrayList<String>())
+                    set("pub_filter_open_now", false)
+                    set("pub_filter_business_day", businessDay)
+                    set("pub_filter_facility_codes", ArrayList<String>())
+                    set("pub_filter_style_codes", ArrayList<String>())
+                    set("pub_filter_theme_codes", ArrayList<String>())
+                    set("pub_filter_food_codes", ArrayList<String>())
+                    set("pub_filter_applied", true)
+                }
+            },
         )
         myPageGraph(
             navController = appState.navController,

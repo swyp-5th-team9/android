@@ -34,6 +34,7 @@ import org.app.presentation.notification.component.NotificationItemCard
 @Composable
 fun NotificationRoute(
     onBack: () -> Unit,
+    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: NotificationViewModel = hiltViewModel(),
 ) {
@@ -44,6 +45,8 @@ fun NotificationRoute(
     CollectSideEffect(viewModel.sideEffect) { effect ->
         when (effect) {
             NotificationContract.SideEffect.NavigateBack -> onBack()
+            is NotificationContract.SideEffect.NavigateToPubs ->
+                onNavigateToPubs(effect.teamIds, effect.businessDay)
             is NotificationContract.SideEffect.ShowToast -> toastHostState.show(effect.message)
         }
     }
@@ -51,6 +54,7 @@ fun NotificationRoute(
     NotificationScreen(
         state = state,
         onBackClick = { viewModel.onEvent(NotificationContract.Event.OnBackClick) },
+        onItemClick = { viewModel.onEvent(NotificationContract.Event.OnItemClick(it)) },
         onDeleteRequest = { deleteTargetId = it },
         modifier = modifier,
     )
@@ -70,6 +74,7 @@ fun NotificationRoute(
 private fun NotificationScreen(
     state: NotificationContract.State,
     onBackClick: () -> Unit,
+    onItemClick: (Long) -> Unit,
     onDeleteRequest: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -106,6 +111,7 @@ private fun NotificationScreen(
                     items(state.items, key = { it.id }) { item ->
                         NotificationItemCard(
                             item = item,
+                            onClick = { onItemClick(item.id) },
                             onMoreClick = { onDeleteRequest(item.id) },
                         )
                     }
@@ -137,6 +143,7 @@ private fun NotificationScreenPreview() {
                 ),
             ),
             onBackClick = {},
+            onItemClick = {},
             onDeleteRequest = {},
         )
     }
@@ -149,6 +156,7 @@ private fun NotificationScreenEmptyPreview() {
         NotificationScreen(
             state = NotificationContract.State(items = persistentListOf()),
             onBackClick = {},
+            onItemClick = {},
             onDeleteRequest = {},
         )
     }

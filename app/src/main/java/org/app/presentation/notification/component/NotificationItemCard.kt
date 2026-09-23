@@ -32,11 +32,14 @@ import org.app.presentation.notification.NotificationItem
 @Composable
 fun NotificationItemCard(
     item: NotificationItem,
+    onClick: () -> Unit,
     onMoreClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .noRippleClickable(onClick),
         shape = RoundedCornerShape(16.dp),
         color = MoballTheme.colors.backgroundPage,
         shadowElevation = 2.dp,
@@ -96,6 +99,7 @@ private fun NotificationItemCardPreview() {
                     message = "LG 트윈스 경기가 오늘 오후 6시에 있어요!",
                     date = "8월 15일",
                 ),
+                onClick = {},
                 onMoreClick = {},
             )
         }
