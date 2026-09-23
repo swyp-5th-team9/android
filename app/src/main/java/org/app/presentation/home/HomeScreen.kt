@@ -105,6 +105,9 @@ fun HomeRoute(
                 }
             }
 
+            is HomeContract.SideEffect.MoveCameraToMyLocation ->
+                naverMap?.locationTrackingMode = LocationTrackingMode.Follow
+
             is HomeContract.SideEffect.ShowToast ->
                 toastHostState.show(effect.message)
 

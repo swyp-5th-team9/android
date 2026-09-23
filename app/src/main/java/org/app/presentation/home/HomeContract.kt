@@ -81,6 +81,9 @@ interface HomeContract {
         /** 화면 재진입(ON_RESUME) 시 응원 구단·찜 목록 갱신 */
         data object OnRefresh : Event
 
+        /** 알림 NEARBY_PUBS 딥링크 등: 지도를 내 위치 중심으로 이동 */
+        data object OnMoveToMyLocation : Event
+
         data class OnMapBoundsChanged(
             val swLat: Double,
             val swLng: Double,
@@ -158,6 +161,9 @@ interface HomeContract {
         data class MoveCameraToBounds(
             val points: List<Pair<Double, Double>>,
         ) : SideEffect
+
+        /** 지도를 내 위치 중심으로 이동 (위치 추적 Follow) */
+        data object MoveCameraToMyLocation : SideEffect
 
         data class ShowToast(
             val message: String,

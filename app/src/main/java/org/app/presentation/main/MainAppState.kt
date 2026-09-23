@@ -94,6 +94,7 @@ class MainAppState(
     fun applyPubDeepLink(
         teamIds: List<Long>,
         businessDay: String?,
+        moveToMyLocation: Boolean = false,
     ) {
         navigate(MainTab.HOME)
         navController.getBackStackEntry(Home).savedStateHandle.apply {
@@ -107,6 +108,7 @@ class MainAppState(
             set("pub_filter_theme_codes", ArrayList<String>())
             set("pub_filter_food_codes", ArrayList<String>())
             set("pub_filter_applied", true)
+            if (moveToMyLocation) set("home_move_to_my_location", true)
         }
     }
 }

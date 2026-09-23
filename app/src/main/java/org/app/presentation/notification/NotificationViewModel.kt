@@ -87,6 +87,7 @@ class NotificationViewModel
                 NotificationContract.SideEffect.NavigateToPubs(
                     teamIds = request.teamIds,
                     businessDay = request.businessDay,
+                    moveToMyLocation = request.moveToMyLocation,
                 ),
             )
         }

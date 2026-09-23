@@ -36,6 +36,10 @@ object NotificationDeepLink {
                 NotificationDeepLinkType.TOMORROW_GAME -> weekdayCodeOf(LocalDate.now(KST_ZONE).plusDays(1))
                 NotificationDeepLinkType.UNKNOWN -> null
             }
+
+        /** NEARBY_PUBS는 홈 지도를 내 위치 중심으로 이동시킨다. */
+        val moveToMyLocation: Boolean
+            get() = deepLinkType == NotificationDeepLinkType.NEARBY_PUBS
     }
 
     /** deepLinkType/teamIds로 [Request] 생성. 미정의 타입이면 null. */

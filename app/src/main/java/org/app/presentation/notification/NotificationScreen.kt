@@ -34,7 +34,7 @@ import org.app.presentation.notification.component.NotificationItemCard
 @Composable
 fun NotificationRoute(
     onBack: () -> Unit,
-    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?) -> Unit,
+    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?, moveToMyLocation: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: NotificationViewModel = hiltViewModel(),
 ) {
@@ -46,7 +46,7 @@ fun NotificationRoute(
         when (effect) {
             NotificationContract.SideEffect.NavigateBack -> onBack()
             is NotificationContract.SideEffect.NavigateToPubs ->
-                onNavigateToPubs(effect.teamIds, effect.businessDay)
+                onNavigateToPubs(effect.teamIds, effect.businessDay, effect.moveToMyLocation)
             is NotificationContract.SideEffect.ShowToast -> toastHostState.show(effect.message)
         }
     }
