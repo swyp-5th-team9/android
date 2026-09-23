@@ -1,16 +1,27 @@
 package org.app.presentation.notification
 
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
+import org.app.core.network.isHttpNotFound
+import org.app.data.model.Notification
+import org.app.data.repository.api.NotificationRepository
+import timber.log.Timber
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
+
+private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
 
 @HiltViewModel
 class NotificationViewModel
     @Inject
-    constructor() :
-    BaseViewModel<NotificationContract.State, NotificationContract.Event, NotificationContract.SideEffect>(
+    constructor(
+        private val notificationRepository: NotificationRepository,
+    ) : BaseViewModel<NotificationContract.State, NotificationContract.Event, NotificationContract.SideEffect>(
             NotificationContract.State(),
         ) {
         init {
@@ -22,34 +33,78 @@ class NotificationViewModel
                 NotificationContract.Event.OnBackClick ->
                     postSideEffect(NotificationContract.SideEffect.NavigateBack)
 
-                is NotificationContract.Event.OnDeleteClick -> {
-                    setState {
-                        copy(items = items.filterNot { it.id == event.id }.toImmutableList())
-                    }
-                    postSideEffect(NotificationContract.SideEffect.ShowToast("알림 삭제가 완료되었어요."))
-                }
+                is NotificationContract.Event.OnItemClick -> markAsRead(event.id)
+
+                is NotificationContract.Event.OnDeleteClick -> deleteNotification(event.id)
             }
         }
 
         private fun loadNotifications() {
-            // TODO(알림): 서버 연동 전 임시 더미 데이터. 실제로는 알림 Repository에서 로드한다.
-            setState {
-                copy(
-                    items = persistentListOf(
-                        NotificationItem(
-                            id = 1L,
-                            title = "경기 일정 알림",
-                            message = "LG 트윈스 경기가 오늘 오후 6시에 있어요!",
-                            date = "8월 15일",
-                        ),
-                        NotificationItem(
-                            id = 2L,
-                            title = "경기 시작 알림",
-                            message = "잠시 후 6시 30분에 경기가 시작돼요. 상영 펍을 확인해보세요!",
-                            date = "8월 14일",
-                        ),
-                    ),
-                )
+            viewModelScope.launch {
+                setState { copy(isLoading = true) }
+                notificationRepository
+                    .getNotifications()
+                    .onSuccess { notifications ->
+                        setState {
+                            copy(
+                                items = notifications.map { it.toNotificationItem() }.toImmutableList(),
+                                isLoading = false,
+                            )
+                        }
+                    }.onFailure {
+                        Timber.e("알림 목록 로드 실패: $it")
+                        setState { copy(isLoading = false) }
+                    }
             }
         }
+
+        /** 알림 읽음 처리 (멱등). 로컬 상태를 먼저 갱신하고 서버에 반영한다. */
+        private fun markAsRead(id: Long) {
+            if (currentState.items.firstOrNull { it.id == id }?.isRead == true) return
+            setState {
+                copy(items = items.map { if (it.id == id) it.copy(isRead = true) else it }.toImmutableList())
+            }
+            viewModelScope.launch {
+                notificationRepository
+                    .readNotification(id)
+                    .onFailure { Timber.e("알림 읽음 처리 실패: $it") }
+            }
+        }
+
+        private fun deleteNotification(id: Long) {
+            viewModelScope.launch {
+                notificationRepository
+                    .deleteNotification(id)
+                    .onSuccess { removeItem(id) }
+                    .onFailure { throwable ->
+                        // 이미 삭제된 알림(404)은 성공과 동일하게 목록에서 제거한다.
+                        if (throwable.isHttpNotFound()) {
+                            removeItem(id)
+                        } else {
+                            Timber.e("알림 삭제 실패: $throwable")
+                            postSideEffect(NotificationContract.SideEffect.ShowToast("알림 삭제에 실패했어요."))
+                        }
+                    }
+            }
+        }
+
+        private fun removeItem(id: Long) {
+            setState { copy(items = items.filterNot { it.id == id }.toImmutableList()) }
+            postSideEffect(NotificationContract.SideEffect.ShowToast("알림 삭제가 완료되었어요."))
+        }
     }
+
+private fun Notification.toNotificationItem(): NotificationItem =
+    NotificationItem(
+        id = id,
+        title = title,
+        message = content,
+        date = createdAt?.toDisplayDate().orEmpty(),
+        isRead = isRead,
+        matchId = matchId,
+        teamIds = teamIds,
+        deepLinkType = deepLinkType,
+    )
+
+// TODO(#69): 기획 Q2(발송 시점 기준 표기 규칙) 확정되면 상대 시간 등으로 세분화
+private fun OffsetDateTime.toDisplayDate(): String = format(DATE_FORMATTER)
