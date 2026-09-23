@@ -7,14 +7,21 @@ import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.core.network.isHttpNotFound
 import org.app.data.model.Notification
+import org.app.data.model.NotificationDeepLinkType
 import org.app.data.repository.api.NotificationRepository
 import timber.log.Timber
+import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
 private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
+private val KST_ZONE = ZoneId.of("Asia/Seoul")
+
+// 서버 businessDay 요일 코드 (월~일). DayOfWeek.value(1=월..7=일) - 1 인덱스.
+private val WEEKDAY_CODES = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 
 @HiltViewModel
 class NotificationViewModel
@@ -33,7 +40,7 @@ class NotificationViewModel
                 NotificationContract.Event.OnBackClick ->
                     postSideEffect(NotificationContract.SideEffect.NavigateBack)
 
-                is NotificationContract.Event.OnItemClick -> markAsRead(event.id)
+                is NotificationContract.Event.OnItemClick -> onItemClick(event.id)
 
                 is NotificationContract.Event.OnDeleteClick -> deleteNotification(event.id)
             }
@@ -58,17 +65,44 @@ class NotificationViewModel
             }
         }
 
+        /** 카드 클릭: 읽음 처리 후 deepLinkType에 맞는 화면으로 이동한다. */
+        private fun onItemClick(id: Long) {
+            val item = currentState.items.firstOrNull { it.id == id } ?: return
+            markAsRead(item)
+            navigateForDeepLink(item)
+        }
+
         /** 알림 읽음 처리 (멱등). 로컬 상태를 먼저 갱신하고 서버에 반영한다. */
-        private fun markAsRead(id: Long) {
-            if (currentState.items.firstOrNull { it.id == id }?.isRead == true) return
-            setState {
-                copy(items = items.map { if (it.id == id) it.copy(isRead = true) else it }.toImmutableList())
+        private fun markAsRead(item: NotificationItem) {
+            if (!item.isRead) {
+                setState {
+                    copy(items = items.map { if (it.id == item.id) it.copy(isRead = true) else it }.toImmutableList())
+                }
             }
             viewModelScope.launch {
                 notificationRepository
-                    .readNotification(id)
+                    .readNotification(item.id)
                     .onFailure { Timber.e("알림 읽음 처리 실패: $it") }
             }
+        }
+
+        /** deepLinkType별 이동. 미정의(UNKNOWN)는 이동하지 않는다. */
+        private fun navigateForDeepLink(item: NotificationItem) {
+            val businessDay = when (item.deepLinkType) {
+                // 당일 경기 관련 → 오늘 요일
+                NotificationDeepLinkType.TODAY_PUBS,
+                NotificationDeepLinkType.NEARBY_PUBS,
+                -> weekdayCodeOf(LocalDate.now(KST_ZONE))
+                // 내일 경기 관련 → 내일 요일
+                NotificationDeepLinkType.TOMORROW_GAME -> weekdayCodeOf(LocalDate.now(KST_ZONE).plusDays(1))
+                NotificationDeepLinkType.UNKNOWN -> return
+            }
+            postSideEffect(
+                NotificationContract.SideEffect.NavigateToPubs(
+                    teamIds = item.teamIds,
+                    businessDay = businessDay,
+                ),
+            )
         }
 
         private fun deleteNotification(id: Long) {
@@ -108,3 +142,5 @@ private fun Notification.toNotificationItem(): NotificationItem =
 
 // TODO(#69): 기획 Q2(발송 시점 기준 표기 규칙) 확정되면 상대 시간 등으로 세분화
 private fun OffsetDateTime.toDisplayDate(): String = format(DATE_FORMATTER)
+
+private fun weekdayCodeOf(date: LocalDate): String = WEEKDAY_CODES[date.dayOfWeek.value - 1]

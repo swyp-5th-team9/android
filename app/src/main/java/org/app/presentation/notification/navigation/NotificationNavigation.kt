@@ -11,8 +11,14 @@ data object Notification
 
 fun NavController.navigateToNotification() = navigate(Notification)
 
-fun NavGraphBuilder.notificationScreen(onBack: () -> Unit) {
+fun NavGraphBuilder.notificationScreen(
+    onBack: () -> Unit,
+    onNavigateToPubs: (teamIds: List<Long>, businessDay: String?) -> Unit,
+) {
     composable<Notification> {
-        NotificationRoute(onBack = onBack)
+        NotificationRoute(
+            onBack = onBack,
+            onNavigateToPubs = onNavigateToPubs,
+        )
     }
 }

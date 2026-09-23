@@ -30,6 +30,15 @@ interface NotificationContract {
     sealed interface SideEffect {
         data object NavigateBack : SideEffect
 
+        /**
+         * 알림 딥링크 → 홈 펍 리스트/지도로 이동.
+         * [teamIds](경기 홈+원정)와 [businessDay](오늘/내일 요일 서버코드)를 필터로 적용한다.
+         */
+        data class NavigateToPubs(
+            val teamIds: List<Long>,
+            val businessDay: String?,
+        ) : SideEffect
+
         data class ShowToast(
             val message: String,
         ) : SideEffect
