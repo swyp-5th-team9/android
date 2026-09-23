@@ -6,22 +6,16 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.app.core.common.base.BaseViewModel
 import org.app.core.network.isHttpNotFound
+import org.app.core.notification.NotificationDeepLink
 import org.app.data.model.Notification
-import org.app.data.model.NotificationDeepLinkType
 import org.app.data.repository.api.NotificationRepository
 import timber.log.Timber
-import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
 private val DATE_FORMATTER = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
-private val KST_ZONE = ZoneId.of("Asia/Seoul")
-
-// 서버 businessDay 요일 코드 (월~일). DayOfWeek.value(1=월..7=일) - 1 인덱스.
-private val WEEKDAY_CODES = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
 
 @HiltViewModel
 class NotificationViewModel
@@ -88,19 +82,11 @@ class NotificationViewModel
 
         /** deepLinkType별 이동. 미정의(UNKNOWN)는 이동하지 않는다. */
         private fun navigateForDeepLink(item: NotificationItem) {
-            val businessDay = when (item.deepLinkType) {
-                // 당일 경기 관련 → 오늘 요일
-                NotificationDeepLinkType.TODAY_PUBS,
-                NotificationDeepLinkType.NEARBY_PUBS,
-                -> weekdayCodeOf(LocalDate.now(KST_ZONE))
-                // 내일 경기 관련 → 내일 요일
-                NotificationDeepLinkType.TOMORROW_GAME -> weekdayCodeOf(LocalDate.now(KST_ZONE).plusDays(1))
-                NotificationDeepLinkType.UNKNOWN -> return
-            }
+            val request = NotificationDeepLink.of(item.deepLinkType, item.teamIds) ?: return
             postSideEffect(
                 NotificationContract.SideEffect.NavigateToPubs(
-                    teamIds = item.teamIds,
-                    businessDay = businessDay,
+                    teamIds = request.teamIds,
+                    businessDay = request.businessDay,
                 ),
             )
         }
@@ -142,5 +128,3 @@ private fun Notification.toNotificationItem(): NotificationItem =
 
 // TODO(#69): 기획 Q2(발송 시점 기준 표기 규칙) 확정되면 상대 시간 등으로 세분화
 private fun OffsetDateTime.toDisplayDate(): String = format(DATE_FORMATTER)
-
-private fun weekdayCodeOf(date: LocalDate): String = WEEKDAY_CODES[date.dayOfWeek.value - 1]

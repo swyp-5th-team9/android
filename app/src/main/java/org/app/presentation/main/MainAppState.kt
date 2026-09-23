@@ -86,6 +86,29 @@ class MainAppState(
     fun updateBottomBarVisible(isVisible: Boolean) {
         shouldShowBottomBar.value = isVisible
     }
+
+    /**
+     * 알림 딥링크: 홈 탭으로 이동한 뒤, 홈이 관찰하는 savedStateHandle에 펍 필터를 전달한다.
+     * (펍 필터 화면이 결과를 넘기는 것과 동일 메커니즘 — 인앱 알림 카드 탭/FCM 푸시 탭 공용)
+     */
+    fun applyPubDeepLink(
+        teamIds: List<Long>,
+        businessDay: String?,
+    ) {
+        navigate(MainTab.HOME)
+        navController.getBackStackEntry(Home).savedStateHandle.apply {
+            set("pub_filter_team_ids", ArrayList(teamIds))
+            set("pub_filter_team_names", ArrayList<String>())
+            set("pub_filter_regions", ArrayList<String>())
+            set("pub_filter_open_now", false)
+            set("pub_filter_business_day", businessDay)
+            set("pub_filter_facility_codes", ArrayList<String>())
+            set("pub_filter_style_codes", ArrayList<String>())
+            set("pub_filter_theme_codes", ArrayList<String>())
+            set("pub_filter_food_codes", ArrayList<String>())
+            set("pub_filter_applied", true)
+        }
+    }
 }
 
 @Composable

@@ -33,6 +33,11 @@ class MoballMessagingService : FirebaseMessagingService() {
         val title = message.notification?.title ?: message.data["title"]
         val body = message.notification?.body ?: message.data["body"]
         Timber.d("FCM onMessageReceived: title=%s", title)
-        notifier.show(title = title, body = body)
+        notifier.show(
+            title = title,
+            body = body,
+            deepLinkType = message.data[NotificationDeepLink.EXTRA_DEEP_LINK_TYPE],
+            teamIds = message.data[NotificationDeepLink.EXTRA_TEAM_IDS],
+        )
     }
 }
