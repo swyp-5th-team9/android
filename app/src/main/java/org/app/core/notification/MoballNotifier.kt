@@ -21,7 +21,7 @@ import kotlin.random.Random
  * 서버가 notification 페이로드로 보내면(=앱이 백그라운드) FCM SDK가 자동으로 표시하지만,
  * 앱이 포그라운드이거나 data-only 메시지인 경우엔 [MoballMessagingService]에서 이 클래스로 직접 표시한다.
  *
- * 탭 동작: 별도 딥링크 없이 [MainActivity]만 실행한다. (추후 payload 기반 딥링크 확장 지점)
+ * 탭 동작: deepLinkType/teamIds가 있으면 Intent extras로 실어 [MainActivity]가 딥링크 라우팅한다.
  */
 @Singleton
 class MoballNotifier
@@ -32,6 +32,8 @@ class MoballNotifier
         fun show(
             title: String?,
             body: String?,
+            deepLinkType: String? = null,
+            teamIds: String? = null,
         ) {
             // Android 13+ 에서 권한이 없으면 조용히 무시 (권한 요청은 UI 레이어 담당)
             if (ContextCompat.checkSelfPermission(
@@ -44,10 +46,13 @@ class MoballNotifier
 
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                NotificationDeepLink.putExtras(this, deepLinkType, teamIds)
             }
+            // 알림마다 고유 id를 써서 서로 다른 딥링크 extras가 덮어써지지 않도록 한다.
+            val notificationId = Random.nextInt()
             val pendingIntent = PendingIntent.getActivity(
                 context,
-                0,
+                notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
@@ -67,6 +72,6 @@ class MoballNotifier
                 .setContentIntent(pendingIntent)
                 .build()
 
-            NotificationManagerCompat.from(context).notify(Random.nextInt(), notification)
+            NotificationManagerCompat.from(context).notify(notificationId, notification)
         }
     }
